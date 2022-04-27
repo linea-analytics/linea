@@ -571,11 +571,19 @@ trans_bucket = function(model = NULL,
   
   # test    ####
   
+  library(linea)
+  library(dplyr)
+  
   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
   dv = 'ecommerce'
   ivs = c('christmas','black.friday')
   
+  
+  r2_diff = T
   model = run_model(data = data,dv = dv,ivs = ivs)
+  
+  rm(dv,ivs)
+  
   
   trans_df = data.frame(
     name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
@@ -592,13 +600,13 @@ trans_bucket = function(model = NULL,
     order = 1:8
   ) %>%
     dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
-                                       '(1,5,50),(1 ,5,50) ,( 1,5,50)',
+                                       '(1,5,50),(1,5,50),( 1,5,50)',
                                        '')) %>%
     dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
-                                       '.1,.5,.9, 10 ',
+                                       '.1,.5, 10 ',
                                        '')) %>% 
     dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
-                                                '.1,.5,.8 ',
+                                                '.1,.7 ',
                                                 online_media)) %>% 
     dplyr::mutate(promo = '')
   
@@ -693,7 +701,8 @@ trans_bucket = function(model = NULL,
   # clean trans_df
   trans_df = trans_df %>%
     apply(2,function(x)gsub(' ', '',x)) %>% 
-    as.data.frame()
+    as.data.frame() %>%
+    select(where(~!all(. == ""))) 
   # TODO drop cols where all rows == '' (blank) ?
 
   
@@ -781,26 +790,33 @@ trans_bucket = function(model = NULL,
     coef = 0
   ))
 
-  m = model$model_table[0,]
+  
   
   
   # for each combo
+  ## generate variable (OPTIMISE - do not create variables twice)
+  ## generate model
   for(i in 1:nrow(master_combo_df)){
     # i = 1
+    
+    print(paste0('i - ',i))
+    
+    m = model$model_table
     
     # for each var
     for(var in vars){
       
-      # var = vars[2]
+      # var = vars[1]
+      print(paste0('var - ',var))
       
       var_t_name = var
       data[,'temp_var'] = data[,var]
       
       temp_trans_df = long_trans_df[long_trans_df$variable == var,]
       
-      # if(length(temp_trans_df)==0){
-      #   next
-      # }
+      if(nrow(temp_trans_df)==0){
+        next
+      }
       
       fs_name = temp_trans_df %>% arrange(order) %>% pull(name) %>% unique()
       fs = temp_trans_df %>% arrange(order) %>% pull(func) %>% unique()
@@ -809,6 +825,8 @@ trans_bucket = function(model = NULL,
       # for each trans
       for(j in 1:length(fs_name)){
         # j = 1
+        
+        print(paste0('j - ',j))
         
         f_name = fs_name[j]
         
@@ -834,7 +852,7 @@ trans_bucket = function(model = NULL,
         }
         
         
-        m[1,f_name] = vals %>% paste0(collapse = ',')
+        # m[1,f_name] = vals %>% paste0(collapse = ',')
         
         f = fs[j]
         
@@ -858,30 +876,33 @@ trans_bucket = function(model = NULL,
       data[,'temp_var'] = NULL
       # print('_______________')
       
-      m[1,'variable'] = var
-      m[1,'variable_t'] = var_t_name
-      m = m %>%
+      m = m %>% 
+        bind_rows(
+          tibble(
+            variable = var,
+            variable_t = var_t_name
+          )
+        ) %>%
         zoo::na.fill('') %>%
-        as.data.frame() %>%
-        bind_rows(model$model_table)
+        as.data.frame()
       
     }
     
    
     ivs_t = m %>% select(variable_t)
     # build formula object
-    formula = build_formula(dv = dv, ivs = ivs_t)# run model
+    formula = build_formula(dv = model$dv, ivs = ivs_t)# run model
     
     # print(var_t_name %in% colnames(data))
     
     model_temp = lm(formula = formula,
                     data = data) %>% TRY()
     
+    print(model_temp)
     
     # if model failed
     if(is.null(model_temp)) {
       # fill row with empty
-      print(paste0(var_t_name,' - NOPE'))
       row = list(0,0,0)
       
     } else{
@@ -903,7 +924,7 @@ trans_bucket = function(model = NULL,
       
       row = list(adj_R2,t_stat,coef)
       
-      output_df[i,(ncol(output_df)-3):(ncol(output_df))] = row
+      output_df[i,(ncol(output_df)-2):(ncol(output_df))] = row
       
     }
   }
@@ -915,8 +936,7 @@ trans_bucket = function(model = NULL,
     output_df = output_df %>%
       mutate(m0_adj_R2 = m0_adj_R2) %>%
       mutate(adj_R2_diff = (adj_R2 - m0_adj_R2)/m0_adj_R2) %>%
-      select(-m0_adj_R2) %>%
-      mutate()
+      select(-m0_adj_R2)
   }
   
   return(output_df %>% arrange(-adj_R2))
