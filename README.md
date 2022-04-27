@@ -1,3 +1,3 @@
-# linea
+<img src="https://raw.githubusercontent.com/paladinic/data/main/logo.pngg" width="200px"/>
 
-`linea` is an R library, designed as an interface to accelerate linear regression modelling and visualization. The library allows to run and visualise simple models very quickly, while also allowing users to build more complex model specification through custom transformations.
+`linea` is an R library, designed as an interface to accelerate linear regression modelling and visualization. The library allows to run and visualize simple models very quickly, while also allowing users to build more complex model specification through custom transformations.
