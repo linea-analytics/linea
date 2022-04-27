@@ -3,8 +3,8 @@ Title: Linear Regression Interface
 Version: 0.0.1
 Authors@R:
     person("Claudio", "Paladini", , "clode.paladini@gmail.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: An interface to accelerate linear regression modelling and visualisation.
+           comment = c(ORCID = "0000-0002-5551-1380"))
+Description: An interface to accelerate linear regression modelling.
 License: GPL-3
 Encoding: UTF-8
 Imports: anytime,
