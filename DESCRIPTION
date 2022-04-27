@@ -1,0 +1,35 @@
+Package: linea
+Title: Linear Regression Interface
+Version: 0.0.1
+Authors@R:
+    person("Claudio", "Paladini", , "clode.paladini@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: An interface to accelerate linear regression modelling and visualisation.
+License: GPL-3
+Encoding: UTF-8
+Imports: anytime,
+  dplyr ,
+  gtrendsR,
+  lubridate ,
+  magrittr ,
+  openxlsx ,
+  plotly ,
+  purrr ,
+  RColorBrewer ,
+  readr ,
+  readxl ,
+  reshape2 ,
+  rlist,
+  sjmisc ,
+  stringr ,
+  tibble ,
+  tidyr ,
+  tidyverse ,
+  tis ,
+  zoo
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
