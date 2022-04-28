@@ -536,8 +536,7 @@ what_trans = function(model = NULL,
 #' Then, for each model run, return that model's fit and the variables' statistics.
 #'
 #' @param model Model object
-#' @param trans_df \code{data.frame}
-#' @param variable string or character vector of variable names contained in raw_data \code{data.frame}
+#' @param trans_df \code{data.frame} containing the 
 #' @param data \code{data.frame} containing data from analysis
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
 #' @param verbose A boolean to specify whether to print warnings
@@ -546,70 +545,49 @@ what_trans = function(model = NULL,
 #' @import dplyr
 #' @export
 #' @examples
-#' run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
-#' what_trans(variable = 'cyl',trans_df = data.frame(
-#' name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
-#' func = c('linea::diminish(x,a)',
-#'          'linea::decay(x,a)',
-#'          'linea::lag(x,a)',
-#'          'linea::ma(x,a)',
-#'          'log(x,a)',
-#'          "linea::hill_function(x,a,b,c)",
-#'          'sin(x*a)',
-#'          '(x^a)'),order = 1:8) %>%
-#'   dplyr::mutate(val = '') %>%
-#'   dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
-#'                                      '(1,5,50),(1 ,5,50),(1,5,50)',
-#'                                      val)))
+#' 
+#' # using a model object
+#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+#' dv = 'ecommerce'
+#' ivs = c('christmas','black.friday')
+#' 
+#' model = run_model(data = data,dv = dv,ivs = ivs)
+#' 
+#' trans_df = data.frame(
+#'   name = c('diminish', 'decay', 'hill', 'exp'),
+#'   func = c(
+#'     'linea::diminish(x,a)',
+#'     'linea::decay(x,a)',
+#'     "linea::hill_function(x,a,b,c)",
+#'     '(x^a)'
+#'   ),
+#'   order = 1:4
+#' ) %>%
+#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+#'                                                '(1,5,50),(1,5,50),( 1,5,50)',
+#'                                                '')) %>%
+#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
+#'                                               '.1,.5, 10 ',
+#'                                               '')) %>%
+#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+#'                                               '.1,.7 ',
+#'                                               online_media)) %>%
+#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
+#'                                               '.5,2,3',
+#'                                               online_media)) %>%
+#'   dplyr::mutate(promo = '')
+#' 
+#' trans_bucket(model = model,trans_df = trans_df)
+#' 
+#' #using the trans_df, data, and dv
+#' trans_bucket(trans_df = trans_df, data = data, dv = dv)
+
 trans_bucket = function(model = NULL,
                         trans_df = NULL,
                         data = NULL,
                         dv = NULL,
-                        model_table = NULL,
                         r2_diff = T,
                         verbose = F) {
-  
-  # test    ####
-  
-  library(linea)
-  library(dplyr)
-  
-  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  dv = 'ecommerce'
-  ivs = c('christmas','black.friday')
-  
-  
-  r2_diff = T
-  model = run_model(data = data,dv = dv,ivs = ivs)
-  
-  rm(dv,ivs)
-  
-  
-  trans_df = data.frame(
-    name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
-    func = c(
-      'linea::diminish(x,a)',
-      'linea::decay(x,a)',
-      'linea::lag(x,a)',
-      'linea::ma(x,a)',
-      'log(x,a)',
-      "linea::hill_function(x,a,b,c)",
-      'sin(x*a)',
-      '(x^a)'
-    ),
-    order = 1:8
-  ) %>%
-    dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
-                                       '(1,5,50),(1,5,50),( 1,5,50)',
-                                       '')) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
-                                       '.1,.5, 10 ',
-                                       '')) %>% 
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
-                                                '.1,.7 ',
-                                                online_media)) %>% 
-    dplyr::mutate(promo = '')
-  
   # checks  ####
   
   if(!is.logical(verbose)){
@@ -624,41 +602,42 @@ trans_bucket = function(model = NULL,
     cat("Error: trans_df must be provided. Returning NULL. \n")
     return(NULL)
   }
-  # check if model or model_table is provided is correct
-  if(is.null(model)) {
-    if(is.null(model_table)) {
-      cat("Error: no model or model_table provided. Returning NULL. \n")
+  
+  # check if model or dv and data are provided is correct
+  if (is.null(model)) {
+    
+    if (is.null(dv) | is.null(data)) {
+      cat("Error: model or dv and data must be provided. Returning NULL. \n")
       return(NULL)
+    } else{
+      vars = colnames(trans_df)
+      vars = vars[!(vars %in% c('name', 'order', 'func'))]
+      model = run_model(dv = dv,
+                        data = data,
+                        ivs = vars)
     }
-  }else{
+  } else{
     if (class(model) != "lm") {
-      cat("\n Error: model must be of type 'lm'. Returning NULL.")
+      cat("Error: model must be of type 'lm'. Returning NULL. \n")
       return(NULL)
     }
     else{
-      if (!('dv' %in% names(model))) {
-        cat("\n Error: model object must contain 'dv'. Returning NULL.")
-        return(NULL)
-      } else{
-        dv = model$dv
+      if (!is.null(dv)){
+        if (verbose) {
+          cat('Warning: replacing dv provided as argument with model dv. \n')
+        }
       }
-      
-      if (!('model_table' %in% names(model))) {
-        cat("\n Error: model object must contain 'model_table'. Returning NULL.")
-        return(NULL)
-      } else{
-        model_table = model$model_table
+      if (!is.null(data)){
+        if (verbose) {
+          cat('Warning: replacing data provided as argument with model data. \n')
+        }
       }
     }
   }
   
-  # check data
-  if(is.null(data)){
-    data = model$data
-    if(is.null(data)){
-      cat('Error: no data provided as data or in model. \n')
-    }
-  }
+  dv = model$dv
+  model_table = model$model_table
+  data = model$data
   
   # check pool
   if(model$normalise_by_pool){
@@ -690,10 +669,6 @@ trans_bucket = function(model = NULL,
     trans_df = model$trans_df,
     meta_data = model$meta_data,
     verbose = verbose)
-
-  ## OTHER CHECKS
-  
-  
   
   
   # process ####
@@ -780,26 +755,24 @@ trans_bucket = function(model = NULL,
   
   
   # expand.grid for all combos across variables
-  master_combo_df = sapply(long_combo_df, function(x){1:nrow(x)}) %>% 
+  output_df = sapply(long_combo_df, function(x){1:nrow(x)}) %>% 
     expand.grid()
     
   # define output table to fill with loop
-  output_df = cbind(master_combo_df,tibble(
+  output_df = cbind(output_df,tibble(
     adj_R2 = 0,
     t_stat = 0,
     coef = 0
   ))
-
-  
   
   
   # for each combo
-  ## generate variable (OPTIMISE - do not create variables twice)
+  ## generate variable (OPTIMISE - do not create variables more than once)
   ## generate model
-  for(i in 1:nrow(master_combo_df)){
+  for(i in 1:nrow(output_df)){
     # i = 1
     
-    print(paste0('i - ',i))
+    # print(paste0('i - ',i))
     
     m = model$model_table
     
@@ -807,7 +780,7 @@ trans_bucket = function(model = NULL,
     for(var in vars){
       
       # var = vars[1]
-      print(paste0('var - ',var))
+      # print(paste0('var - ',var))
       
       var_t_name = var
       data[,'temp_var'] = data[,var]
@@ -826,7 +799,7 @@ trans_bucket = function(model = NULL,
       for(j in 1:length(fs_name)){
         # j = 1
         
-        print(paste0('j - ',j))
+        # print(paste0('j - ',j))
         
         f_name = fs_name[j]
         
@@ -844,15 +817,13 @@ trans_bucket = function(model = NULL,
         
         # for each param
         for(p in ps){
-          val = long_combo_df[[var]][master_combo_df[i,var],paste0(f_name,'_',p)]
+          val = long_combo_df[[var]][output_df[i,var],paste0(f_name,'_',p)]
           vals = c(vals,val)
           var_t_name = paste0(var_t_name,'_',val)
           # print(var_t_name)
           assign(p,val)
         }
         
-        
-        # m[1,f_name] = vals %>% paste0(collapse = ',')
         
         f = fs[j]
         
@@ -898,7 +869,7 @@ trans_bucket = function(model = NULL,
     model_temp = lm(formula = formula,
                     data = data) %>% TRY()
     
-    print(model_temp)
+    # print(model_temp)
     
     # if model failed
     if(is.null(model_temp)) {
@@ -939,6 +910,14 @@ trans_bucket = function(model = NULL,
       select(-m0_adj_R2)
   }
   
-  return(output_df %>% arrange(-adj_R2))
+  output_df = output_df %>% 
+    arrange(-adj_R2)
+  
+  return(
+    list(
+      results = output_df,
+      trans_parameters = long_combo_df
+    )
+  )
   
 }
