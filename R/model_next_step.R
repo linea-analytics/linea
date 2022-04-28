@@ -616,6 +616,11 @@ what_combo = function(model = NULL,
                       dv = NULL,
                       r2_diff = T,
                       verbose = F) {
+  
+  # TODO
+  # - check vars are in data
+  # - dv in data
+  
   # checks  ####
   
   if (!is.logical(verbose)) {
