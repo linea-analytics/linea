@@ -28,5 +28,5 @@ Scatter of Residuals over dependent Variable
 }
 \details{
 Plot a scatter chart of residuals over the dependent variable.
-This is meant to assess the consistencty of the residuals' variance across the dependent variable.
+This is meant to assess the consistency of the residuals' variance across the dependent variable.
 }

@@ -18,6 +18,7 @@ globalVariables(
     'coef',
     'se',
     't_stat',
+    'parameter',
     'p_value',
     'adj_R2',
     'name',

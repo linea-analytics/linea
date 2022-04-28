@@ -27,7 +27,7 @@ what_trans(
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \description{
-run model with additional variables from the data transformed
+run models with additional (transformed) variables from the data
 }
 \details{
 Run a separate model for each combination of transformations specified.
