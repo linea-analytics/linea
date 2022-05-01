@@ -165,7 +165,7 @@ test_that('run_model ivs, dv',{
 
 })
 
-### what next   ---------------------------------------------------------------
+### next steps  ---------------------------------------------------------------
 
 test_that("what next - output dataframe", {
   model %>% 
@@ -207,6 +207,112 @@ test_that("what next - pooled - output not all na", {
   pooled_model %>% 
     what_next() %>%
     select(-variable) %>%
+    is.na() %>%
+    all() %>%
+    expect_equal(F)
+})
+
+test_that("what trans - output dataframe", {
+  run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
+    what_trans(variable = 'cyl',trans_df = data.frame(
+    name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+    func = c('linea::diminish(x,a)',
+             'linea::decay(x,a)',
+             'linea::lag(x,a)',
+             'linea::ma(x,a)',
+             'log(x,a)',
+             "linea::hill_function(x,a,b,c)",
+             'sin(x*a)',
+             '(x^a)'),order = 1:8) %>%
+      dplyr::mutate(val = '') %>%
+      dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
+                                         '(1,5,50),(1 ,5,50),(1,5,50)',
+                                         val))) %>%
+    is.data.frame() %>% 
+    expect_equal(T)
+})
+test_that("what trans - output not all na", {
+  run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
+  what_trans(variable = 'cyl',trans_df = data.frame(
+  name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+  func = c('linea::diminish(x,a)',
+           'linea::decay(x,a)',
+           'linea::lag(x,a)',
+           'linea::ma(x,a)',
+           'log(x,a)',
+           "linea::hill_function(x,a,b,c)",
+           'sin(x*a)',
+           '(x^a)'),order = 1:8) %>%
+    dplyr::mutate(val = '') %>%
+    dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
+                                       '(1,5,50),(1 ,5,50),(1,5,50)',
+                                       val))) %>%
+    is.na() %>%
+    all() %>%
+    expect_equal(F)
+})
+
+test_that("what combo - output dataframe", {
+  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  dv = 'ecommerce'
+  ivs = c('christmas','black.friday')
+  combo_trans_df = data.frame(
+    name = c('diminish', 'decay', 'hill', 'exp'),
+    func = c(
+      'linea::diminish(x,a)',
+      'linea::decay(x,a)',
+      "linea::hill_function(x,a,b,c)",
+      '(x^a)'
+    ),
+    order = 1:4
+  ) %>%
+    dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+                                                 '(1,5,50),(1,5,50),( 1,5,50)',
+                                                 '')) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
+                                                '.1,.5, 10 ',
+                                                '')) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+                                                '.1,.7 ',
+                                                online_media)) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
+                                                '.5,2,3',
+                                                online_media)) %>%
+    dplyr::mutate(promo = '') %>% 
+    {what_combo(trans_df = .,dv = dv,data = data)} %>% 
+    {.[['results']]} %>% 
+    is.data.frame() %>% 
+    expect_equal(T)
+})
+test_that("what combo - output not all na", {
+  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  dv = 'ecommerce'
+  ivs = c('christmas','black.friday')
+  combo_trans_df = data.frame(
+    name = c('diminish', 'decay', 'hill', 'exp'),
+    func = c(
+      'linea::diminish(x,a)',
+      'linea::decay(x,a)',
+      "linea::hill_function(x,a,b,c)",
+      '(x^a)'
+    ),
+    order = 1:4
+  ) %>%
+    dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+                                                 '(1,5,50),(1,5,50),( 1,5,50)',
+                                                 '')) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
+                                                '.1,.5, 10 ',
+                                                '')) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+                                                '.1,.7 ',
+                                                online_media)) %>%
+    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
+                                                '.5,2,3',
+                                                online_media)) %>%
+    dplyr::mutate(promo = '') %>% 
+    {what_combo(trans_df = .,dv = dv,data = data)} %>% 
+    {.[['results']]} %>% 
     is.na() %>%
     all() %>%
     expect_equal(F)

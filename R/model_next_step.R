@@ -618,6 +618,7 @@ what_combo = function(model = NULL,
                       verbose = F) {
   
   # TODO
+  # - trans_df columns
   # - check vars are in data
   # - dv in data
   
@@ -819,7 +820,7 @@ what_combo = function(model = NULL,
   
   
   # for each combo
-  ## generate variable (OPTIMISE - do not create variables more than once)
+  ## generate variable
   ## generate model
   for (i in 1:nrow(output_df)) {
     # i = 1
@@ -946,6 +947,10 @@ what_combo = function(model = NULL,
       
     }
   }
+  # TO OPTIMISE above
+  # - do not create variables more than once (check)
+  # - ...also for partial transformations (e.g. x_t1, x_t1_t2, x_t1_t3)
+  
   
   if (r2_diff) {
     m0_adj_R2 = summary(model)$adj.r.squared
