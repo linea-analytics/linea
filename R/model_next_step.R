@@ -592,17 +592,11 @@ what_trans = function(model = NULL,
 #'   order = 1:4
 #' ) %>%
 #'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
-#'                                                '(1,5,50),(1,5,50),( 1,5,50)',
+#'                                                '(1,50),(1),(1,100)',
 #'                                                '')) %>%
-#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
-#'                                               '.1,.5, 10 ',
-#'                                               '')) %>%
 #'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
 #'                                               '.1,.7 ',
-#'                                               online_media)) %>%
-#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
-#'                                               '.5,2,3',
-#'                                               online_media)) %>%
+#'                                               '')) %>%
 #'   dplyr::mutate(promo = '')
 #'
 #' what_combo(model = model,trans_df = trans_df)

@@ -97,7 +97,8 @@ import_model = function(path, verbose = F){
   normalise_by_pool = model_list$normalise_by_pool$variable
   meta_data = model_list$meta_data
   id_var = model_list$id_var$variable
-  data = model_list$data %>% check_ts(date_col = id_var,verbose = verbose)
+  data = model_list$data
+  trans_df = model_list$trans_df
   
   model = run_model(
     data = data,
