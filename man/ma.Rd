@@ -4,7 +4,7 @@
 \alias{ma}
 \title{MA}
 \usage{
-ma(v, width, align = "center", zero = T)
+ma(v, width, align = "center", zero = TRUE)
 }
 \arguments{
 \item{v}{Numeric vector}

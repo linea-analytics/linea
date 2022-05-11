@@ -4,7 +4,7 @@
 \alias{diminish}
 \title{Diminish}
 \usage{
-diminish(v, m, abs = T)
+diminish(v, m, abs = TRUE)
 }
 \arguments{
 \item{v}{Numeric vector}

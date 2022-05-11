@@ -11,10 +11,10 @@ response_curves(
   y_min = -100,
   y_max = 100,
   interval = 0.1,
-  trans_only = F,
+  trans_only = FALSE,
   colors = color_palette(),
-  verbose = F,
-  table = F
+  verbose = FALSE,
+  table = FALSE
 )
 }
 \arguments{
@@ -37,6 +37,9 @@ response_curves(
 \item{verbose}{A boolean to specify whether to print warnings}
 
 \item{table}{A boolean to specify whether to return a \code{data.frame} of the response curves}
+}
+\value{
+a \code{plotly} line chart of the model's response curves
 }
 \description{
 Line chart of variable response curves

@@ -10,11 +10,11 @@
 #' @import readxl 
 #' @return Messages and the checked file
 #' @export
-check_model_file = function(model_file,verbose = F,return_list = T){
+check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
   # checks   ####
   if (!is.logical(verbose)) {
-    print("verbose must be logical (T or F). Setting to False.")
-    verbose = F
+    print("verbose must be logical (TRUE or FALSE). Setting to False.")
+    verbose = FALSE
   }
   if (!is.character(model_file)) {
     if (verbose)
@@ -81,7 +81,7 @@ check_model_file = function(model_file,verbose = F,return_list = T){
 #' @import dplyr 
 #' @return model object
 #' @export
-import_model = function(path, verbose = F){
+import_model = function(path, verbose = FALSE){
   # import checked filed
   model_list = check_model_file(model_file = path, verbose = verbose)
   if (is.null(model_list)) {
@@ -110,8 +110,8 @@ import_model = function(path, verbose = F){
     verbose = verbose,
     normalise_by_pool = normalise_by_pool,
     categories = categories,
-    save_raw_data = T,
-    decompose = T
+    save_raw_data = TRUE,
+    decompose = TRUE
   )
   
   return(model)
@@ -129,7 +129,7 @@ import_model = function(path, verbose = F){
 #' @param overwrite Boolean to specify whether to overwrite the file in the specified path 
 #' @importFrom openxlsx write.xlsx
 #' @export
-export_model = function(model,path = 'model.xlsx',overwrite = F){
+export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
   model_list = list(
     data = model$data,
     model_table = model$model_table,

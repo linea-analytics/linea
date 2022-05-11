@@ -4,7 +4,7 @@
 \alias{check_model_file}
 \title{check_model_file}
 \usage{
-check_model_file(model_file, verbose = F, return_list = T)
+check_model_file(model_file, verbose = FALSE, return_list = TRUE)
 }
 \arguments{
 \item{model_file}{File path to the model file as string}

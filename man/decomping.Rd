@@ -6,11 +6,11 @@
 \usage{
 decomping(
   model = NULL,
-  de_normalise = T,
+  de_normalise = TRUE,
   raw_data = NULL,
   categories = NULL,
   id_var = NULL,
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{

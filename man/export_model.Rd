@@ -4,7 +4,7 @@
 \alias{export_model}
 \title{export_model}
 \usage{
-export_model(model, path = "model.xlsx", overwrite = F)
+export_model(model, path = "model.xlsx", overwrite = FALSE)
 }
 \arguments{
 \item{model}{Model object}

@@ -4,7 +4,7 @@
 \alias{import_model}
 \title{import_model}
 \usage{
-import_model(path, verbose = F)
+import_model(path, verbose = FALSE)
 }
 \arguments{
 \item{path}{File path to the model file as string}

@@ -26,7 +26,7 @@ gt_f = function(data,
                 date_col = "date",
                 date_type = "weekly starting",
                 geo = "all",
-                append = F) {
+                append = FALSE) {
   # get gtrends data    ####
   
   # get dates from data
@@ -48,7 +48,7 @@ gt_f = function(data,
     gt = gtrends(
       keyword = kw,
       time = time_str,
-      onlyInterest = T
+      onlyInterest = TRUE
     )
   }
   else{
@@ -56,7 +56,7 @@ gt_f = function(data,
       keyword = kw,
       geo = geo,
       time = time_str,
-      onlyInterest = T
+      onlyInterest = TRUE
     )}
   
   

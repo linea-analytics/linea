@@ -53,9 +53,9 @@ build_model_table = function(ivs,trans_df = NULL){
 #' @import dplyr
 #' @return \code{tibble} of model table with added variable_t column
 get_variable_t = function(model_table,
-                          excl_intercept = T,
-                          excl_dup = T,
-                          excl_blanks = F) {
+                          excl_intercept = TRUE,
+                          excl_dup = TRUE,
+                          excl_blanks = FALSE) {
   
   if (excl_intercept) {
     model_table = model_table %>%

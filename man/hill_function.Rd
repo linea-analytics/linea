@@ -4,7 +4,7 @@
 \alias{hill_function}
 \title{hill_function}
 \usage{
-hill_function(v, m, b = 1, k = 1, abs = T)
+hill_function(v, m, b = 1, k = 1, abs = TRUE)
 }
 \arguments{
 \item{v}{Numeric vector}

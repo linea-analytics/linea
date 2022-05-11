@@ -9,8 +9,8 @@ what_trans(
   trans_df = NULL,
   variable = NULL,
   data = NULL,
-  r2_diff = T,
-  verbose = F
+  r2_diff = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,6 +25,9 @@ what_trans(
 \item{r2_diff}{A boolean to determine whether to add a column to compare new and original model R2}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+\code{data.frame} mapping variables' transformations to the respective model's statistics.
 }
 \description{
 run models with additional (transformed) variables from the data

@@ -4,7 +4,12 @@
 \alias{get_variable_t}
 \title{get_variable_t}
 \usage{
-get_variable_t(model_table, excl_intercept = T, excl_dup = T, excl_blanks = F)
+get_variable_t(
+  model_table,
+  excl_intercept = TRUE,
+  excl_dup = TRUE,
+  excl_blanks = FALSE
+)
 }
 \arguments{
 \item{model_table}{\code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function}

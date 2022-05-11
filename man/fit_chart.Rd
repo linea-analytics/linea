@@ -8,7 +8,7 @@ fit_chart(
   model = NULL,
   decomp_list = NULL,
   pool = NULL,
-  verbose = F,
+  verbose = FALSE,
   colors = NULL
 )
 }
@@ -23,9 +23,15 @@ fit_chart(
 
 \item{colors}{character vector of colors in hexadecimal notation}
 }
+\value{
+a \code{plotly} line chart of the model's prediction and actual
+}
 \description{
 Dependent Variable, Predictions and Residuals Line Chart
 }
 \details{
 Plot the dependent variable, predictions and Residuals as a line chart over the id variable which can be supplied to the \code{decomping} function.
+}
+\examples{
+run_model(data = mtcars,dv = 'mpg',ivs = 'cyl') \%>\% fit_chart()
 }

@@ -9,8 +9,8 @@ what_combo(
   trans_df = NULL,
   data = NULL,
   dv = NULL,
-  r2_diff = T,
-  verbose = F
+  r2_diff = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,6 +25,9 @@ what_combo(
 \item{r2_diff}{A boolean to determine whether to add a column to compare new and original model R2}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+list of two \code{data.frame} mapping variables' transformations to the respective model's statistics.
 }
 \description{
 run models across combinations of transformations and variables

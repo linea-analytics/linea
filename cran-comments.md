@@ -1,7 +1,7 @@
-## First Submission
-This is a first submission. In this first version I have:
+## First Re-Submission
+This is a first re-submission. In this re-submitted version I have:
 
-* Included all the necessary functions.
-* Written tests to ensure the library's stability.
-* Documented each function with roxygen headers.
-* Linked a webpage to guide users. 
+* Used new.env() when using assign() to not modify the .GlobalEnv
+* Added a, or adjusted the, @return value for all functions
+* Expanded the description to better explain the library
+* Replaced T,F with TRUE,FALSE

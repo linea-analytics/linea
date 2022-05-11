@@ -17,10 +17,10 @@ apply_normalisation = function(raw_data = NULL,
                                meta_data = NULL,
                                model_table = NULL,
                                dv = NULL,
-                               verbose = F){
+                               verbose = FALSE){
   if(!is.logical(verbose)){
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
   # if no raw_data is provided, end by returning NULL
@@ -178,7 +178,7 @@ apply_normalisation = function(raw_data = NULL,
     if (transformation == "STA") {
       raw_data = raw_data %>%
         group_by(!!sym(pool_variable)) %>%
-        mutate(var = !!sym(var) / mean(!!sym(var), na.rm = T)) %>%
+        mutate(var = !!sym(var) / mean(!!sym(var), na.rm = TRUE)) %>%
         mutate(var = if_else(is.na(var), 0, var))
 
       # replace the raw variable with the STAed variable
@@ -191,11 +191,34 @@ apply_normalisation = function(raw_data = NULL,
   return(list(data = raw_data,pool_mean = pool_mean))
 }
 
-#' apply_transformation
+#' default_trans_df
+#'
+#' The default transformation \code{data.frame}
+#'
+#' The default transformation \code{data.frame} containing the functions \code{decay}, \code{diminish}, \code{lag}, and \code{ma}
+#'
+#' @export
+#' @return \code{data.frame} containing the transformations 
+default_trans_df = function(){
+  
+  return(trans_df = data.frame(
+    name = c('diminish', 'decay', 'lag', 'ma'),
+    func = c(
+      'linea::diminish(x,a)',
+      'linea::decay(x,a)',
+      'linea::lag(x,a)',
+      'linea::ma(x,a)'
+    ),
+    order = 1:4
+  ))
+}
+
+
+#' #' apply_transformation
 #'
 #' Transform data based on model table
 #'
-#' Transform data based on the model table by applying the transformation functions (i.e. \code{decay}, \code{dim_rets}, \code{lag}, and \code{ma}) with the specified parameters to the respective variable
+#' Transform data based on the model table by applying the transformation functions (e.g. \code{decay}, \code{diminish}, \code{lag}, and \code{ma}) with the specified parameters to the respective variable
 #'
 #' @export
 #' @param data \code{data.frame} containing data for analysis
@@ -208,13 +231,13 @@ apply_transformation = function(data = NULL,
                                 model_table = NULL,
                                 trans_df = NULL,
                                 meta_data = NULL,
-                                verbose = F) {
+                                verbose = FALSE) {
   # checks  #####
   
   # check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
   
   # check model table provided (not NULL)
@@ -377,11 +400,13 @@ apply_transformation = function(data = NULL,
         next
       }
       
+      e <- new.env()
+      
       for (i in 1:length(param_values)) {
         p_val = param_values[i]
         p_name = letters[i]
         
-        assign(p_name,p_val,envir = environment())
+        assign(p_name,p_val,envir = e)
         
       }
       
@@ -392,7 +417,7 @@ apply_transformation = function(data = NULL,
       for(g in groups){
         
         x = data$temp_var[data[,pool]==g]
-        x = t_func %>% run_text(env = environment())
+        x = t_func %>% run_text(env = e)
         data$temp_var[data[,pool]==g] = x
         
       }
@@ -410,7 +435,7 @@ apply_transformation = function(data = NULL,
 #'
 #' Transform vector based on transformation parameters
 #'
-#' Transform vector based on the transformation parameters of the functions \code{decay}, \code{dim_rets}, \code{lag}, and \code{ma}
+#' Transform vector based on the transformation parameters of the trans_df
 #'
 #' @export
 #' @param v Numeric vector to be transformed
@@ -423,7 +448,7 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
   # check verbose
   if (!is.logical(verbose)) {
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
   
   # check trans_df
@@ -458,16 +483,18 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
       next
     }
     
+    e <- new.env()
+    
     for (i in 1:length(t_vals)) {
       p_val = t_vals[i]
       p_name = letters[i]
       
-      assign(p_name, p_val, envir = environment())
+      assign(p_name,p_val,envir = e)
       
     }
     
     x = v
-    x = t_func %>% run_text(env = environment())
+    x = t_func %>% run_text(env = e)
     v = x
     
   }
@@ -512,10 +539,10 @@ run_model = function(data = NULL,
                      meta_data = NULL,
                      id_var = NULL,
                      model_table = NULL,
-                     verbose = F,
-                     normalise_by_pool = F,
-                     save_raw_data = T,
-                     decompose = T,
+                     verbose = FALSE,
+                     normalise_by_pool = FALSE,
+                     save_raw_data = TRUE,
+                     decompose = TRUE,
                      categories = NULL) {
   # checks  ####
   
@@ -523,7 +550,7 @@ run_model = function(data = NULL,
     cat(
       "\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False."
     )
-    verbose = F
+    verbose = FALSE
   }
   
   # check data is not provided
@@ -551,10 +578,17 @@ run_model = function(data = NULL,
     if (verbose) {
       cat("\n Info: No meta_data provided for transformations and normalisation.")
     }
-  }else if (!is.data.frame(meta_data)) {
+  }
+  else if (!is.data.frame(meta_data)) {
     if (verbose) {
       cat(
         "\n Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation."
+      )
+    }
+  }else if(nrow(meta_data)==0){
+    if (verbose) {
+      cat(
+        "\n Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation."
       )
     }
   }
@@ -584,7 +618,7 @@ run_model = function(data = NULL,
     } else{
       # use model table variables as ivs
       model_table = model_table %>%
-        get_variable_t(excl_blanks = T)
+        get_variable_t(excl_blanks = TRUE)
       
       ivs = model_table %>% pull(variable) %>% unique()
       ivs_t = model_table %>% pull(variable_t) %>% unique()
@@ -593,7 +627,7 @@ run_model = function(data = NULL,
     model_table = build_model_table(ivs = ivs)
     # use model table variables as ivs
     model_table = model_table %>%
-      get_variable_t(excl_blanks = T) %>% unique()
+      get_variable_t(excl_blanks = TRUE) %>% unique()
     
     ivs_t = model_table %>% pull(variable_t) %>% unique()
   }

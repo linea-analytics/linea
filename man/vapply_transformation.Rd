@@ -20,5 +20,5 @@ Transformed numeric vector
 Transform vector based on transformation parameters
 }
 \details{
-Transform vector based on the transformation parameters of the functions \code{decay}, \code{dim_rets}, \code{lag}, and \code{ma}
+Transform vector based on the transformation parameters of the trans_df
 }

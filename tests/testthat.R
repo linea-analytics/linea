@@ -10,12 +10,12 @@ library(dplyr)
 ### NOT POOLED  ----
 
 # import data
-data = read_xcsv(verbose = F,
+data = read_xcsv(verbose = FALSE,
                  file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") %>%
-  check_ts(verbose = F,
-          allow_non_num = T,
+  check_ts(verbose = FALSE,
+          allow_non_num = TRUE,
           date_col = "date") %>%
-  get_seasonality(verbose = F,
+  get_seasonality(verbose = FALSE,
                   date_col_name = "date",
                   date_type = "weekly starting")
 
@@ -43,11 +43,11 @@ category = tibble(
 
 # run model
 model = run_model(
-  verbose = F,
+  verbose = FALSE,
   data = data,
   dv = dv,
   model_table = model_table,
-  normalise_by_pool = F
+  normalise_by_pool = FALSE
 )
 
 
@@ -55,12 +55,12 @@ model = run_model(
 ### POOLED      ----
 
 # import data
-pooled_data = read_xcsv(verbose = F,
+pooled_data = read_xcsv(verbose = FALSE,
                         file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv") %>%
-  check_ts(verbose = F,
-          allow_non_num = T,
+  check_ts(verbose = FALSE,
+          allow_non_num = TRUE,
           date_col = "Week") %>%
-  get_seasonality(verbose = F,
+  get_seasonality(verbose = FALSE,
                   date_col_name = "Week",
                   date_type = "weekly starting")
 
@@ -87,12 +87,12 @@ pooled_category = tibble(
 
 # run model
 pooled_model = run_model(
-  verbose = F,
+  verbose = FALSE,
   data = pooled_data,
   dv = pooled_dv,
   meta_data =  pooled_meta_data,
   model_table = pooled_model_table,
-  normalise_by_pool = T
+  normalise_by_pool = TRUE
 )
 
 
@@ -103,27 +103,27 @@ pooled_model = run_model(
 test_that('read data',{
 
 
-  data = read_xcsv(verbose = F,
+  data = read_xcsv(verbose = FALSE,
                    file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")%>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })
 test_that('read data - pooled',{
 
-  pooled_data = read_xcsv(verbose = F,
+  pooled_data = read_xcsv(verbose = FALSE,
                           file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })
 test_that('read data - pooled ts',{
 
-  pooled_data = read_xcsv(verbose = F,
+  pooled_data = read_xcsv(verbose = FALSE,
                           file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
     check_ts(date_col = 'Week') %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })
 
@@ -132,25 +132,25 @@ test_that('read data - pooled ts',{
 
 test_that('seasonality',{
 
-  pooled_data = read_xcsv(verbose = F,
+  pooled_data = read_xcsv(verbose = FALSE,
                           file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")%>%
     check_ts(date_col = 'date') %>%
     get_seasonality(date_col_name = 'date',
                     date_type = 'weekly starting') %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })
 test_that('seasonality - pooled',{
 
-  pooled_data = read_xcsv(verbose = F,
+  pooled_data = read_xcsv(verbose = FALSE,
                           file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
     check_ts(date_col = 'Week') %>%
     get_seasonality(date_col_name = 'Week',
                     pool_var = 'country',
                     date_type = 'weekly starting') %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })
 
@@ -171,7 +171,7 @@ test_that("what next - output dataframe", {
   model %>% 
     what_next() %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 test_that("what next - output not all na", {
   model %>% 
@@ -179,29 +179,29 @@ test_that("what next - output not all na", {
     select(-variable) %>%
     is.na() %>%
     all() %>%
-    expect_equal(F)
+    expect_equal(FALSE)
 })
 
-test_that("what next - output dataframe - diff F - not pooled", {
+test_that("what next - output dataframe - diff FALSE - not pooled", {
   model %>% 
-    what_next(r2_diff = F) %>%
+    what_next(r2_diff = FALSE) %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 })
-test_that("what next - output not all na - diff F - not pooled", {
+test_that("what next - output not all na - diff FALSE - not pooled", {
   model %>% 
-    what_next(r2_diff = F) %>%
+    what_next(r2_diff = FALSE) %>%
     select(-variable) %>%
     is.na() %>%
     all() %>%
-    expect_equal(F)
+    expect_equal(FALSE)
 })
 
 test_that("what next - pooled - output dataframe", {
   pooled_model %>% 
     what_next() %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 test_that("what next - pooled - output not all na", {
   pooled_model %>% 
@@ -209,7 +209,7 @@ test_that("what next - pooled - output not all na", {
     select(-variable) %>%
     is.na() %>%
     all() %>%
-    expect_equal(F)
+    expect_equal(FALSE)
 })
 
 test_that("what trans - output dataframe", {
@@ -229,7 +229,7 @@ test_that("what trans - output dataframe", {
                                          '(1,5,50),(1 ,5,50),(1,5,50)',
                                          val))) %>%
     is.data.frame() %>% 
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 test_that("what trans - output not all na", {
   run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
@@ -249,7 +249,7 @@ test_that("what trans - output not all na", {
                                        val))) %>%
     is.na() %>%
     all() %>%
-    expect_equal(F)
+    expect_equal(FALSE)
 })
 
 test_that("what combo - output dataframe", {
@@ -282,7 +282,7 @@ test_that("what combo - output dataframe", {
     {what_combo(trans_df = .,dv = dv,data = data)} %>% 
     {.[['results']]} %>% 
     is.data.frame() %>% 
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 test_that("what combo - output not all na", {
   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
@@ -315,7 +315,7 @@ test_that("what combo - output not all na", {
     {.[['results']]} %>% 
     is.na() %>%
     all() %>%
-    expect_equal(F)
+    expect_equal(FALSE)
 })
 
 ### get gt      ------------------------------------------------------------------
@@ -325,7 +325,7 @@ test_that("gtrends_f - pooled - output dataframe",{
        kw = 'bitcoin',
        date_col = pooled_id_var) %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 
 
@@ -338,15 +338,15 @@ test_that("response curves - pooled - output is plotly",{
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 })
 
 
 test_that("response curves - not pooled - output is dataframe",{
 
   model %>%
-    response_curves(table = T) %>%
+    response_curves(table = TRUE) %>%
     is.data.frame() %>%
-    expect_equal(T)
+    expect_equal(TRUE)
 
 })

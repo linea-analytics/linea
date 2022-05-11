@@ -8,7 +8,7 @@ get_seasonality(
   data,
   date_col_name,
   date_type = "weekly starting",
-  verbose = F,
+  verbose = FALSE,
   pool_var = NULL
 )
 }
@@ -24,7 +24,7 @@ get_seasonality(
 \item{pool_var}{The pool (group) column name as a string (e.g. 'country')}
 }
 \value{
-\code{data.frame}
+\code{data.frame} with added variables
 }
 \description{
 generate seasonality variables

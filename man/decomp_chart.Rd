@@ -9,8 +9,8 @@ decomp_chart(
   decomp_list = NULL,
   pool = NULL,
   colors = color_palette(),
-  variable_decomp = F,
-  verbose = F
+  variable_decomp = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,6 +25,9 @@ decomp_chart(
 \item{variable_decomp}{boolean specifying whether the chart should be based on the variable_decomp or the category_decomp from the \code{decomping} function.}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+a \code{plotly} bar chart of the model's decomposition
 }
 \description{
 Variable Decomposition Bar Chart

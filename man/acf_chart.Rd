@@ -4,7 +4,13 @@
 \alias{acf_chart}
 \title{acf_chart}
 \usage{
-acf_chart(model = NULL, decomp_list, pool = NULL, color = "black", verbose = F)
+acf_chart(
+  model = NULL,
+  decomp_list,
+  pool = NULL,
+  color = "black",
+  verbose = FALSE
+)
 }
 \arguments{
 \item{model}{Model object}
@@ -16,6 +22,9 @@ acf_chart(model = NULL, decomp_list, pool = NULL, color = "black", verbose = F)
 \item{color}{string specifying bar color}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+a \code{plotly} bar chart of the model's ACF
 }
 \description{
 Bar chart of autocorrelation function

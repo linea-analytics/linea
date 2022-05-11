@@ -4,7 +4,7 @@
 \alias{read_xcsv}
 \title{read_xcsv}
 \usage{
-read_xcsv(file, sheet = NULL, verbose = F)
+read_xcsv(file, sheet = NULL, verbose = FALSE)
 }
 \arguments{
 \item{file}{The file path that points to either a csv or excel file ending in csv, xls, xlsx, or xlsm}
@@ -14,7 +14,7 @@ read_xcsv(file, sheet = NULL, verbose = F)
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{
-\code{data.frame}
+\code{data.frame} from flatfile
 }
 \description{
 Reads flat files: either csv or excel

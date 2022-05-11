@@ -37,7 +37,7 @@ decay = function(v,decay){
 #' hill_function(c(1,0,0,0,1,0,0,0,2), m=1)
 #' hill_function(c(1,0,0,0,1,0,0,0,2), m=1, abs = FALSE)
 #' hill_function(c(1,0,0,0,1,0,0,0,2), m=1, k = 2)
-hill_function = function(v,m,b = 1, k = 1,abs = T){
+hill_function = function(v,m,b = 1, k = 1,abs = TRUE){
   m = as.numeric(as.character(m))
   if (m == 0) {
     return(v)
@@ -63,7 +63,7 @@ hill_function = function(v,m,b = 1, k = 1,abs = T){
 #' @examples
 #' diminish(c(1,0,0,0,1,0,0,0,2), 1)
 #' diminish(c(1,0,0,0,1,0,0,0,2), 1, FALSE)
-diminish = function(v,m,abs = T){
+diminish = function(v,m,abs = TRUE){
   m = as.numeric(as.character(m))
   if (m == 0) {
     return(v)
@@ -157,7 +157,7 @@ lag = function(v,l,strategy = 'extremes'){
 #' ma(c(1,0,0,0,1,0,0,0,2), 3)
 #' ma(c(1,0,0,0,1,0,0,0,2), 3, align = "right")
 #' ma(c(1,0,0,0,1,0,0,0,2), 3, zero = FALSE)
-ma = function(v,width,align="center",zero=T){
+ma = function(v,width,align="center",zero=TRUE){
 
   if(width == 0){
     return(v)

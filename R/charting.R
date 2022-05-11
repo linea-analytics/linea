@@ -47,17 +47,17 @@ color_palette = function(){
 #' @examples
 #' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) %>% decomping()
 decomping = function(model = NULL,
-                     de_normalise = T,
+                     de_normalise = TRUE,
                      raw_data = NULL,
                      categories = NULL,
                      id_var = NULL,
-                     verbose = F){
+                     verbose = FALSE){
   # checks ####
 
   # check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
 
@@ -95,7 +95,7 @@ decomping = function(model = NULL,
   actual = data[, dv]
 
   # initiate variable to confirm if correct raw data is provided
-  raw_actual_supplied = F
+  raw_actual_supplied = FALSE
 
   # process ####
 
@@ -120,7 +120,7 @@ decomping = function(model = NULL,
     if(verbose){
       cat("\n Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
     }
-    de_normalise = F
+    de_normalise = FALSE
   }
 
   # get raw dependent variable if supplied
@@ -141,7 +141,7 @@ decomping = function(model = NULL,
       # if the dependent variable is found in the raw data provided
       if (!is.null(raw_actual)) {
         # switch raw_actual_supplied variable to TRUE
-        raw_actual_supplied = T
+        raw_actual_supplied = TRUE
 
       } else{
         # else if(verbose)print warning
@@ -244,7 +244,7 @@ decomping = function(model = NULL,
     id = id_var_values,
     pool = pool %>% pull()
   ) %>%
-    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=F)
+    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=FALSE)
 
   # get the independent variables decomp
   independendent_variables =  data[, 2:ncol(data)]
@@ -272,7 +272,7 @@ decomping = function(model = NULL,
     id = id_var_values,
     pool = pool %>% pull()
   ) %>%
-    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=F) %>%
+    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=FALSE) %>%
     rename(contrib = value)
 
   # if an id variable name is provided use it
@@ -485,17 +485,18 @@ decomping = function(model = NULL,
 #' @import plotly
 #' @import tidyverse
 #' @export
+#' @return a \code{plotly} bar chart of the model's decomposition
 decomp_chart = function(model = NULL,
                         decomp_list = NULL,
                         pool = NULL,
                         colors = color_palette(),
-                        variable_decomp = F,
-                        verbose = F) {
+                        variable_decomp = FALSE,
+                        verbose = FALSE) {
 
   # Check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
   # Check decomp_list , model
@@ -618,7 +619,7 @@ decomp_chart = function(model = NULL,
            title = title,
            font = list(color = '#1c0022'),
            xaxis = list(title = id_var,
-                        showgrid = F,
+                        showgrid = FALSE,
                         zerolinecolor = "#1c0022"))
 
 }
@@ -638,17 +639,20 @@ decomp_chart = function(model = NULL,
 #' @import plotly
 #' @import tidyverse
 #' @export
+#' @return a \code{plotly} line chart of the model's prediction and actual
+#' @examples
+#' run_model(data = mtcars,dv = 'mpg',ivs = 'cyl') %>% fit_chart()
 fit_chart = function(model = NULL,
                      decomp_list = NULL,
                      pool = NULL,
-                     verbose = F,
+                     verbose = FALSE,
                      colors = NULL) {
 
 
   # Check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
 
@@ -735,7 +739,7 @@ fit_chart = function(model = NULL,
       title = 'Fit Chart',
       font = list(color = '#1c0022'),
       xaxis = list(
-        showgrid = F,
+        showgrid = FALSE,
         zerolinecolor = "#1c0022",
         title = id_var
       )
@@ -759,15 +763,16 @@ fit_chart = function(model = NULL,
 #' @import plotly
 #' @import tidyverse
 #' @export
+#' @return a \code{plotly} histogram of the model's residuals
 resid_hist_chart = function(model = NULL,
                             decomp_list = NULL,
                             pool = NULL,
                             color = "black",
-                            verbose = F){
+                            verbose = FALSE){
   # Check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
 
@@ -828,16 +833,17 @@ resid_hist_chart = function(model = NULL,
 #' @import tidyverse
 #' @importFrom tidyr pivot_wider
 #' @export
+#' @return a \code{plotly} scatter chart of the model's dependent variable over residuals
 heteroskedasticity_chart = function(model = NULL,
                                     decomp_list = NULL,
                                     pool = NULL,
                                     color = "black",
-                                    verbose = F){
+                                    verbose = FALSE){
 
   # Check verbose
   if (!is.logical(verbose)) {
     cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
 
@@ -903,16 +909,17 @@ heteroskedasticity_chart = function(model = NULL,
 #' @import plotly
 #' @import tidyverse
 #' @export
+#' @return a \code{plotly} bar chart of the model's ACF
 acf_chart = function(model = NULL,
                      decomp_list,
                      pool = NULL,
                      color = "black",
-                     verbose = F){
+                     verbose = FALSE){
 
   # Check verbose
   if (!is.logical(verbose)) {
     cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
 
 
@@ -946,7 +953,7 @@ acf_chart = function(model = NULL,
     }
   }
 
-  x = acf(df$residual, plot = F)
+  x = acf(df$residual, plot = FALSE)
   x = data.frame(x$acf) %>%
     rownames_to_column("x") %>%
     mutate(x = as.numeric(x))
@@ -957,7 +964,7 @@ acf_chart = function(model = NULL,
                                                  line = list(color = "white",
                                                              width = .5)),type="bar") %>%
     add_trace(
-      showlegend = F,
+      showlegend = FALSE,
       y = rep(0.2, length(x$x)),
       x = x$x,
       type = 'scatter',
@@ -967,7 +974,7 @@ acf_chart = function(model = NULL,
     ) %>%
     add_trace(
       hoverinfo = 'skip',
-      showlegend = F,
+      showlegend = FALSE,
       y = rep(-0.2, length(x$x)),
       x = x$x,
       type = 'scatter',
@@ -976,7 +983,7 @@ acf_chart = function(model = NULL,
     ) %>%
     add_trace(
       hoverinfo = 'skip',
-      showlegend = F,
+      showlegend = FALSE,
       y = rep(0.4, length(x$x)),
       x = x$x,
       type = 'scatter',
@@ -985,7 +992,7 @@ acf_chart = function(model = NULL,
     ) %>%
     add_trace(
       hoverinfo = 'skip',
-      showlegend = F,
+      showlegend = FALSE,
       y = rep(-0.4, length(x$x)),
       x = x$x,
       type = 'scatter',
@@ -998,7 +1005,7 @@ acf_chart = function(model = NULL,
       plot_bgcolor  = "rgba(0, 0, 0, 0)",
       paper_bgcolor = "rgba(0, 0, 0, 0)",
       xaxis = list(
-        showgrid = F,
+        showgrid = FALSE,
         zerolinecolor = "#1c0022")
     )
 
@@ -1027,6 +1034,7 @@ acf_chart = function(model = NULL,
 #' @importFrom stats na.omit
 #' @importFrom rlist list.append
 #' @export
+#' @return a \code{plotly} line chart of the model's response curves
 #' @examples
 #' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) %>%
 #'    response_curves()
@@ -1039,10 +1047,10 @@ response_curves = function(
   y_min = -100,
   y_max = 100,
   interval = 0.1,
-  trans_only = F,
+  trans_only = FALSE,
   colors = color_palette(),
-  verbose = F,
-  table = F){
+  verbose = FALSE,
+  table = FALSE){
   # Set up                ------------------------------------------------------------------
 
   if (is.null(x_max))x_max = 100000
@@ -1116,7 +1124,9 @@ response_curves = function(
       }
 
       param_names = letters[1:length(param_vals)]
-
+      
+      e <- new.env()
+      
       # for each param
       for(k in 1:length(param_vals)){
         # create the param variable in the environment
@@ -1124,12 +1134,13 @@ response_curves = function(
         p_name = param_names[k]
         p_val = param_vals[k]
 
-        assign(p_name,p_val,envir = environment())
+        
+        assign(p_name,p_val,envir = e)
       }
 
       # apply transformation to x
       x = t_func %>%
-        run_text(env = environment())
+        run_text(env = e)
 
     }
 
@@ -1172,7 +1183,7 @@ response_curves = function(
       paper_bgcolor = "rgba(0, 0, 0, 0)",
       font = list(color = '#1c0022'),
       xaxis = list(
-        showgrid = F
+        showgrid = FALSE
       ),
       yaxis = list(
         title = model$dv

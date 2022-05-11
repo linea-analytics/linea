@@ -2,14 +2,14 @@
 % Please edit documentation in R/model_run.R
 \name{apply_transformation}
 \alias{apply_transformation}
-\title{apply_transformation}
+\title{#' apply_transformation}
 \usage{
 apply_transformation(
   data = NULL,
   model_table = NULL,
   trans_df = NULL,
   meta_data = NULL,
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{
@@ -30,5 +30,5 @@ apply_transformation(
 Transform data based on model table
 }
 \details{
-Transform data based on the model table by applying the transformation functions (i.e. \code{decay}, \code{dim_rets}, \code{lag}, and \code{ma}) with the specified parameters to the respective variable
+Transform data based on the model table by applying the transformation functions (e.g. \code{decay}, \code{diminish}, \code{lag}, and \code{ma}) with the specified parameters to the respective variable
 }

@@ -4,7 +4,7 @@
 \alias{what_next}
 \title{what_next}
 \usage{
-what_next(model = NULL, data = NULL, verbose = F, r2_diff = T)
+what_next(model = NULL, data = NULL, verbose = FALSE, r2_diff = TRUE)
 }
 \arguments{
 \item{model}{Model object}
@@ -14,6 +14,9 @@ what_next(model = NULL, data = NULL, verbose = F, r2_diff = T)
 \item{verbose}{A boolean to specify whether to print warnings}
 
 \item{r2_diff}{A boolean to determine whether to add a column to compare new and original model R2}
+}
+\value{
+\code{data.frame} mapping variables' to the respective model's statistics.
 }
 \description{
 run model with other variables from the data

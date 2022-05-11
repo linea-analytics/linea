@@ -7,17 +7,16 @@
 #' @param file The file path that points to either a csv or excel file ending in csv, xls, xlsx, or xlsm
 #' @param sheet For excel files, the sheet name as a string or number as an integer
 #' @param verbose A boolean to specify whether to print warnings
-#' @return 
-#' \code{data.frame}
+#' @return \code{data.frame} from flatfile
 #' @export
 #' @importFrom readxl read_excel
 #' @importFrom readr read_csv
 #' @examples 
 #' read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")  
-read_xcsv = function(file, sheet = NULL, verbose = F) {
+read_xcsv = function(file, sheet = NULL, verbose = FALSE) {
   if(!is.logical(verbose)){
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
-    verbose = F
+    verbose = FALSE
   }
   
   # if the file ends with .csv read as csv
@@ -53,6 +52,7 @@ read_xcsv = function(file, sheet = NULL, verbose = F) {
 #' 
 #' @param x The expression to try
 #' @export
+#' @return expression output or \code{NULL} 
 TRY = function(x){
   tryCatch(
     x,
@@ -70,6 +70,7 @@ TRY = function(x){
 #' @param text Code to run as string
 #' @param env environment object specifying the environment
 #' @export
-run_text = function(text,env = environment()){
+#' @return text expression output
+run_text = function(text,env){
   eval(parse(text = text),envir = env)
 }

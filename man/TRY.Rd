@@ -9,6 +9,9 @@ TRY(x)
 \arguments{
 \item{x}{The expression to try}
 }
+\value{
+expression output or \code{NULL}
+}
 \description{
 TRY or NULL
 }

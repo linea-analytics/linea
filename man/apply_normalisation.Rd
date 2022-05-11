@@ -9,7 +9,7 @@ apply_normalisation(
   meta_data = NULL,
   model_table = NULL,
   dv = NULL,
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{

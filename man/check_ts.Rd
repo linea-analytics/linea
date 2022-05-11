@@ -4,7 +4,7 @@
 \alias{check_ts}
 \title{check_ts}
 \usage{
-check_ts(data, date_col, allow_non_num = T, verbose = F)
+check_ts(data, date_col, allow_non_num = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{data}{The dataframe containing the column specified}
@@ -16,7 +16,7 @@ check_ts(data, date_col, allow_non_num = T, verbose = F)
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{
-\code{data.frame}
+checked \code{data.frame}
 }
 \description{
 Check time series dataframe

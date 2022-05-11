@@ -4,7 +4,7 @@
 \alias{get_vector_from_str}
 \title{get_vector_from_str}
 \usage{
-get_vector_from_str(string, sep = ",", zero = T)
+get_vector_from_str(string, sep = ",", zero = TRUE)
 }
 \arguments{
 \item{string}{a string containing separated by a separator}
@@ -12,6 +12,9 @@ get_vector_from_str(string, sep = ",", zero = T)
 \item{sep}{a string representing the separator}
 
 \item{zero}{a boolean defining whether the output vector must contain a zero}
+}
+\value{
+numeric vector
 }
 \description{
 get a numeric vector from string (e.g. '1,2,3')

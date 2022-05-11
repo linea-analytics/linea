@@ -9,7 +9,7 @@ resid_hist_chart(
   decomp_list = NULL,
   pool = NULL,
   color = "black",
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,6 +22,9 @@ resid_hist_chart(
 \item{color}{string specifying bar color}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+a \code{plotly} histogram of the model's residuals
 }
 \description{
 Histogram of Model Residuals

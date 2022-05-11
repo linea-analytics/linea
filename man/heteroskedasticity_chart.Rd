@@ -9,7 +9,7 @@ heteroskedasticity_chart(
   decomp_list = NULL,
   pool = NULL,
   color = "black",
-  verbose = F
+  verbose = FALSE
 )
 }
 \arguments{
@@ -22,6 +22,9 @@ heteroskedasticity_chart(
 \item{color}{string specifying bar color}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+}
+\value{
+a \code{plotly} scatter chart of the model's dependent variable over residuals
 }
 \description{
 Scatter of Residuals over dependent Variable

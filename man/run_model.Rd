@@ -12,10 +12,10 @@ run_model(
   meta_data = NULL,
   id_var = NULL,
   model_table = NULL,
-  verbose = F,
-  normalise_by_pool = F,
-  save_raw_data = T,
-  decompose = T,
+  verbose = FALSE,
+  normalise_by_pool = FALSE,
+  save_raw_data = TRUE,
+  decompose = TRUE,
   categories = NULL
 )
 }
