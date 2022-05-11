@@ -37,7 +37,7 @@ what_next = function(model = NULL,
     cat("Error: no model provided. Returning NULL. \n")
     return(NULL)
   } else{
-    if (class(model) != "lm") {
+    if (!is(model,class2 = 'lm')) {
       cat("Error: model must be of type 'lm'. Returning NULL. \n")
       return(NULL)
     }
@@ -303,7 +303,7 @@ what_trans = function(model = NULL,
       return(NULL)
     }
   } else{
-    if (class(model) != "lm") {
+    if (!is(model,class2 = 'lm')) {
       cat("\n Error: model must be of type 'lm'. Returning NULL.")
       return(NULL)
     }
@@ -652,7 +652,7 @@ what_combo = function(model = NULL,
                         ivs = vars)
     }
   } else{
-    if (class(model) != "lm") {
+    if (!is(model,class2 = 'lm')) {
       cat("Error: model must be of type 'lm'. Returning NULL. \n")
       return(NULL)
     }
