@@ -1,13 +1,13 @@
 Package: linea
 Title: Linear Regression Interface
-Version: 0.0.2
+Version: 0.0.1
 Authors@R:
     person("Claudio", "Paladini", , "clode.paladini@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5551-1380"))
-Description: This package is an interface to accelerate linear regression (Ordinary least squares) modelling.
-  It allows users to build models quickly, while automatically generating interactive visualizations of the results.
+Description: An interface to accelerate linear regression (Ordinary least squares) modelling, which
+  allows users to build models quickly, while automatically generating interactive visualizations of the results.
   Non-linear models specification (e.g. y = b1*x1 + b2*log(x2)) can be easily constructed using user-defined transformations.
-  This package also offers functions for testing wide ranges of model specifications (e.g. y = b*log(x,10) , y = b*log(x,20) , ...), all at once.
+  Functions for testing wide ranges of model specifications (e.g. y = b*log(x,10) , y = b*log(x,20) , ...), all at once, are also available.
   Finally, models can be imported and exported as Excel files where all the information necessary for re-running the models is stored in separate sheets.
 License: GPL-3
 Encoding: UTF-8

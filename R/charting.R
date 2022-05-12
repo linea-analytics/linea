@@ -41,6 +41,7 @@ color_palette = function(){
 #' @param verbose A boolean to specify whether to print warnings
 #' @import tidyverse
 #' @importFrom stats complete.cases
+#' @importFrom methods is
 #' @importFrom magrittr '%>%'
 #' @importFrom reshape2 melt acast
 #' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
@@ -68,7 +69,7 @@ decomping = function(model = NULL,
     }
     return(NULL)
   }
-  if(class(model)!="lm"){
+  if(!is(model,'lm')){
     if(verbose){
       cat("\n Error: model must be of type 'lm'. Returning NULL.")
     }
@@ -1124,9 +1125,9 @@ response_curves = function(
       }
 
       param_names = letters[1:length(param_vals)]
-      
+
       e <- new.env()
-      
+
       # for each param
       for(k in 1:length(param_vals)){
         # create the param variable in the environment
@@ -1134,7 +1135,7 @@ response_curves = function(
         p_name = param_names[k]
         p_val = param_vals[k]
 
-        
+
         assign(p_name,p_val,envir = e)
       }
 
