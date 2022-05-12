@@ -14,7 +14,7 @@ get_vector_from_str(string, sep = ",", zero = TRUE)
 \item{zero}{a boolean defining whether the output vector must contain a zero}
 }
 \value{
-numeric vector
+numeric vector from the string
 }
 \description{
 get a numeric vector from string (e.g. '1,2,3')

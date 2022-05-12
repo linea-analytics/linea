@@ -10,7 +10,7 @@ is_weekly(dates)
 \item{dates}{a date-type or numeric vector}
 }
 \value{
-boolean
+boolean to specify whether the time series has a weekly frequency
 }
 \description{
 Check if a time-series is weekly

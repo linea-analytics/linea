@@ -10,6 +10,7 @@
 #' @param verbose A boolean to specify whether to print warnings
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
 #' @importFrom purrr reduce
+#' @importFrom methods is
 #' @import tidyverse
 #' @export
 #' @return \code{data.frame} mapping variables' to the respective model's statistics.
@@ -249,6 +250,7 @@ get_vector_from_str = function(string, sep = ',', zero = TRUE) {
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
 #' @param verbose A boolean to specify whether to print warnings
 #' @importFrom purrr reduce
+#' @importFrom methods is
 #' @importFrom stats lm
 #' @import dplyr
 #' @export
@@ -575,6 +577,7 @@ what_trans = function(model = NULL,
 #' @param dv string specifying the dependent variable name
 #' @param verbose A boolean to specify whether to print warnings
 #' @importFrom purrr reduce discard
+#' @importFrom methods is
 #' @importFrom stats lm
 #' @import dplyr
 #' @export

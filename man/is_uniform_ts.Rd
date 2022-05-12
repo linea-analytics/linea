@@ -10,7 +10,7 @@ is_uniform_ts(dates)
 \item{dates}{a date-type or numeric vector}
 }
 \value{
-boolean
+boolean to specify whether the time series is uniform
 }
 \description{
 Check if a time-series is uniform

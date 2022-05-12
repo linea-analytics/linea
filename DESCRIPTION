@@ -1,6 +1,6 @@
 Package: linea
 Title: Linear Regression Interface
-Version: 0.0.1
+Version: 0.0.2
 Authors@R:
     person("Claudio", "Paladini", , "clode.paladini@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5551-1380"))
@@ -16,6 +16,7 @@ Imports: anytime,
   gtrendsR,
   lubridate ,
   magrittr ,
+  methods ,
   openxlsx ,
   plotly ,
   purrr ,

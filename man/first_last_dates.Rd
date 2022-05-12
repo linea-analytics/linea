@@ -12,7 +12,7 @@ first_last_dates(date_values, date_type)
 \item{date_type}{The date column type as either of the following strings:'weekly starting','weekly ending','daily'}
 }
 \value{
-boolean
+list of first and last daily dates
 }
 \description{
 Check if a time-series is uniform

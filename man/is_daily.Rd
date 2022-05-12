@@ -10,7 +10,7 @@ is_daily(dates)
 \item{dates}{a date-type or numeric vector}
 }
 \value{
-boolean
+boolean to specify whether the time series has a daily frequency
 }
 \description{
 Check if a time-series is daily
