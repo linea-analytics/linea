@@ -153,6 +153,9 @@ what_next = function(model = NULL,
     } else{
       # get model summary
       ms = summary(model)
+      
+      # remove back-tick
+      rownames(ms$coefficients) = gsub(x =rownames(ms$coefficients),pattern = '`',replacement = '') 
 
       # generate row
       coef = TRY(ms$coefficients[var, "Estimate"])
