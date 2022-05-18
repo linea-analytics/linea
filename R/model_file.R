@@ -132,7 +132,7 @@ import_model = function(path, verbose = FALSE){
 export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
   model_list = list(
     data = model$data,
-    model_table = model$model_table,
+    model_table = model$output_model_table,
     dv = data.frame(variable = model$dv),
     categories = model$categories,
     id_var = data.frame(variable = model$id_var),
