@@ -504,7 +504,7 @@ decomp_chart = function(model = NULL,
   if(is.null(model)){
     if(is.null(decomp_list)){
       if(verbose){
-        cat("\n Error: no decomp_list provided. Returning NULL.")
+        cat("Error: no decomp_list provided. Returning NULL. \n ")
       }
       return(NULL)
     }
@@ -529,7 +529,7 @@ decomp_chart = function(model = NULL,
   }
   if(!all(c("pool","variable","contrib") %in% colnames(decomp))){
     if(verbose){
-      cat("\n Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
+      cat("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. \n ")
     }
     return(NULL)
   }
