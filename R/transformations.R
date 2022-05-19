@@ -34,18 +34,18 @@ decay = function(v,decay){
 #' @export
 #' @return The transformed vector \code{v}
 #' @examples
-#' hill_function(c(1,0,0,0,1,0,0,0,2), m=1)
-#' hill_function(c(1,0,0,0,1,0,0,0,2), m=1, abs = FALSE)
-#' hill_function(c(1,0,0,0,1,0,0,0,2), m=1, k = 2)
-hill_function = function(v,m,b = 1, k = 1,abs = TRUE){
+#' hill_function(c(1,0,0,0,10,0,0,0,20), m=1)
+#' hill_function(c(1,0,0,0,10,0,0,0,20), m=1, abs = FALSE)
+#' hill_function(c(1,0,0,0,10,0,0,0,20), m=1, k = 2)
+hill_function = function(v,k = 1,m = 5,abs = TRUE){
   m = as.numeric(as.character(m))
   if (m == 0) {
     return(v)
   }
   if (!abs) {
-    m = m*max(v)
+    k = k*max(v)
   }
-  return(b-((k^m)*b)/((k^m)+(v^m)))
+  return(1-((k^m))/((k^m)+(v^m)))
 }
 
 
