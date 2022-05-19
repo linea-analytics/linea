@@ -26,13 +26,8 @@ ivs = c("black.friday", "christmas", "covid")
 id_var = "date"
 
 # model table
-model_table = tibble(
-  variable = ivs,
-  decay = c(0.5, 0, 0),
-  diminish = c(0, 0, 0),
-  lag = c(0, 0, 0),
-  ma = c(0, 0, 0)
-)
+model_table = build_model_table(ivs)
+model_table$dec[1] = '0.5'
 
 # category
 category = tibble(

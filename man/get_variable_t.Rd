@@ -8,7 +8,8 @@ get_variable_t(
   model_table,
   excl_intercept = TRUE,
   excl_dup = TRUE,
-  excl_blanks = FALSE
+  excl_blanks = FALSE,
+  trans_df = NULL
 )
 }
 \arguments{
@@ -18,7 +19,9 @@ get_variable_t(
 
 \item{excl_dup}{Boolean to specify whether to drop the duplicated rows of the model table}
 
-\item{excl_blanks}{Boolean to specify whether to drop the blank rows of the model table}
+\item{excl_blanks}{Boolean to specify whether to drop the blank rows of the model}
+
+\item{trans_df}{\code{data.frame} defining the non-linear transformations}
 }
 \value{
 \code{tibble} of model table with added variable_t column
@@ -28,4 +31,8 @@ Generate more specific variable names
 }
 \details{
 Generate variable names that capture the transformations applied
+}
+\examples{
+build_model_table(colnames(mtcars)) \%>\%
+   get_variable_t()
 }

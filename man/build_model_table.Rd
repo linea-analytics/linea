@@ -4,12 +4,14 @@
 \alias{build_model_table}
 \title{build_model_table}
 \usage{
-build_model_table(ivs, trans_df = NULL)
+build_model_table(ivs, trans_df = NULL, ts = TRUE)
 }
 \arguments{
 \item{ivs}{character vector of variables}
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
+
+\item{ts}{boolean to specify if time-series or not}
 }
 \value{
 \code{tibble} of model table

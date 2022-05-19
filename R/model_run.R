@@ -191,28 +191,6 @@ apply_normalisation = function(raw_data = NULL,
   return(list(data = raw_data,pool_mean = pool_mean))
 }
 
-#' default_trans_df
-#'
-#' The default transformation \code{data.frame}
-#'
-#' The default transformation \code{data.frame} containing the functions \code{decay}, \code{diminish}, \code{lag}, and \code{ma}
-#'
-#' @export
-#' @return \code{data.frame} containing the transformations 
-default_trans_df = function(){
-  
-  return(trans_df = data.frame(
-    name = c('diminish', 'decay', 'lag', 'ma'),
-    func = c(
-      'linea::diminish(x,a)',
-      'linea::decay(x,a)',
-      'linea::lag(x,a)',
-      'linea::ma(x,a)'
-    ),
-    order = 1:4
-  ))
-}
-
 
 #' #' apply_transformation
 #'
@@ -223,7 +201,7 @@ default_trans_df = function(){
 #' @export
 #' @param data \code{data.frame} containing data for analysis
 #' @param model_table \code{data.frame} as created in the \code{build_model_table} function
-#' @param trans_df \code{data.frame} defining the non-linear transformations to apply 
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @param meta_data \code{data.frame} mapping variable names to their roles (i.e. POOL)
 #' @param verbose A boolean to specify whether to print warnings
 #' @return \code{tibble} of raw_data with added transformed variables
@@ -233,13 +211,13 @@ apply_transformation = function(data = NULL,
                                 meta_data = NULL,
                                 verbose = FALSE) {
   # checks  #####
-  
+
   # check verbose
   if(!is.logical(verbose)){
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
-  
+
   # check model table provided (not NULL)
   if(is.null(data)){
     if(verbose){
@@ -253,7 +231,7 @@ apply_transformation = function(data = NULL,
     }
     return(NULL)
   }
-  
+
   # check model table provided (not NULL)
   if(is.null(model_table)){
     if(verbose){
@@ -267,37 +245,29 @@ apply_transformation = function(data = NULL,
     }
     return(data)
   }
-  
+
   # check trans_df
   if(is.null(trans_df)){
     if(verbose){
       cat("\n Warning: no trans_df provided. Setting default trans_df.")
     }
-    trans_df = data.frame(
-      name = c('diminish','decay','lag','ma'),
-      func = c('linea::diminish(x,a)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
-      order = 1:4
-    )
+    trans_df = default_trans_df()
   }
-  if(!is.data.frame(model_table)){
+  if(!is.data.frame(trans_df)){
     if(verbose){
       cat("\n Warning: trans_df provided must be a data.frame. Setting default trans_df.")
     }
-    trans_df = data.frame(
-      name = c('diminish','decay','lag','ma'),
-      func = c('linea::diminish(x,a)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
-      order = 1:4
-    )
+    trans_df = default_trans_df()
   }
-  
+
   # get variables from model table
   model_table = model_table %>%
     get_variable_t()
-  
+
   variable_t = model_table$variable_t
   variable = model_table$variable
   trans = trans_df$name
-  
+
   # if a meta table is provided try to extract the POOL variable
   if(is.null(meta_data)| !is.data.frame(meta_data)){
     # else create a pool variable "total"...
@@ -311,83 +281,83 @@ apply_transformation = function(data = NULL,
     }
     pool = "total_pool"
     # ...and add it to the data
-    
+
     # if default pool variable already in use replace it
     if(pool %in% colnames(data)){
       if(verbose){
         cat("\n Info: 'total_pool' variable will be added/replaced from data.")
       }
-      
+
       data$total_pool = NULL
-      
+
     }
-    
+
     data = tibble(data, total_pool = pool)
-    
+
   } else if (!is.null(meta_data)) {
     pool = TRY({
       meta_data %>%
         filter(meta == "POOL") %>%
         pull(variable)
     })
-    
+
     # if there is a pool variable in the meta data...
     # ...but has zero
     if (!is.null(pool)) {
       if (length(pool) == 0) {
         if(verbose)print("Warning: no pool variable found in meta_data")
         pool = "total_pool"
-        
+
         # if default pool variable already in use replace it
         if(pool %in% colnames(data)){
           if(verbose)print("Warning: 'total_pool' variable will be added/replaced from data")
-          
+
           data$total_pool = NULL
-          
+
         }
-        
+
         data = tibble(data, total_pool = pool)
       }
     } else{
       # else create a pool variable "total"...
       if(verbose)print("Warning: no pool variable found in meta_data")
-      
+
       # if default pool variable already in use replace it
       if("total_pool" %in% colnames(data)){
         if(verbose)print("Warning: 'total_pool' variable will be added/replaced from data")
-        
+
         data$total_pool = NULL
-        
+
       }
-      
+
       pool = "total_pool"
       # ...and add it to the data
       data = tibble(data, total_pool = pool)
-      
+
     }
   }
-  
+
   # process ####
-  
+
   # for each variable...
   for(i in 1:length(variable)){
-    
+
     var_t_name = variable_t[i]
     var_name = variable[i]
-    
+
     # skip if blank
     if(var_name == ""){
       next
     }
-    
+
     # data[,var_t_name] = data[,var_name]
     data[,'temp_var'] = data[,var_name]
-    
+
     # for each transformation on trans_df
     for(j in 1:nrow(trans_df)){
       t_name = trans_df$name[j]
       t_func = trans_df$func[j]
-      
+
       param_values = model_table %>%
         filter(variable_t == var_t_name) %>%
         pull(!!sym(t_name)) %>%
@@ -395,40 +365,40 @@ apply_transformation = function(data = NULL,
         strsplit(split = '[,]') %>%
         unlist() %>%
         as.numeric()
-      
+
       if (all(param_values == '')) {
         next
       }
-      
+
       e <- new.env()
-      
+
       for (i in 1:length(param_values)) {
         p_val = param_values[i]
         p_name = letters[i]
-        
+
         assign(p_name,p_val,envir = e)
-        
+
       }
-      
+
       groups = data %>%
         pull(!!sym(pool)) %>%
         unique()
-      
+
       for(g in groups){
-        
+
         x = data$temp_var[data[,pool]==g]
         x = t_func %>% run_text(env = e)
         data$temp_var[data[,pool]==g] = x
-        
+
       }
     }
-    
+
     data[,var_t_name] = data[,'temp_var']
     data[,'temp_var'] = NULL
   }
-  
+
   return(data)
-  
+
 }
 
 #' vapply_transformation
@@ -439,37 +409,28 @@ apply_transformation = function(data = NULL,
 #'
 #' @export
 #' @param v Numeric vector to be transformed
-#' @param trans_df \code{data.frame} defining the non-linear transformations to apply 
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @param verbose A boolean to specify whether to print warnings
 #' @return Transformed numeric vector
 vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
   # checks  ####
-  
+
   # check verbose
   if (!is.logical(verbose)) {
     cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
-  
+
   # check trans_df
   if (is.null(trans_df)) {
     if (verbose) {
-      cat("\n Warning: no trans_df provided. Setting default trans_df.")
+      cat("Warning: no trans_df provided. Setting default trans_df. \n")
     }
-    trans_df = data.frame(
-      name = c('diminish', 'decay', 'lag', 'ma'),
-      func = c(
-        'linea::diminish(x,a)',
-        'linea::decay(x,a)',
-        'linea::lag(x,a)',
-        'linea::ma(x,a)'
-      ),
-      order = 1:4,
-      params = rep('', 4)
-    )
+    trans_df = default_trans_df() %>%
+      mutate(params = '')
   }
-  
-  
+
+
   # process ####
   for (j in 1:nrow(trans_df)) {
     t_name = trans_df$name[j]
@@ -478,27 +439,27 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
       strsplit(split = "[,]") %>%
       unlist() %>%
       as.numeric()
-    
+
     if (all(t_vals == '')) {
       next
     }
-    
+
     e <- new.env()
-    
+
     for (i in 1:length(t_vals)) {
       p_val = t_vals[i]
       p_name = letters[i]
-      
+
       assign(p_name,p_val,envir = e)
-      
+
     }
-    
+
     x = v
     x = t_func %>% run_text(env = e)
     v = x
-    
+
   }
-  
+
   return(v)
 }
 
@@ -513,13 +474,13 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #' @param data \code{data.frame} containing variables included in the model specification
 #' @param dv string of the dependent variable name
 #' @param ivs character vector of the independent variables names
-#' @param trans_df \code{data.frame} defining the non-linear transformations to apply 
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @param meta_data \code{data.frame} mapping variable names to their roles (i.e. POOL)
 #' @param id_var string of id variable name (e.g. date)
 #' @param model_table \code{data.frame} as created in the \code{build_model_table} function
 #' @param verbose A boolean to specify whether to print warnings
 #' @param normalise_by_pool A boolean to specify whether to apply the normalisation
-#' @param save_raw_data A boolean to specify whether to save all input data variables to the model object 
+#' @param save_raw_data A boolean to specify whether to save all input data variables to the model object
 #' @param decompose A boolean to specify whether to generate the model decomposition
 #' @param categories \code{data.frame} mapping variables to groups
 #' @import tidyverse
@@ -544,15 +505,32 @@ run_model = function(data = NULL,
                      save_raw_data = TRUE,
                      decompose = TRUE,
                      categories = NULL) {
+
+  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  # dv = 'ecommerce'
+  # ivs = c('christmas','black.friday')
+  # trans_df = NULL
+  # meta_data = NULL
+  # id_var = NULL
+  # model_table = NULL
+  # verbose = FALSE
+  # normalise_by_pool = FALSE
+  # save_raw_data = TRUE
+  # decompose = TRUE
+  # categories = data.frame(
+  #   variable = ivs,
+  #   category = c('a','b')
+  # )
+
   # checks  ####
-  
+
   if (!is.logical(verbose)) {
     cat(
       "\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False."
     )
     verbose = FALSE
   }
-  
+
   # check data is not provided
   if (is.null(data)) {
     if (verbose) {
@@ -566,13 +544,13 @@ run_model = function(data = NULL,
     }
     return(NULL)
   }
-  
+
   # check dv is not provided
   if (is.null(dv)) {
     cat("\n Error: no dependent variable ('dv') provided. Returning NULL.")
     return(NULL)
   }
-  
+
   # check meta_data
   if (is.null(meta_data)) {
     if (verbose) {
@@ -592,7 +570,7 @@ run_model = function(data = NULL,
       )
     }
   }
-  
+
   # if model_table and ivs not provided
   if (is.null(model_table) & is.null(ivs)) {
     if (verbose) {
@@ -619,7 +597,7 @@ run_model = function(data = NULL,
       # use model table variables as ivs
       model_table = model_table %>%
         get_variable_t(excl_blanks = TRUE)
-      
+
       ivs = model_table %>% pull(variable) %>% unique()
       ivs_t = model_table %>% pull(variable_t) %>% unique()
     }
@@ -628,36 +606,32 @@ run_model = function(data = NULL,
     # use model table variables as ivs
     model_table = model_table %>%
       get_variable_t(excl_blanks = TRUE) %>% unique()
-    
+
     ivs_t = model_table %>% pull(variable_t) %>% unique()
   }
-  
+
   # check trans_df
   if(is.null(trans_df)){
     if(verbose){
       cat("\n Warning: no trans_df provided. Setting default trans_df.")
     }
-    trans_df = data.frame(
-      name = c('diminish','decay','lag','ma'),
-      func = c('linea::diminish(x,a)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
-      order = 1:4
-    )
+    trans_df = default_trans_df()
   }
-  
-  
+
+
   # check categories in model_table
   if(!('category' %in% colnames(model_table))){
     model_table$category = ""
   }
-  
+
   # formula ####
-  
+
   # build formula object
   formula = build_formula(dv = dv, ivs = ivs_t)
-  
-  
+
+
   # data    ####
-  
+
   # generate norm_data
   if(normalise_by_pool){
     norm_data = apply_normalisation(
@@ -670,13 +644,13 @@ run_model = function(data = NULL,
   }else{
     norm_data = data
   }
-  
+
   # check norm_data
   if (length(norm_data) == 2) {
     pool_mean = norm_data$pool_mean
     norm_data = norm_data$data
   }
-  
+
   trans_data = apply_transformation(
     data = norm_data,
     trans_df = trans_df,
@@ -684,25 +658,25 @@ run_model = function(data = NULL,
     meta_data = meta_data,
     verbose = verbose
   )
-  
+
   # model   ####
-  
+
   # run model on norm_data
   model = lm(formula = formula, data = trans_data[,c(dv,ivs_t)])
-  
+
   # add meta_data to mdoel object
   model$meta_data = meta_data
-  
+
   # set colnames as ivs. bypass backticks added to ivs by lm()
   names(model$coefficients) = c("(Intercept)", ivs_t)
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
   #names(model$effects)[1:(length(ivs_t))] = c("(Intercept)", ivs)
-  
+
   # add dv, trans_df, and model_table to mdoel object
   model$dv = dv # add dv and model_table to mdoel object
   model$trans_df = trans_df
   model$model_table = model_table
-  
+
   output_model_table = model_table %>%
     filter(variable != "") %>%
     right_join(
@@ -744,25 +718,25 @@ run_model = function(data = NULL,
     mutate(
       category = if_else(variable == "(Intercept)","Base",category)
     )
-  
+
   # create moodel output table with tran's and stats's (e.g. tstats)
   model$output_model_table = output_model_table
-  
-  
+
+
   if (exists("pool_mean")) {
     model$pool_mean = pool_mean
   }
-  
+
   if(exists("id_var")){
     model$id_var = id_var
   }
-  
+
   if(save_raw_data){
     model$data = data
   }
-  
-  model$normalise_by_pool = normalise_by_pool 
-  
+
+  model$normalise_by_pool = normalise_by_pool
+
   # decomp  ####
   if (decompose) {
     decomp_list = decomping(
@@ -773,7 +747,7 @@ run_model = function(data = NULL,
       verbose = verbose,
       id_var = id_var
     ) %>% TRY()
-    
+
     if(is.null(decomp_list)){
       if(verbose){
         cat('Warning: decomposition failed. decomp_list will be NULL.\n')
@@ -782,7 +756,7 @@ run_model = function(data = NULL,
       model$decomp_list = decomp_list
     }
   }
-  
+
   # return model object
   return(model)
 }
