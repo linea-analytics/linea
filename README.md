@@ -3,7 +3,7 @@
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/linea)](https://CRAN.R-project.org/package=linea)
-[![metacran downloads](https://cranlogs.r-pkg.org/badges/linea)](https://cran.r-project.org/package=linea)
+[![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/grand-total/linea?color=blue)](https://r-pkg.org/pkg/linea)
 <!-- badges: end -->
 
 LINEA is an R library, designed as an interface to accelerate linear regression modelling and visualization. The library allows users to build complex model specification through custom transformations.
