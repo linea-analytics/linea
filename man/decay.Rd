@@ -18,7 +18,7 @@ The transformed vector \code{v}
 Time series decay
 }
 \details{
-Applies the specified decay on the input vector
+Applies the specified decay on the input vector, v
 }
 \examples{
 decay(c(1,0,0,0,1,0,0,0,2), 0.5)

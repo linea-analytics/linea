@@ -1028,12 +1028,14 @@ acf_chart = function(model = NULL,
 #' @param colors character vector of colors in hexadecimal notation
 #' @param verbose A boolean to specify whether to print warnings
 #' @param table A boolean to specify whether to return a \code{data.frame} of the response curves
+#' @param points A boolean to specify whether to include the points from the data on the curve
 #' @import plotly
 #' @import tidyverse
 #' @import tibble
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom stats na.omit
 #' @importFrom rlist list.append
+#' @importFrom purrr reduce
 #' @export
 #' @return a \code{plotly} line chart of the model's response curves
 #' @examples
@@ -1051,146 +1053,117 @@ response_curves = function(
   trans_only = FALSE,
   colors = color_palette(),
   verbose = FALSE,
-  table = FALSE){
-  # Set up                ------------------------------------------------------------------
-
-  if (is.null(x_max))x_max = 100000
-  if (is.null(x_min))x_min = 0
-  if (is.null(interval))interval = x_max/1000
-  if (is.null(y_max))y_max = x_max
-  if (is.null(y_min))y_min = x_min
-
+  table = FALSE,
+  points = FALSE){
+  # checks  ####
+  if (is.null(x_max)) x_max = 1e+05
+  if (is.null(x_min)) x_min = 0
+  if (is.null(interval)) interval = x_max/1000
+  if (is.null(y_max)) y_max = x_max
+  if (is.null(y_min)) y_min = x_min
+  
+  # process ####    
   optim_table = model$output_model_table
   trans_df = model$trans_df
-
-  # filter only trans variables
-  if(trans_only){
-    optim_table = optim_table[!(((optim_table[trans_df$name] == "") %>%
-                                   data.frame() %>%
-                                   rowSums()) == nrow(trans_df)), ]
+  if (trans_only) {
+    optim_table = optim_table[!(((optim_table[trans_df$name] == 
+                                    "") %>% data.frame() %>% rowSums()) == nrow(trans_df)), 
+    ]
   }
-
-  # select only relevant columns
-  optim_table = optim_table %>%
-    filter(variable != '(Intercept)')
-
-  optim_table = optim_table[c('variable',
-                              'variable_t',
-                              trans_df$name,
-                              'coef')] %>%
-    na.omit()
-
-  # if no dim_rets > 0 return null
-  if(nrow(optim_table)==0){
-    if(verbose)print('All trans in model_table are blank.')
+  optim_table = optim_table %>% filter(variable != "(Intercept)")
+  optim_table = optim_table[c("variable", "variable_t", 
+                              trans_df$name, "coef")] %>% na.omit()
+  if (nrow(optim_table) == 0) {
+    if (verbose) 
+      print("All trans in model_table are blank.")
     return(plot_ly())
   }
-
-  # colors
-  # colors = brewer.pal(nrow(optim_table), "Set1") %>%
-  #   suppressWarnings()
-
-  # Curve DF              -------------------
-
-  # list to be populated with curves
   curves_df = list()
-
-  # for each var
-  for(i in 1:nrow(optim_table)){
-
-    # name and coef of the variable
+  x_raw = seq(x_min, x_max, interval)
+  for (i in 1:nrow(optim_table)) {
     var = optim_table$variable_t[i]
     coef = optim_table$coef[i]
-
-    # x-axis to generate the curve (y)
-    x_raw = seq(x_min, x_max, interval)
     x = x_raw
-
-    # for each trans
-    for(j in 1:nrow(model$trans_df)){
-
+    for (j in 1:nrow(model$trans_df)) {
       t_name = model$trans_df$name[j]
       t_func = model$trans_df$func[j]
-
-      param_vals =  model$output_model_table %>%
-        filter(variable_t == var) %>%
-        pull(!!sym(t_name)) %>%
-        strsplit(split = ',')
-      param_vals = param_vals[[1]] %>%
-        as.numeric()
-
-      # if no params, trans is not being applied
-      if(length(param_vals) == 0){
+      param_vals = model$output_model_table %>% filter(variable_t == 
+                                                         var) %>% pull(!!sym(t_name)) %>% strsplit(split = ",")
+      param_vals = param_vals[[1]] %>% as.numeric()
+      if (length(param_vals) == 0) {
         next
       }
-
       param_names = letters[1:length(param_vals)]
-
       e <- new.env()
-
-      # for each param
-      for(k in 1:length(param_vals)){
-        # create the param variable in the environment
-
+      for (k in 1:length(param_vals)) {
         p_name = param_names[k]
         p_val = param_vals[k]
-
-
-        assign(p_name,p_val,envir = e)
+        assign(p_name, p_val, envir = e)
       }
-
-      # apply transformation to x
-      x = t_func %>%
-        run_text(env = e)
-
+      x = t_func %>% run_text(env = e)
     }
-
-    curves_df = list.append(
-      curves_df,
-      data.frame(value = x * coef,
-                 variable = var,
-                 x = x_raw) %>%
-        mutate(value = as.numeric(value)) %>%
-        mutate(variable = as.character(variable)) %>%
-        mutate(x = as.numeric(x)))
+    curves_df = list.append(curves_df, data.frame(value = x * 
+                                                    coef, variable = var, x = x_raw) %>% mutate(value = as.numeric(value)) %>% 
+                              mutate(variable = as.character(variable)) %>% mutate(x = as.numeric(x)))
   }
-
-  curves_df = curves_df %>%
-    purrr::reduce(rbind) %>%
-    filter(value >= y_min) %>%
-    filter(value <= y_max)
-
-  if(table){return(curves_df)}
-
-  # PLOTS                 -------------------
-
-  # plot curves
+  curves_df = curves_df %>% purrr::reduce(rbind) %>% filter(value >= 
+                                                              y_min) %>% filter(value <= y_max)
+  if (table) {
+    return(curves_df)
+  }
+  
+  # plotly  ####
   p = plot_ly()
-
-  # plot curves
-
-  p =  p %>%
-    add_trace(
-      data = curves_df,
-      x = ~ x,
-      y = ~ value,
-      color = ~ variable,
-      mode = "lines",
-      type = "scatter",
-      colors = colors
-    ) %>%
-    layout(
-      plot_bgcolor  = "rgba(0, 0, 0, 0)",
-      paper_bgcolor = "rgba(0, 0, 0, 0)",
-      font = list(color = '#1c0022'),
-      xaxis = list(
-        showgrid = FALSE
-      ),
-      yaxis = list(
-        title = model$dv
-      ),
-      title = 'Response Curves'
-    )
-
+  p = p %>% add_trace(data = curves_df, x = ~x, y = ~value, 
+                      color = ~variable, mode = "lines", type = "scatter", 
+                      colors = colors) %>% layout(plot_bgcolor = "rgba(0, 0, 0, 0)", 
+                                                  paper_bgcolor = "rgba(0, 0, 0, 0)", font = list(color = "#1c0022"), 
+                                                  xaxis = list(showgrid = FALSE), yaxis = list(title = model$dv), 
+                                                  title = "Response Curves")
+  
+  if(points) {
+    
+    raw_data = model$model
+    
+    # calculate predicted points through functions
+    curves_df = list()
+    for (i in 1:nrow(optim_table)) {
+      var = optim_table$variable_t[i]
+      coef = optim_table$coef[i]
+      x_raw = raw_data %>% pull(!!sym(var))
+      x = x_raw
+      for (j in 1:nrow(model$trans_df)) {
+        t_name = model$trans_df$name[j]
+        t_func = model$trans_df$func[j]
+        param_vals = model$output_model_table %>% filter(variable_t == 
+                                                           var) %>% pull(!!sym(t_name)) %>% strsplit(split = ",")
+        param_vals = param_vals[[1]] %>% as.numeric()
+        if (length(param_vals) == 0) {
+          next
+        }
+        param_names = letters[1:length(param_vals)]
+        e <- new.env()
+        for (k in 1:length(param_vals)) {
+          p_name = param_names[k]
+          p_val = param_vals[k]
+          assign(p_name, p_val, envir = e)
+        }
+        x = t_func %>% run_text(env = e)
+      }
+      curves_df = list.append(curves_df, data.frame(value = x * 
+                                                      coef, variable = var, x = x_raw) %>% mutate(value = as.numeric(value)) %>% 
+                                mutate(variable = as.character(variable)) %>% mutate(x = as.numeric(x)))
+    }
+    curves_df = curves_df %>% 
+      purrr::reduce(rbind) #%>% 
+    # filter(value >= y_min) %>% filter(value <= y_max)
+    
+    
+    # add points to plotly item
+    p = p %>%  add_trace(data = curves_df, x = ~x, y = ~value, 
+                         color = ~variable, mode = "markers", type = "scatter", 
+                         colors = colors)
+  }
+  
   return(p)
 }

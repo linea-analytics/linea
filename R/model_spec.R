@@ -19,9 +19,9 @@ default_trans_df = function(ts = TRUE){
 
   if(ts){
     trans_df =  data.frame(
-      name = c('diminish','hill','decay','lag','ma'),
-      func = c('linea::diminish(x,a)','linea::hill_function(x,a,b,c)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
-      order = 1:5
+      name = c('hill','decay','lag','ma'),
+      func = c('linea::hill_function(x,a,b)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
+      order = 1:4
     )
   }
 

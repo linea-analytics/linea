@@ -616,21 +616,20 @@ what_trans = function(model = NULL,
 #'
 #' #using the trans_df, data, and dv
 #' what_combo(trans_df = trans_df, data = data, dv = dv)
-
 what_combo = function(model = NULL,
                       trans_df = NULL,
                       data = NULL,
                       dv = NULL,
                       r2_diff = TRUE,
                       verbose = FALSE) {
-
+  
   # TODO
   # - trans_df columns
   # - check vars are in data
   # - dv in data
 
   # checks  ####
-
+  
   if (!is.logical(verbose)) {
     cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
     verbose = FALSE
@@ -813,7 +812,7 @@ what_combo = function(model = NULL,
 
 
   # expand.grid for all combos across variables
-  output_df = sapply(long_combo_df, function(x) {
+  output_df = lapply(long_combo_df, function(x) {
     1:nrow(x)
   }) %>%
     expand.grid()

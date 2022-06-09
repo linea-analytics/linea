@@ -4,16 +4,14 @@
 \alias{hill_function}
 \title{hill_function}
 \usage{
-hill_function(v, m, b = 1, k = 1, abs = TRUE)
+hill_function(v, k = 1, m = 5, abs = TRUE)
 }
 \arguments{
 \item{v}{Numeric vector}
 
-\item{m}{Numeric integer or decimal}
-
-\item{b}{Numeric integer or decimal}
-
 \item{k}{Numeric integer or decimal}
+
+\item{m}{Numeric integer or decimal}
 
 \item{abs}{Boolean to determine if diminishing scale \code{m} is a percentage or absolute value}
 }
@@ -24,10 +22,10 @@ The transformed vector \code{v}
 Hill Function
 }
 \details{
-Applies the Hill Function (1 - exp(-x)) on the input vector
+Applies the Hill Function 1 - (k^m)(k^m + v^m) on the input vector, v
 }
 \examples{
-hill_function(c(1,0,0,0,1,0,0,0,2), m=1)
-hill_function(c(1,0,0,0,1,0,0,0,2), m=1, abs = FALSE)
-hill_function(c(1,0,0,0,1,0,0,0,2), m=1, k = 2)
+hill_function(c(1,0,0,0,10,0,0,0,20), k=10)
+hill_function(c(1,0,0,0,10,0,0,0,20), k=0.1, abs = FALSE)
+hill_function(c(1,0,0,0,10,0,0,0,20), k=10, m = 3)
 }

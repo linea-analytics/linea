@@ -20,7 +20,7 @@ The transformed vector \code{v}
 Negative exponential (Diminish returns)
 }
 \details{
-Applies the negative exponential (1 - exp(-x/m)) on the input vector
+Applies the negative exponential (1 - exp(-x/m)) on the input vector, v
 }
 \examples{
 diminish(c(1,0,0,0,1,0,0,0,2), 1)

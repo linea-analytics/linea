@@ -20,7 +20,7 @@ The lagged vector \code{v}
 Lag by \code{l}
 }
 \details{
-Applies a lag of \code{l} on the input vector
+Applies a lag of \code{l} on the input vector, v
 }
 \examples{
 lag(c(1,0,0,0,1,0,0,0,2), 1)

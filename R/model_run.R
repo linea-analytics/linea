@@ -505,22 +505,22 @@ run_model = function(data = NULL,
                      save_raw_data = TRUE,
                      decompose = TRUE,
                      categories = NULL) {
-
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  # dv = 'ecommerce'
-  # ivs = c('christmas','black.friday')
-  # trans_df = NULL
-  # meta_data = NULL
-  # id_var = NULL
-  # model_table = NULL
-  # verbose = FALSE
-  # normalise_by_pool = FALSE
-  # save_raw_data = TRUE
-  # decompose = TRUE
-  # categories = data.frame(
-  #   variable = ivs,
-  #   category = c('a','b')
-  # )
+# 
+#   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+#   dv = 'ecommerce'
+#   ivs = c('christmas','black.friday')
+#   trans_df = NULL
+#   meta_data = NULL
+#   id_var = NULL
+#   model_table = NULL
+#   verbose = T
+#   normalise_by_pool = FALSE
+#   save_raw_data = TRUE
+#   decompose = TRUE
+#   categories = data.frame(
+#     variable = ivs,
+#     category = c('a','b')
+#   )
 
   # checks  ####
 
@@ -556,14 +556,13 @@ run_model = function(data = NULL,
     if (verbose) {
       cat("\n Info: No meta_data provided for transformations and normalisation.")
     }
-  }
-  else if (!is.data.frame(meta_data)) {
+  } else if (!is.data.frame(meta_data)) {
     if (verbose) {
       cat(
         "\n Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation."
       )
     }
-  }else if(nrow(meta_data)==0){
+  } else if(nrow(meta_data)==0){
     if (verbose) {
       cat(
         "\n Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation."

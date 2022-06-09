@@ -51,13 +51,18 @@ read_xcsv = function(file, sheet = NULL, verbose = FALSE) {
 #' A tryCatch implementation that returns NULL when an error is thrown 
 #' 
 #' @param x The expression to try
+#' @param verbose boolean to specify whether to print the error
 #' @export
 #' @return expression output or \code{NULL} 
-TRY = function(x){
+TRY = function(x,verbose = FALSE){
   tryCatch(
     x,
-    error = function(e)
-      NULL
+    error = function(e){
+      if(verbose){
+        message(e)
+      }
+      return(NULL)
+    }
   )}
 
 

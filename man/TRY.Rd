@@ -4,10 +4,12 @@
 \alias{TRY}
 \title{TRY}
 \usage{
-TRY(x)
+TRY(x, verbose = FALSE)
 }
 \arguments{
 \item{x}{The expression to try}
+
+\item{verbose}{boolean to specify whether to print the error}
 }
 \value{
 expression output or \code{NULL}

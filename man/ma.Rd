@@ -9,7 +9,7 @@ ma(v, width, align = "center", zero = TRUE)
 \arguments{
 \item{v}{Numeric vector}
 
-\item{width}{Width of moving average window as an integer}
+\item{width}{Width of moving average window as an integer, v}
 
 \item{align}{Either string "center", "left", or "right"}
 

@@ -14,7 +14,8 @@ response_curves(
   trans_only = FALSE,
   colors = color_palette(),
   verbose = FALSE,
-  table = FALSE
+  table = FALSE,
+  points = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ response_curves(
 \item{verbose}{A boolean to specify whether to print warnings}
 
 \item{table}{A boolean to specify whether to return a \code{data.frame} of the response curves}
+
+\item{points}{A boolean to specify whether to include the points from the data on the curve}
 }
 \value{
 a \code{plotly} line chart of the model's response curves
