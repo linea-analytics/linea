@@ -262,7 +262,7 @@ apply_transformation = function(data = NULL,
 
   # get variables from model table
   model_table = model_table %>%
-    get_variable_t()
+    get_variable_t(trans_df = trans_df)
 
   variable_t = model_table$variable_t
   variable = model_table$variable
@@ -505,22 +505,22 @@ run_model = function(data = NULL,
                      save_raw_data = TRUE,
                      decompose = TRUE,
                      categories = NULL) {
-# 
-#   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-#   dv = 'ecommerce'
-#   ivs = c('christmas','black.friday')
-#   trans_df = NULL
-#   meta_data = NULL
-#   id_var = NULL
-#   model_table = NULL
-#   verbose = T
-#   normalise_by_pool = FALSE
-#   save_raw_data = TRUE
-#   decompose = TRUE
-#   categories = data.frame(
-#     variable = ivs,
-#     category = c('a','b')
-#   )
+  #
+  #   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  #   dv = 'ecommerce'
+  #   ivs = c('christmas','black.friday')
+  #   trans_df = NULL
+  #   meta_data = NULL
+  #   id_var = NULL
+  #   model_table = NULL
+  #   verbose = T
+  #   normalise_by_pool = FALSE
+  #   save_raw_data = TRUE
+  #   decompose = TRUE
+  #   categories = data.frame(
+  #     variable = ivs,
+  #     category = c('a','b')
+  #   )
 
   # checks  ####
 
@@ -570,6 +570,14 @@ run_model = function(data = NULL,
     }
   }
 
+  # check trans_df
+  if(is.null(trans_df)){
+    if(verbose){
+      cat("\n Warning: no trans_df provided. Setting default trans_df.")
+    }
+    trans_df = default_trans_df()
+  }
+
   # if model_table and ivs not provided
   if (is.null(model_table) & is.null(ivs)) {
     if (verbose) {
@@ -595,7 +603,7 @@ run_model = function(data = NULL,
     } else{
       # use model table variables as ivs
       model_table = model_table %>%
-        get_variable_t(excl_blanks = TRUE)
+        get_variable_t(excl_blanks = TRUE, trans_df = trans_df)
 
       ivs = model_table %>% pull(variable) %>% unique()
       ivs_t = model_table %>% pull(variable_t) %>% unique()
@@ -604,18 +612,12 @@ run_model = function(data = NULL,
     model_table = build_model_table(ivs = ivs)
     # use model table variables as ivs
     model_table = model_table %>%
-      get_variable_t(excl_blanks = TRUE) %>% unique()
+      get_variable_t(excl_blanks = TRUE, trans_df = trans_df) %>% unique()
 
     ivs_t = model_table %>% pull(variable_t) %>% unique()
   }
 
-  # check trans_df
-  if(is.null(trans_df)){
-    if(verbose){
-      cat("\n Warning: no trans_df provided. Setting default trans_df.")
-    }
-    trans_df = default_trans_df()
-  }
+
 
 
   # check categories in model_table
