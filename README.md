@@ -1,4 +1,5 @@
 <img src="https://raw.githubusercontent.com/paladinic/data/main/LINEA.svg" width="200px"/>
+<img src="https://raw.githubusercontent.com/paladinic/data/main/LINEA_black.svg" width="200px"/>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/linea)](https://CRAN.R-project.org/package=linea)
