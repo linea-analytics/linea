@@ -13,6 +13,7 @@ response_curves(
   interval = 0.1,
   trans_only = FALSE,
   colors = color_palette(),
+  plotly = TRUE,
   verbose = FALSE,
   table = FALSE,
   points = FALSE
@@ -35,6 +36,8 @@ response_curves(
 
 \item{colors}{character vector of colors in hexadecimal notation}
 
+\item{plotly}{A boolean to specify whether to include use ggplot over plotly}
+
 \item{verbose}{A boolean to specify whether to print warnings}
 
 \item{table}{A boolean to specify whether to return a \code{data.frame} of the response curves}
@@ -53,6 +56,8 @@ Line chart of variable response curves visualising the relationship of each inde
 \examples{
 run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
    response_curves()
+run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
+   response_curves(plotly = FALSE)
 run_model(data = scale(mtcars) \%>\% data.frame(),dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
    response_curves()
 }

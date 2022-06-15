@@ -211,6 +211,7 @@ test_that("what trans - output dataframe", {
   run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
     what_trans(variable = 'cyl',trans_df = data.frame(
     name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+    ts = c(FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE),
     func = c('linea::diminish(x,a)',
              'linea::decay(x,a)',
              'linea::lag(x,a)',
@@ -230,6 +231,7 @@ test_that("what trans - output not all na", {
   run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) %>%
   what_trans(variable = 'cyl',trans_df = data.frame(
   name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+  ts = c(FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE),
   func = c('linea::diminish(x,a)',
            'linea::decay(x,a)',
            'linea::lag(x,a)',
@@ -253,6 +255,7 @@ test_that("what combo - output dataframe", {
   ivs = c('christmas','black.friday')
   combo_trans_df = data.frame(
     name = c('diminish', 'decay', 'hill', 'exp'),
+    ts = c(FALSE,TRUE,FALSE,FALSE),
     func = c(
       'linea::diminish(x,a)',
       'linea::decay(x,a)',
@@ -285,6 +288,7 @@ test_that("what combo - output not all na", {
   ivs = c('christmas','black.friday')
   combo_trans_df = data.frame(
     name = c('diminish', 'decay', 'hill', 'exp'),
+    ts = c(FALSE,TRUE,FALSE,FALSE),
     func = c(
       'linea::diminish(x,a)',
       'linea::decay(x,a)',
