@@ -55,8 +55,27 @@ Run a linear regression model that captures the transformations applied in the \
 A model can be run also by only supplying a dependent variable name \code{dv}, a vector of independent variable names dependent variable \code{ivs}, and the data that contains these.
 }
 \examples{
-run_model(data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv"),
-          dv = 'ecommerce',
-          ivs = c('christmas','black.friday'))
+
+trans_df = data.frame(
+    name = c('diminish', 'decay', 'hill', 'exp'),
+    func = c(
+      'linea::diminish(x,a)',
+      'linea::decay(x,a)',
+      "linea::hill_function(x,a,b,c)",
+      '(x^a)'
+    ),
+    order = 1:4
+)
+
+data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+dv = 'ecommerce'
+ivs = c('christmas','black.friday')
+
+run_model(data = data,
+          dv = dv,
+          ivs = ivs,
+          trans_df = trans_df)
+          
 run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
+
 }

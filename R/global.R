@@ -23,5 +23,6 @@ globalVariables(
     'adj_R2',
     'name',
     'trans_df',
-    'func'
+    'func',
+    'ts'
   ))

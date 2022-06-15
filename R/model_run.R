@@ -489,10 +489,29 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #' @importFrom stats lm na.omit
 #' @return Model object
 #' @examples
-#' run_model(data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv"),
-#'           dv = 'ecommerce',
-#'           ivs = c('christmas','black.friday'))
+#' 
+#' trans_df = data.frame(
+#'     name = c('diminish', 'decay', 'hill', 'exp'),
+#'     func = c(
+#'       'linea::diminish(x,a)',
+#'       'linea::decay(x,a)',
+#'       "linea::hill_function(x,a,b,c)",
+#'       '(x^a)'
+#'     ),
+#'     order = 1:4
+#' )
+#' 
+#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+#' dv = 'ecommerce'
+#' ivs = c('christmas','black.friday')
+#' 
+#' run_model(data = data,
+#'           dv = dv,
+#'           ivs = ivs,
+#'           trans_df = trans_df)
+#'           
 #' run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
+#' 
 run_model = function(data = NULL,
                      dv = NULL,
                      ivs = NULL,
@@ -510,17 +529,14 @@ run_model = function(data = NULL,
   #   dv = 'ecommerce'
   #   ivs = c('christmas','black.friday')
   #   trans_df = NULL
-  #   meta_data = NULL
-  #   id_var = NULL
-  #   model_table = NULL
-  #   verbose = T
-  #   normalise_by_pool = FALSE
-  #   save_raw_data = TRUE
-  #   decompose = TRUE
-  #   categories = data.frame(
-  #     variable = ivs,
-  #     category = c('a','b')
-  #   )
+    # meta_data = NULL
+    # id_var = NULL
+    # model_table = NULL
+    # verbose = T
+    # normalise_by_pool = FALSE
+    # save_raw_data = TRUE
+    # decompose = TRUE
+    # categories = NULL
 
   # checks  ####
 
@@ -609,7 +625,7 @@ run_model = function(data = NULL,
       ivs_t = model_table %>% pull(variable_t) %>% unique()
     }
   }else{
-    model_table = build_model_table(ivs = ivs)
+    model_table = build_model_table(ivs = ivs, trans_df = trans_df)
     # use model table variables as ivs
     model_table = model_table %>%
       get_variable_t(excl_blanks = TRUE, trans_df = trans_df) %>% unique()
@@ -761,3 +777,105 @@ run_model = function(data = NULL,
   # return model object
   return(model)
 }
+
+
+#' re_run_model
+#'
+#' Re-run a linear regression model
+#'
+#' Re-run a linear regression model using the function output of running \code{linea::run_model}.
+#'
+#' @export
+#' @param model the model object used as the starting point of the re-run
+#' @param data \code{data.frame} containing variables included in the model specification
+#' @param dv string of the dependent variable name
+#' @param ivs character vector of the independent variables names
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
+#' @param meta_data \code{data.frame} mapping variable names to their roles (i.e. POOL)
+#' @param id_var string of id variable name (e.g. date)
+#' @param model_table \code{data.frame} as created in the \code{build_model_table} function
+#' @param verbose A boolean to specify whether to print warnings
+#' @param normalise_by_pool A boolean to specify whether to apply the normalisation
+#' @param decompose A boolean to specify whether to generate the model decomposition
+#' @import tidyverse
+#' @import tibble
+#' @import zoo
+#' @importFrom stats lm na.omit
+#' @return Model object
+#' @examples
+#' model = run_model(
+#'    data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv"),
+#'    dv = 'ecommerce',
+#'    ivs = c('christmas','black.friday'))
+#' re_run_model(model,ivs = c('disp','cyl','wt'))
+re_run_model = function(model,
+                        data = NULL,
+                        dv = NULL,
+                        ivs = NULL,
+                        trans_df = NULL,
+                        meta_data = NULL,
+                        id_var = NULL,
+                        model_table = NULL,
+                        normalise_by_pool = FALSE,
+                        verbose = FALSE,
+                        decompose = TRUE){
+  
+  # checks  ####
+  
+  # check verbose
+  if (!is.logical(verbose)) {
+    cat("Warning: verbose provided must be logical (TRUE or FALSE). Setting to FALSE. \n")
+    verbose = FALSE
+  }
+  
+  # check decompose
+  if(is.null(decompose)){
+    if(verbose)cat("Warning: decompose provided must be logical (TRUE or FALSE). Setting to TRUE. \n")
+    decompose = TRUE
+  }
+  
+  # check model
+  if (!is(model,class2 = 'lm')) {
+    cat("Error: model must be of type 'lm'. Returning NULL. \n")
+    return(NULL)
+  }
+  
+  # set defaults where needed
+  if(is.null(data)){
+    data = model$data
+  }
+  if(is.null(dv)){
+    dv = model$dv
+  }
+  if(is.null(ivs)){
+    ivs = model$ivs
+  }
+  if(is.null(trans_df)){
+    trans_df = model$trans_df
+  }
+  if(is.null(meta_data)){
+    meta_data = model$meta_data
+  }
+  if(is.null(id_var)){
+    id_var = model$id_var
+  }
+  if(is.null(model_table)){
+    model_table = model$model_table
+  }
+  if(is.null(normalise_by_pool)){
+    normalise_by_pool = model$normalise_by_pool
+  }
+  
+  # process ####
+  run_model(data = data,
+            dv = dv,
+            ivs = ivs,
+            trans_df = trans_df,
+            meta_data = meta_data,
+            id_var = id_var,
+            model_table = model_table,
+            normalise_by_pool = normalise_by_pool,
+            verbose = verbose,
+            decompose = decompose)
+}
+

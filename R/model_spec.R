@@ -20,6 +20,7 @@ default_trans_df = function(ts = TRUE){
   if(ts){
     trans_df =  data.frame(
       name = c('hill','decay','lag','ma'),
+      ts = c(FALSE,TRUE,TRUE,TRUE),
       func = c('linea::hill_function(x,a,b)','linea::decay(x,a)','linea::lag(x,a)','linea::ma(x,a)'),
       order = 1:4
     )
@@ -28,6 +29,7 @@ default_trans_df = function(ts = TRUE){
   else{
     trans_df = data.frame(
       name = c('diminish','hill'),
+      ts = c(FALSE,FALSE),
       func = c('linea::diminish(x,a)','linea::hill_function(x,a,b)'),
       order = 1:2
     )
@@ -83,7 +85,7 @@ build_model_table = function(ivs,trans_df = NULL,ts = TRUE){
 #' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
 #' @param excl_intercept Boolean to specify whether to drop the "(Intercept)" row of the model table
 #' @param excl_dup Boolean to specify whether to drop the duplicated rows of the model table
-#' @param excl_blanks Boolean to specify whether to drop the blank rows of the model 
+#' @param excl_blanks Boolean to specify whether to drop the blank rows of the model
 #' @param trans_df \code{data.frame} defining the non-linear transformations
 #' @import dplyr
 #' @return \code{tibble} of model table with added variable_t column
