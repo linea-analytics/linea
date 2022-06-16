@@ -1085,6 +1085,8 @@ response_curves = function(
   
   # process ####
   optim_table = model$output_model_table
+  
+  
   trans_df = model$trans_df %>% 
     filter(ts == FALSE)
   

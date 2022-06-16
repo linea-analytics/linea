@@ -524,87 +524,117 @@ run_model = function(data = NULL,
                      save_raw_data = TRUE,
                      decompose = TRUE,
                      categories = NULL) {
+  
   #
   #   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
   #   dv = 'ecommerce'
   #   ivs = c('christmas','black.friday')
   #   trans_df = NULL
-    # meta_data = NULL
-    # id_var = NULL
-    # model_table = NULL
-    # verbose = T
-    # normalise_by_pool = FALSE
-    # save_raw_data = TRUE
-    # decompose = TRUE
-    # categories = NULL
-
+  # meta_data = NULL
+  # id_var = NULL
+  # model_table = NULL
+  # verbose = T
+  # normalise_by_pool = FALSE
+  # save_raw_data = TRUE
+  # decompose = TRUE
+  # categories = NULL
+  
   # checks  ####
-
+  
   if (!is.logical(verbose)) {
-    cat(
-      "\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False."
-    )
+    cat("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False. \n")
     verbose = FALSE
   }
-
+  
   # check data is not provided
   if (is.null(data)) {
-    if (verbose) {
-      cat("\n Error: No data provided for transformations. Returning NULL.")
-    }
+    cat("Error: No data provided for transformations. Returning NULL. \n")
     return(NULL)
   }
   if (!is.data.frame(data)) {
-    if (verbose) {
-      cat("\n Error: data provided must be a data.frame. Returning NULL.")
-    }
+    cat("Error: data provided must be a data.frame. Returning NULL. \n")
     return(NULL)
   }
-
+  
   # check dv is not provided
   if (is.null(dv)) {
-    cat("\n Error: no dependent variable ('dv') provided. Returning NULL.")
+    cat("Error: no dependent variable ('dv') provided. Returning NULL. \n")
     return(NULL)
   }
-
+  
   # check meta_data
   if (is.null(meta_data)) {
     if (verbose) {
-      cat("\n Info: No meta_data provided for transformations and normalisation.")
+      cat("Info: No meta_data provided for transformations and normalisation. \n")
     }
   } else if (!is.data.frame(meta_data)) {
     if (verbose) {
       cat(
-        "\n Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation."
+        "Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation. \n"
       )
     }
-  } else if(nrow(meta_data)==0){
+  } else if (nrow(meta_data) == 0) {
     if (verbose) {
       cat(
-        "\n Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation."
+        "Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation. \n"
       )
     }
   }
-
+  
   # check trans_df
-  if(is.null(trans_df)){
-    if(verbose){
-      cat("\n Warning: no trans_df provided. Setting default trans_df.")
+  if (is.null(trans_df)) {
+    if (verbose) {
+      cat("Warning: no trans_df provided. Setting default trans_df. \n")
     }
     trans_df = default_trans_df()
+  } else{
+    if (is.data.frame(trans_df)) {
+      default_cols = colnames(default_trans_df()) 
+      # if some cols missing
+      if(!all(default_cols%in%colnames(trans_df))){
+        # generate missing cols
+        missing_cols = default_cols[!(default_cols%in%colnames(trans_df))]
+        for(i in missing_cols){
+          if(i == 'name'){
+            # specific basic name
+            trans_df[,i] = 'custom_linea_trans_0'
+          }
+          if(i == 'ts'){
+            # not time series
+            trans_df[,i] = FALSE
+          }
+          if(i == 'func'){
+            # simple polynomial
+            trans_df[,i] = 'x^a'
+          }
+          if(i == 'order'){
+            # last in order
+            trans_df[,i] = nrow(trans_df)
+          }
+        }
+        if (verbose) {
+          cat("Warning: missing colums were added to trans_df. \n")
+          print(trans_df)
+        }
+      }
+    } else{
+      if (verbose) {
+        cat(
+          'Warning: trans_df must to of type data.frame. Setting to default trans_df (i.e. default_trans_df()). \n'
+        )
+      }
+    }
   }
-
+  
   # if model_table and ivs not provided
   if (is.null(model_table) & is.null(ivs)) {
-    if (verbose) {
-      cat(
-        "\n Error: no independent variable, 'ivs' nor 'model_table', provided. Returning NULL."
-      )
-    }
+    cat(
+      "Error: no independent variable, 'ivs' nor 'model_table', provided. Returning NULL. \n"
+    )
     return(NULL)
   }
   # if model_table is provided
-  if(!is.null(model_table)) {
+  if (!is.null(model_table)) {
     if (!is.null(ivs)) {
       if (verbose)
         cat("\n Info: will use variables from model_table and disregard 'ivs' argument.")
@@ -620,37 +650,37 @@ run_model = function(data = NULL,
       # use model table variables as ivs
       model_table = model_table %>%
         get_variable_t(excl_blanks = TRUE, trans_df = trans_df)
-
+      
       ivs = model_table %>% pull(variable) %>% unique()
       ivs_t = model_table %>% pull(variable_t) %>% unique()
     }
-  }else{
+  } else{
     model_table = build_model_table(ivs = ivs, trans_df = trans_df)
     # use model table variables as ivs
     model_table = model_table %>%
       get_variable_t(excl_blanks = TRUE, trans_df = trans_df) %>% unique()
-
+    
     ivs_t = model_table %>% pull(variable_t) %>% unique()
   }
-
-
-
-
+  
+  
+  
+  
   # check categories in model_table
-  if(!('category' %in% colnames(model_table))){
+  if (!('category' %in% colnames(model_table))) {
     model_table$category = ""
   }
-
+  
   # formula ####
-
+  
   # build formula object
   formula = build_formula(dv = dv, ivs = ivs_t)
-
-
+  
+  
   # data    ####
-
+  
   # generate norm_data
-  if(normalise_by_pool){
+  if (normalise_by_pool) {
     norm_data = apply_normalisation(
       raw_data = data,
       model_table =  model_table,
@@ -658,16 +688,16 @@ run_model = function(data = NULL,
       dv = dv,
       verbose = verbose
     )
-  }else{
+  } else{
     norm_data = data
   }
-
+  
   # check norm_data
   if (length(norm_data) == 2) {
     pool_mean = norm_data$pool_mean
     norm_data = norm_data$data
   }
-
+  
   trans_data = apply_transformation(
     data = norm_data,
     trans_df = trans_df,
@@ -675,25 +705,25 @@ run_model = function(data = NULL,
     meta_data = meta_data,
     verbose = verbose
   )
-
+  
   # model   ####
-
+  
   # run model on norm_data
-  model = lm(formula = formula, data = trans_data[,c(dv,ivs_t)])
-
+  model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)])
+  
   # add meta_data to mdoel object
   model$meta_data = meta_data
-
+  
   # set colnames as ivs. bypass backticks added to ivs by lm()
   names(model$coefficients) = c("(Intercept)", ivs_t)
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
   #names(model$effects)[1:(length(ivs_t))] = c("(Intercept)", ivs)
-
+  
   # add dv, trans_df, and model_table to mdoel object
   model$dv = dv # add dv and model_table to mdoel object
   model$trans_df = trans_df
   model$model_table = model_table
-
+  
   output_model_table = model_table %>%
     filter(variable != "") %>%
     right_join(
@@ -732,28 +762,26 @@ run_model = function(data = NULL,
       p_value = as.numeric(p_value),
       category = as.character(category)
     ) %>%
-    mutate(
-      category = if_else(variable == "(Intercept)","Base",category)
-    )
-
+    mutate(category = if_else(variable == "(Intercept)", "Base", category))
+  
   # create moodel output table with tran's and stats's (e.g. tstats)
   model$output_model_table = output_model_table
-
-
+  
+  
   if (exists("pool_mean")) {
     model$pool_mean = pool_mean
   }
-
-  if(exists("id_var")){
+  
+  if (exists("id_var")) {
     model$id_var = id_var
   }
-
-  if(save_raw_data){
+  
+  if (save_raw_data) {
     model$data = data
   }
-
+  
   model$normalise_by_pool = normalise_by_pool
-
+  
   # decomp  ####
   if (decompose) {
     decomp_list = decomping(
@@ -764,16 +792,16 @@ run_model = function(data = NULL,
       verbose = verbose,
       id_var = id_var
     ) %>% TRY()
-
-    if(is.null(decomp_list)){
-      if(verbose){
+    
+    if (is.null(decomp_list)) {
+      if (verbose) {
         cat('Warning: decomposition failed. decomp_list will be NULL.\n')
       }
-    }else{
+    } else{
       model$decomp_list = decomp_list
     }
   }
-
+  
   # return model object
   return(model)
 }
