@@ -37,7 +37,7 @@ Run a separate model for each combination of transformations specified.
 Then, for each model run, return that model's fit and the variables' statistics.
 }
 \examples{
-model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) 
+model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
 
 trans_df = data.frame(
      name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
@@ -54,10 +54,10 @@ trans_df = data.frame(
   dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
                                      '(1,5,50),(1 ,5,50),(1,5,50)',
                                      val))
-                                     
+
 variable = 'cyl'
 
 model \%>\%
  what_trans(variable = variable,trans_df = trans_df)
- 
+
 }

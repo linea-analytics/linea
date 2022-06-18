@@ -4,12 +4,14 @@
 \alias{run_combo_model}
 \title{run_combo_model}
 \usage{
-run_combo_model(combos, model, results_row = 1)
+run_combo_model(combos, model, model_null = FALSE, results_row = 1)
 }
 \arguments{
 \item{combos}{output of \code{linea::what_combo()} function}
 
 \item{model}{Model object}
+
+\item{model_null}{a boolean to specify whether the model should be used as starting point}
 
 \item{results_row}{numeric value of the model (i.e. row from what_combo()$results) to run}
 }
@@ -57,6 +59,6 @@ model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 
 combos = what_combo(model = model,trans_df = trans_df)
 
-combos \%>\% 
+combos \%>\%
  run_combo_model(model,1)
 }

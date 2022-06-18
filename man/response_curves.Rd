@@ -6,16 +6,17 @@
 \usage{
 response_curves(
   model,
-  x_min = -100,
-  x_max = 100,
-  y_min = -100,
-  y_max = 100,
+  x_min = NULL,
+  x_max = NULL,
+  y_min = NULL,
+  y_max = NULL,
   interval = 0.1,
   trans_only = FALSE,
   colors = color_palette(),
   plotly = TRUE,
   verbose = FALSE,
   table = FALSE,
+  add_intercept = FALSE,
   points = FALSE
 )
 }
@@ -42,6 +43,8 @@ response_curves(
 
 \item{table}{A boolean to specify whether to return a \code{data.frame} of the response curves}
 
+\item{add_intercept}{A boolean to specify whether to include the intercept whne calculating the curves}
+
 \item{points}{A boolean to specify whether to include the points from the data on the curve}
 }
 \value{
@@ -54,7 +57,8 @@ Line chart of variable response curves
 Line chart of variable response curves visualising the relationship of each independent variable with the dependent variable
 }
 \examples{
-run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
+model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
+model \%>\%
    response_curves()
 run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
    response_curves(plotly = FALSE)

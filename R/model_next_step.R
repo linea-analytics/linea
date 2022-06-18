@@ -252,15 +252,14 @@ get_vector_from_str = function(string, sep = ',', zero = TRUE) {
 #' @param data \code{data.frame} containing data from analysis
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
 #' @param verbose A boolean to specify whether to print warnings
-#' @importFrom purrr reduce
 #' @importFrom methods is
 #' @importFrom stats lm
 #' @import dplyr
 #' @export
 #' @return \code{data.frame} mapping variables' transformations to the respective model's statistics.
 #' @examples
-#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) 
-#' 
+#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
+#'
 #' trans_df = data.frame(
 #'      name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
 #'      ts = c(FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE),
@@ -276,12 +275,12 @@ get_vector_from_str = function(string, sep = ',', zero = TRUE) {
 #'   dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
 #'                                      '(1,5,50),(1 ,5,50),(1,5,50)',
 #'                                      val))
-#'                                      
+#'
 #' variable = 'cyl'
-#' 
+#'
 #' model %>%
 #'  what_trans(variable = variable,trans_df = trans_df)
-#'  
+#'
 what_trans = function(model = NULL,
                       trans_df = NULL,
                       variable = NULL,
@@ -293,7 +292,7 @@ what_trans = function(model = NULL,
   # data = NULL
   # r2_diff = TRUE
   # verbose = FALSE
-  
+
   if (!is.logical(verbose)) {
     cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
     verbose = FALSE
@@ -592,10 +591,9 @@ what_trans = function(model = NULL,
 #' @param dv string specifying the dependent variable name
 #' @param return_model_objects A boolean to specify whether to return model objects
 #' @param verbose A boolean to specify whether to print warnings
-#' @importFrom purrr reduce discard
+#' @importFrom purrr discard
 #' @importFrom methods is
 #' @importFrom stats lm
-#' @importFrom rlist list.append
 #' @import dplyr
 #' @export
 #' @return list of two \code{data.frame} mapping variables' transformations to the respective model's statistics.
@@ -630,7 +628,7 @@ what_trans = function(model = NULL,
 #'   dplyr::mutate(promo = '')
 #'
 #' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
-#' 
+#'
 #' combos = what_combo(model = model,trans_df = trans_df)
 #'
 #' #using the trans_df, data, and dv
@@ -649,33 +647,7 @@ what_combo = function(model = NULL,
   # - dv in data
 
   # checks  ####
-  
-  # data = mtcars
-  # dv = 'mpg'
-  # ivs = c('disp')
-  # trans_df = data.frame(
-  #   name = c('diminish', 'decay', 'hill', 'exp'),
-  #   ts = c(FALSE, TRUE, FALSE, FALSE),
-  #   func = c(
-  #     'linea::diminish(x,a)',
-  #     'linea::decay(x,a)',
-  #     "linea::hill_function(x,a,b)",
-  #     '(x^a)'
-  #   ),
-  #   order = 1:4
-  # ) %>%
-  #   dplyr::mutate(disp = dplyr::if_else(condition = name == 'hill',
-  #                                       '(1,50,100,500),(5,1,-1,-5)',
-  #                                       ''))
-  # model = NULL
-  # # trans_df = NULL
-  # # data = NULL
-  # # dv = NULL
-  # r2_diff = TRUE
-  # return_model_objects = FALSE
-  # verbose = FALSE
-  
-  
+
   if (!is.logical(verbose)) {
     cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
     verbose = FALSE
@@ -810,11 +782,11 @@ what_combo = function(model = NULL,
       rename(parameter = variable) %>%
       mutate(variable = var)
 
-    long_trans_df = rlist::list.append(long_trans_df, temp_trans_df)
+    long_trans_df = append(long_trans_df, list(temp_trans_df))
   }
 
-  long_trans_df = long_trans_df %>%
-    purrr::reduce(rbind)
+  long_trans_df = long_trans_df %>% 
+    Reduce(f = rbind)
 
 
   # split each parameter (to be tested)
@@ -862,10 +834,9 @@ what_combo = function(model = NULL,
 
     colnames(temp_trans_df)[1:length(col_names)] = col_names
 
-    long_combo_df = rlist::list.append(long_combo_df, temp_trans_df)
+    long_combo_df =  append(long_combo_df, list(temp_trans_df))
     names(long_combo_df)[length(long_combo_df)] = var
   }
-
   
   # expand.grid for all combos across variables
   output_df = lapply(long_combo_df, function(x) {
@@ -918,10 +889,6 @@ what_combo = function(model = NULL,
 
         f_name = fs_name[j]
 
-        var_t_name = paste0(var_t_name, '_', f_name)
-        # print(var_t_name)
-
-
         ps = temp_trans_df %>%
           filter(name == f_name) %>%
           arrange(parameter) %>%
@@ -939,7 +906,7 @@ what_combo = function(model = NULL,
           assign(p,val,envir = e)
         }
 
-        var_t_name = paste0(var_t_name, '_', paste0(vals,collapse = ','))
+        var_t_name = paste0(var_t_name, '_', f_name, '_', paste0(vals,collapse = ','))
 
         f = fs[j]
 
@@ -947,12 +914,14 @@ what_combo = function(model = NULL,
           for (g in groups) {
             # g=groups[1]
             x = data$temp_var[data[, pool] == g]
+            assign('x',x,envir = e)
             x = f %>% run_text(env = e)
             data$temp_var[data[, pool] == g] = x
 
           }
         } else{
           x = data$temp_var
+          assign('x',x,envir = e)
           x = f %>% run_text(env = e)
           data$temp_var = x
         }
@@ -980,7 +949,7 @@ what_combo = function(model = NULL,
                     data = data) %>% TRY()
 
     if(return_model_objects){
-      model_list = rlist::list.append(model_list,model_temp)
+      model_list =  append(model_list,model_temp)
     }
 
     # print(model_temp)
@@ -993,7 +962,7 @@ what_combo = function(model = NULL,
     } else{
       # get model summary
       ms = summary(model_temp)
-      
+
       # drop back ticks
       # ...added because the var names have special characters
       rownames(ms$coefficients) = gsub(x =rownames(ms$coefficients),pattern = '`',replacement = '')
@@ -1063,6 +1032,7 @@ what_combo = function(model = NULL,
 #'
 #' @param combos output of \code{linea::what_combo()} function
 #' @param model Model object
+#' @param model_null a boolean to specify whether the model should be used as starting point
 #' @param results_row numeric value of the model (i.e. row from what_combo()$results) to run
 #' @import dplyr
 #' @export
@@ -1098,10 +1068,10 @@ what_combo = function(model = NULL,
 #'   dplyr::mutate(promo = '')
 #'
 #' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
-#' 
+#'
 #' combos = what_combo(model = model,trans_df = trans_df)
-#' 
-#' combos %>% 
+#'
+#' combos %>%
 #'  run_combo_model(model,1)
 run_combo_model = function(combos,
                            model,
@@ -1112,54 +1082,54 @@ run_combo_model = function(combos,
   vars = combos$variables
   params = combos$trans_parameters
   params_df = combos$long_trans_df
-  
+
   model_table = model$model_table
-  
+
   if(model_null){
     model_table = model_table[0,]
   }
-  
+
   # for each var
   for (var in vars) {
     # var = vars[1]
-    
+
     n = nrow(model_table) + 1
     model_table[n, ] = ''
     model_table[n, 'variable'] = var
-    
-    
+
+
     # get the parameters selected
     var_params = params[[var]][input[[var]], ]
-    
+
     # get the trans applied
     df = params_df %>%
       filter(variable == var) %>%
       select(name, order, parameter)
-    
+
     trans = df %>%
       pull(name) %>%
       unique()
-    
+
     for (t in trans) {
       # t = trans[2]
-      
+
       t_params = df %>%
         filter(name == t) %>%
         arrange(parameter) %>%
         mutate(col = paste0(name, '_', parameter)) %>%
         pull(col)
-      
+
       param = var_params[t_params] %>%
         paste0(collapse = ',')
-      
+
       model_table[n, t] = param
-      
+
     }
-    
+
   }
-  
-  model = model %>% 
+
+  model = model %>%
     re_run_model(model_table = model_table)
-  
+
   return(model)
 }

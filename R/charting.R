@@ -1031,17 +1031,16 @@ acf_chart = function(model = NULL,
 #' @param points A boolean to specify whether to include the points from the data on the curve
 #' @param plotly A boolean to specify whether to include use ggplot over plotly
 #' @param add_intercept A boolean to specify whether to include the intercept whne calculating the curves
+#' @importFrom ggplot2 ggplot geom_line scale_color_manual theme ggtitle ylab geom_vline geom_hline element_rect aes
 #' @import plotly
 #' @import tidyverse
 #' @import tibble
 #' @importFrom RColorBrewer brewer.pal
 #' @importFrom stats na.omit
-#' @importFrom rlist list.append
-#' @importFrom purrr reduce
 #' @export
 #' @return a \code{plotly} line chart of the model's response curves
 #' @examples
-#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp')) 
+#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
 #' model %>%
 #'    response_curves()
 #' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) %>%
@@ -1050,10 +1049,10 @@ acf_chart = function(model = NULL,
 #'    response_curves()
 response_curves = function(
     model,
-    x_min = -100,
-    x_max = 100,
-    y_min = -100,
-    y_max = 100,
+    x_min = NULL,
+    x_max = NULL,
+    y_min = NULL,
+    y_max = NULL,
     interval = 0.1,
     trans_only = FALSE,
     colors = color_palette(),
@@ -1063,7 +1062,7 @@ response_curves = function(
     add_intercept = FALSE,
     points = FALSE){
   # checks  ####
-  
+
   # x_min = -100
   # x_max = 100
   # y_min = -100
@@ -1076,20 +1075,20 @@ response_curves = function(
   # add_intercept = T
   # table = FALSE
   # points = FALSE
-  
+
   if (is.null(x_max)) x_max = 1e+05
   if (is.null(x_min)) x_min = 0
   if (is.null(interval)) interval = (x_max-x_min)/100
   if (is.null(y_max)) y_max = x_max
   if (is.null(y_min)) y_min = x_min
-  
+
   # process ####
   optim_table = model$output_model_table
-  
-  
-  trans_df = model$trans_df %>% 
+
+
+  trans_df = model$trans_df %>%
     filter(ts == FALSE)
-  
+
   if (trans_only) {
     optim_table = optim_table[!(((optim_table[trans_df$name] ==
                                     "") %>% data.frame() %>% rowSums()) == nrow(trans_df)),
@@ -1111,11 +1110,11 @@ response_curves = function(
     for (j in 1:nrow(trans_df)) {
       t_name = trans_df$name[j]
       t_func = trans_df$func[j]
-      param_vals = model$output_model_table %>% 
-        filter(variable_t == var) %>% 
-        pull(!!sym(t_name)) %>% 
+      param_vals = model$output_model_table %>%
+        filter(variable_t == var) %>%
+        pull(!!sym(t_name)) %>%
         strsplit(split = ",")
-      
+
       param_vals = param_vals[[1]] %>% as.numeric()
       if (length(param_vals) == 0) {
         next
@@ -1129,48 +1128,48 @@ response_curves = function(
       }
       x = t_func %>% run_text(env = e)
     }
-    curves_df = rlist::list.append(curves_df, data.frame(value = x * coef, 
-                                                         variable = var, 
-                                                         x = x_raw) %>% 
+    curves_df = append(curves_df, data.frame(value = x * coef,
+                                                         variable = var,
+                                                         x = x_raw) %>%
                                      mutate(value = as.numeric(value)) %>%
-                                     mutate(variable = as.character(variable)) %>% 
+                                     mutate(variable = as.character(variable)) %>%
                                      mutate(x = as.numeric(x)))
   }
-  curves_df = curves_df %>% 
-    purrr::reduce(rbind) 
-  
+  curves_df = curves_df %>%
+    data.frame()
+
   if(add_intercept){
-    curves_df = curves_df %>% 
+    curves_df = curves_df %>%
       mutate(value = value + model$coefficients[1])
   }
-  
-  curves_df = curves_df %>% 
-    filter(value >= y_min) %>% 
+
+  curves_df = curves_df %>%
+    filter(value >= y_min) %>%
     filter(value <= y_max)
-  
-  
+
+
   if (table) {
     return(curves_df)
   }
-  
+
   # plotly  ####
   if(plotly){
-    
+
     p = plot_ly()
     p = p %>% add_trace(data = curves_df, x = ~x, y = ~value,
                         color = ~variable, mode = "lines", type = "scatter",
-                        colors = colors) %>% 
+                        colors = colors) %>%
       layout(plot_bgcolor = "rgba(0, 0, 0, 0)",
              paper_bgcolor = "rgba(0, 0, 0, 0)",
              font = list(color = "#1c0022"),
              xaxis = list(showgrid = FALSE),
              yaxis = list(title = model$dv),
              title = "Response Curves")
-    
+
     if(points) {
-      
+
       raw_data = model$model
-      
+
       # calculate predicted points through functions
       curves_df = list()
       for (i in 1:nrow(optim_table)) {
@@ -1196,38 +1195,38 @@ response_curves = function(
           }
           x = t_func %>% run_text(env = e)
         }
-        curves_df = list.append(curves_df, data.frame(value = x *
+        curves_df =  append(curves_df, data.frame(value = x *
                                                         coef, variable = var, x = x_raw) %>% mutate(value = as.numeric(value)) %>%
                                   mutate(variable = as.character(variable)) %>% mutate(x = as.numeric(x)))
       }
       curves_df = curves_df %>%
-        purrr::reduce(rbind) #%>%
+        data.frame() #%>%
       # filter(value >= y_min) %>% filter(value <= y_max)
-      
-      
+
+
       # add points to plotly item
       p = p %>%  add_trace(data = curves_df, x = ~x, y = ~value,
                            color = ~variable, mode = "markers", type = "scatter",
                            colors = colors)
     }
-    
+
   }
   # ggplot  ####
   else{
-    
+
     p = ggplot(data=curves_df, aes(x=x, y=value, col=variable)) +
       geom_line() +
       scale_color_manual(values = color_palette()) +
       theme(
-        panel.background = element_rect(fill = "white", 
-                                        colour = "white")) + 
+        panel.background = element_rect(fill = "white",
+                                        colour = "white")) +
       ggtitle("Response Curves") +
       ylab(model$dv) +
       geom_vline(xintercept = 0) +
       geom_hline(yintercept = 0)
-    
+
     p
   }
-  
+
   return(p)
 }
