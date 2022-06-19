@@ -75,7 +75,7 @@ run_model(data = data,
           dv = dv,
           ivs = ivs,
           trans_df = trans_df)
-          
+
 run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
 
 }

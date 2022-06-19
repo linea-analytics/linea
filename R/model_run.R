@@ -596,7 +596,6 @@ run_model = function(data = NULL,
           cat("Warning: missing colums were added to trans_df. \n")
           print(trans_df)
         }
-      }
     } else{
       if (verbose) {
         cat(

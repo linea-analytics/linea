@@ -19,7 +19,6 @@ The default trans_df
 Generate the default trans_df \code{data.frame} with functions from linea:
 \itemize{
 \item decay
-\item diminish
 \item hill_function
 \item ma
 \item lag
