@@ -320,19 +320,19 @@ what_trans = function(model = NULL,
     }
   } else{
     if (!is(model,class2 = 'lm')) {
-      cat("\n Error: model must be of type 'lm'. Returning NULL.")
+      cat("Error: model must be of type 'lm'. Returning NULL. \n")
       return(NULL)
     }
     else{
       if (!('dv' %in% names(model))) {
-        cat("\n Error: model object must contain 'dv'. Returning NULL.")
+        cat("Error: model object must contain 'dv'. Returning NULL. \n")
         return(NULL)
       } else{
         dv = model$dv
       }
 
       if (!('model_table' %in% names(model))) {
-        cat("\n Error: model object must contain 'model_table'. Returning NULL.")
+        cat("Error: model object must contain 'model_table'. Returning NULL. \n")
         return(NULL)
       } else{
         model_table = model$model_table
@@ -383,7 +383,8 @@ what_trans = function(model = NULL,
   # process ####
 
   # clean trans_df
-  trans_df = trans_df %>%
+  trans_df = trans_df %>% 
+    check_trans_df() %>%
     mutate(val = gsub(
       pattern = ' ',
       replacement = '',

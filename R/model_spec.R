@@ -4,7 +4,6 @@
 #'
 #' Generate the default trans_df \code{data.frame} with functions from linea:
 #' - decay
-#' - diminish
 #' - hill_function
 #' - ma
 #' - lag
@@ -35,6 +34,48 @@ default_trans_df = function(ts = TRUE){
     )
   }
 
+  return(trans_df)
+}
+
+
+#' check_trans_df
+#'
+#' Check trans_df based on default_trans_df
+#'
+#' Check that the trans_df \code{data.frame} contains all the necessary columns.
+#' If not, create them and return the amended trans_df.
+#'
+#' @export
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
+#' @return \code{data.frmae} of trans_df
+#' @examples
+#' default_trans_df() %>% check_trans_df()
+check_trans_df = function(trans_df){
+
+  default_cols = colnames(default_trans_df())
+  # if some cols missing
+  if(!all(default_cols%in%colnames(trans_df))){
+    # generate missing cols
+    missing_cols = default_cols[!(default_cols%in%colnames(trans_df))]
+    for(i in missing_cols){
+      if(i == 'name'){
+        # specific basic name
+        trans_df[,i] = 'custom_linea_trans_0'
+      }
+      if(i == 'ts'){
+        # not time series
+        trans_df[,i] = FALSE
+      }
+      if(i == 'func'){
+        # simple polynomial
+        trans_df[,i] = 'x^a'
+      }
+      if(i == 'order'){
+        # last in order
+        trans_df[,i] = nrow(trans_df)
+      }
+    }
+  }
   return(trans_df)
 }
 
