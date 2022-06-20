@@ -1043,9 +1043,15 @@ acf_chart = function(model = NULL,
 #' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
 #' model %>%
 #'    response_curves()
-#' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) %>%
-#'    response_curves(plotly = FALSE)
-#' run_model(data = scale(mtcars) %>% data.frame(),dv = 'mpg',ivs = c('wt','cyl','disp')) %>%
+#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
+#' 
+#' model %>%
+#'    response_curves()
+#'    
+#' run_model(data = scale(mtcars) %>% 
+#'               data.frame(),
+#'           dv = 'mpg',
+#'           ivs = c('wt','cyl','disp')) %>%
 #'    response_curves()
 response_curves = function(
     model,
@@ -1053,7 +1059,7 @@ response_curves = function(
     x_max = NULL,
     y_min = NULL,
     y_max = NULL,
-    interval = 0.1,
+    interval = NULL,
     trans_only = FALSE,
     colors = color_palette(),
     plotly = TRUE,
@@ -1062,22 +1068,10 @@ response_curves = function(
     add_intercept = FALSE,
     points = FALSE){
   # checks  ####
-
-  # x_min = -100
-  # x_max = 100
-  # y_min = -100
-  # y_max = 100
-  # interval = 0.1
-  # trans_only = FALSE
-  # plotly = FALSE
-  # colors = color_palette()
-  # verbose = FALSE
-  # add_intercept = T
-  # table = FALSE
-  # points = FALSE
-
+  model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
+  
   if (is.null(x_max)) x_max = 1e+05
-  if (is.null(x_min)) x_min = 0
+  if (is.null(x_min)) x_min = -1e+05
   if (is.null(interval)) interval = (x_max-x_min)/100
   if (is.null(y_max)) y_max = x_max
   if (is.null(y_min)) y_min = x_min
@@ -1212,8 +1206,8 @@ response_curves = function(
 
   }
   # ggplot  ####
-  else{
-
+  if(!plotly){
+    
     p = ggplot(data=curves_df, aes(x=x, y=value, col=variable)) +
       geom_line() +
       scale_color_manual(values = color_palette()) +
@@ -1224,8 +1218,7 @@ response_curves = function(
       ylab(model$dv) +
       geom_vline(xintercept = 0) +
       geom_hline(yintercept = 0)
-
-    p
+    
   }
 
   return(p)
