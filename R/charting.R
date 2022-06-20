@@ -1068,7 +1068,19 @@ response_curves = function(
     add_intercept = FALSE,
     points = FALSE){
   # checks  ####
-  model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
+  # model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','wt'))
+  # x_min = NULL
+  # x_max = NULL
+  # y_min = NULL
+  # y_max = NULL
+  # interval = NULL
+  # trans_only = FALSE
+  # colors = color_palette()
+  # plotly = TRUE
+  # verbose = FALSE
+  # table = FALSE
+  # add_intercept = FALSE
+  # points = FALSE
   
   if (is.null(x_max)) x_max = 1e+05
   if (is.null(x_min)) x_min = -1e+05
@@ -1122,15 +1134,18 @@ response_curves = function(
       }
       x = t_func %>% run_text(env = e)
     }
-    curves_df = append(curves_df, data.frame(value = x * coef,
-                                                         variable = var,
-                                                         x = x_raw) %>%
-                                     mutate(value = as.numeric(value)) %>%
-                                     mutate(variable = as.character(variable)) %>%
-                                     mutate(x = as.numeric(x)))
+    
+    df = data.frame(value = x * coef,
+                    variable = var,
+                    x = x_raw) %>%
+      mutate(value = as.numeric(value)) %>%
+      mutate(variable = as.character(variable)) %>%
+      mutate(x = as.numeric(x))
+    
+    curves_df = append(curves_df, list(df))
   }
   curves_df = curves_df %>%
-    data.frame()
+    Reduce(f = rbind)
 
   if(add_intercept){
     curves_df = curves_df %>%
