@@ -10,7 +10,7 @@ response_curves(
   x_max = NULL,
   y_min = NULL,
   y_max = NULL,
-  interval = 0.1,
+  interval = NULL,
   trans_only = FALSE,
   colors = color_palette(),
   plotly = TRUE,
@@ -60,8 +60,14 @@ Line chart of variable response curves visualising the relationship of each inde
 model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
 model \%>\%
    response_curves()
-run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
-   response_curves(plotly = FALSE)
-run_model(data = scale(mtcars) \%>\% data.frame(),dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\%
+model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
+
+model \%>\%
+   response_curves()
+   
+run_model(data = scale(mtcars) \%>\% 
+              data.frame(),
+          dv = 'mpg',
+          ivs = c('wt','cyl','disp')) \%>\%
    response_curves()
 }

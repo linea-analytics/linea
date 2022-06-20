@@ -9,6 +9,7 @@ get_seasonality(
   date_col_name,
   date_type = "weekly starting",
   verbose = FALSE,
+  keep_dup = FALSE,
   pool_var = NULL
 )
 }
@@ -20,6 +21,8 @@ get_seasonality(
 \item{date_type}{The date column type as either of the following strings:'weekly starting','weekly ending','daily'}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+
+\item{keep_dup}{A boolean to specify whether to keep duplicate columns between seasonal and data}
 
 \item{pool_var}{The pool (group) column name as a string (e.g. 'country')}
 }
