@@ -141,6 +141,7 @@ check_ts = function(data,
 #' @param date_col_name The date column name as a string
 #' @param date_type The date column type as either of the following strings:'weekly starting','weekly ending','daily'
 #' @param verbose A boolean to specify whether to print warnings
+#' @param keep_dup A boolean to specify whether to keep duplicate columns between seasonal and data
 #' @param pool_var The pool (group) column name as a string (e.g. 'country')
 #' @return \code{data.frame} with added variables
 #' @export
@@ -154,8 +155,9 @@ get_seasonality = function(data,
                            date_col_name,
                            date_type = 'weekly starting',
                            verbose = FALSE,
+                           keep_dup = FALSE,
                            pool_var = NULL){
-
+  # checks  ####
   # check verbose
   if(!is.logical(verbose)){
     cat("verbose must be logical (TRUE or FALSE). Setting to False. \n")
@@ -183,6 +185,8 @@ get_seasonality = function(data,
     if(verbose)print('date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
     date_type = "weekly starting"
   }
+  
+  # process ####
 
   # get dates column
   date_values = data %>%
@@ -268,21 +272,6 @@ get_seasonality = function(data,
     week_dates = seq(first_date,last_date,by = 7) %>%
       rep(each=7)
 
-
-    # agg functions for groupby
-    # non_zero_mean = function(v){
-    #   v = v[v!=0]
-    #   if(length(v) == 0){
-    #     return(0)
-    #   }
-    #   return(mean(v))
-    # }
-    # most_ocurring = function(v){
-    #   sort(table(v),decreasing = TRUE)[1] %>%
-    #     names() %>%
-    #     as.numeric()
-    # }
-
     # aggregation (daily to weekly)
     df = data.frame(day = date_values,
                     week = week_dates) %>%
@@ -292,13 +281,6 @@ get_seasonality = function(data,
     df = df %>%
       group_by(week) %>%
       summarise_all(mean)
-    # summarise_at(vars(paste0('week_',1:52)),most_ocurring) %>%
-    # summarise_at(vars("new_years_day",
-    #                   "new_years_eve",
-    #                   "christmas_day",
-    #                   "christmas_eve",
-    #                   "easter",
-    #                   "good_friday"),non_zero_mean)
 
     df$day = NULL
 
@@ -319,11 +301,23 @@ get_seasonality = function(data,
       group_by(!!sym(pool_var)) %>%
       mutate(trend = cumsum(number)) %>%
       select(-number)
-  } else{
+  }else{
     data = data %>%
       mutate(number = 1) %>%
       mutate(trend = cumsum(number)) %>%
       select(-number)
+  }
+  
+  # columns check
+  
+  new_cols = colnames(df)
+  data_cols = colnames(data)
+  
+  dup_columns = new_cols[new_cols %in% data_cols]
+  dup_columns = dup_columns[dup_columns!=date_col_name]
+  
+  if(!keep_dup){
+    df[,dup_columns] = NULL
   }
 
   data = data %>%
