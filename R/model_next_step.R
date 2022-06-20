@@ -688,22 +688,19 @@ what_combo = function(model = NULL,
       return(NULL)
     }
     else{
+      dv = model$dv
       if (!is.null(dv)) {
         if (verbose) {
           cat('Warning: replacing dv provided as argument with model dv. \n')
         }
       }
-      if (!is.null(data)) {
-        if (verbose) {
-          cat('Warning: replacing data provided as argument with model data. \n')
-        }
+      if (is.null(data)) {
+        data = model$data
       }
     }
   }
 
-  dv = model$dv
   model_table = model$model_table
-  data = model$data
 
   # check pool
   if (model$normalise_by_pool) {
