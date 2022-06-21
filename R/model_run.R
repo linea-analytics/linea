@@ -19,21 +19,21 @@ apply_normalisation = function(raw_data = NULL,
                                dv = NULL,
                                verbose = FALSE){
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
   # if no raw_data is provided, end by returning NULL
   if (is.null(raw_data)) {
     if(verbose){
-      cat("\n Error: No raw_data provided. Returning NULL.")
+      message("Error: No raw_data provided. Returning NULL.")
     }
     return(NULL)
   }
   # if raw_data is not a dataframe
   if(!is.data.frame(raw_data)){
     if(verbose){
-      cat("\n Error: raw_data must be a data.frame. Returning NULL.")
+      message("Error: raw_data must be a data.frame. Returning NULL.")
     }
     return(NULL)
   }
@@ -42,14 +42,14 @@ apply_normalisation = function(raw_data = NULL,
   # if no meta_data is provided, end by returning raw_data
   if (is.null(meta_data)) {
     if(verbose){
-      cat("\n Error: No meta_data provided. Returning original raw_data.")
+      message("Error: No meta_data provided. Returning original raw_data.")
     }
     return(raw_data)
   }
   # if meta_data is not a dataframe
   if(!is.data.frame(meta_data)){
     if(verbose){
-      cat("\n Error: meta_data must be a data.frame. Returning original raw_data.")
+      message("Error: meta_data must be a data.frame. Returning original raw_data.")
     }
     return(raw_data)
   }
@@ -58,7 +58,7 @@ apply_normalisation = function(raw_data = NULL,
   # if the meta_data table doesnt contain a variables column, end by returning raw_data
   if(!all(c("variable","meta") %in% colnames(meta_data))){
     if(verbose){
-      cat("\n Error: meta_data does not contain a 'variable' and a 'meta' columns. Returning original raw_data.")
+      message("Error: meta_data does not contain a 'variable' and a 'meta' columns. Returning original raw_data.")
     }
     return(raw_data)
   }
@@ -78,7 +78,7 @@ apply_normalisation = function(raw_data = NULL,
   ## RETURNING RAW_DATA IF NO POOL_VARIABLE provided??
   if(is.null(pool_variable) | length(pool_variable) == 0) {
     if(verbose){
-      cat("\n Warning: no POOL variable found in meta_data. A 'total_pool' variable was added.")
+      message("Warning: no POOL variable found in meta_data. A 'total_pool' variable was added.")
     }
 
     # if not provided create a unique one
@@ -94,7 +94,7 @@ apply_normalisation = function(raw_data = NULL,
   # check if more than 1 pool variable is provided
   if (length(pool_variable) > 1) {
     if(verbose){
-      cat("\n Error: More than 1 pool variable provided")
+      message("Error: More than 1 pool variable provided")
     }
     return(raw_data)
   }
@@ -102,7 +102,7 @@ apply_normalisation = function(raw_data = NULL,
   # check if pool variable in data variables
   if (!(pool_variable %in% data_variables)) {
     if(verbose){
-      cat("\n Error: POOL variable not found in raw_data. Returning original raw_data.")
+      message("Error: POOL variable not found in raw_data. Returning original raw_data.")
     }
     return(raw_data)
   }
@@ -110,12 +110,12 @@ apply_normalisation = function(raw_data = NULL,
   # check if ivs and dv are provided to select only relevant variables
   if(is.null(model_table)){
     if(verbose){
-      cat("\n Warning: Normalising all raw_data as no model_table is provided.")
+      message("Warning: Normalising all raw_data as no model_table is provided.")
     }
   }else{
     if(!is.data.frame(model_table)){
       if(verbose){
-        cat("\n Warning: model_table must be a data.frame. Normalising all raw_data.")
+        message("Warning: model_table must be a data.frame. Normalising all raw_data.")
       }
     }else{
       if(!is.null(dv)){
@@ -132,17 +132,17 @@ apply_normalisation = function(raw_data = NULL,
 
           }else{
             if(verbose){
-              cat("\n Warning: dependent variable (dv) not found in raw_data. Normalising all raw_data.")
+              message("Warning: dependent variable (dv) not found in raw_data. Normalising all raw_data.")
             }
           }
         }else{
           if(verbose){
-            cat("\n Warning: variables from model_table not found in raw_data. Normalising all raw_data.")
+            message("Warning: variables from model_table not found in raw_data. Normalising all raw_data.")
           }
         }
       }else{
         if(verbose){
-          cat("\n Warning: dependent variable (dv) not provided. Normalising all raw_data.")
+          message("Warning: dependent variable (dv) not provided. Normalising all raw_data.")
         }
       }
     }
@@ -151,7 +151,7 @@ apply_normalisation = function(raw_data = NULL,
   # in raw data, check for and drop NAs
   if(any(complete.cases(raw_data))) {
     if(verbose){
-      cat("\n Warning: NA's found in raw_data will be dropped.")
+      message("Warning: NA's found in raw_data will be dropped.")
     }
     raw_data = raw_data[complete.cases(raw_data), ]
   }
@@ -214,20 +214,20 @@ apply_transformation = function(data = NULL,
 
   # check verbose
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
   # check model table provided (not NULL)
   if(is.null(data)){
     if(verbose){
-      cat("\n Error: No data provided for transformations. Returning NULL.")
+      message("Error: No data provided for transformations. Returning NULL.")
     }
     return(NULL)
   }
   if(!is.data.frame(data)){
     if(verbose){
-      cat("\n Error: data provided must be a data.frame. Returning NULL.")
+      message("Error: data provided must be a data.frame. Returning NULL.")
     }
     return(NULL)
   }
@@ -235,13 +235,13 @@ apply_transformation = function(data = NULL,
   # check model table provided (not NULL)
   if(is.null(model_table)){
     if(verbose){
-      cat("\n Warning: No model table provided for transformations. Returning raw data.")
+      message("Warning: No model table provided for transformations. Returning raw data.")
     }
     return(data)
   }
   if(!is.data.frame(model_table)){
     if(verbose){
-      cat("\n Warning: model table provided must be a data.frame. Returning raw data.")
+      message("Warning: model table provided must be a data.frame. Returning raw data.")
     }
     return(data)
   }
@@ -249,13 +249,13 @@ apply_transformation = function(data = NULL,
   # check trans_df
   if(is.null(trans_df)){
     if(verbose){
-      cat("\n Warning: no trans_df provided. Setting default trans_df.")
+      message("Warning: no trans_df provided. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   }
   if(!is.data.frame(trans_df)){
     if(verbose){
-      cat("\n Warning: trans_df provided must be a data.frame. Setting default trans_df.")
+      message("Warning: trans_df provided must be a data.frame. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   }
@@ -273,10 +273,10 @@ apply_transformation = function(data = NULL,
     # else create a pool variable "total"...
     if(verbose){
       if(is.null(meta_data)){
-        cat("\n Info: no meta_data provided. No groups (i.e. POOLs) used in transformations.")
+        message("Info: no meta_data provided. No groups (i.e. POOLs) used in transformations.")
       }
       if(!is.null(meta_data) & !is.data.frame(meta_data)){
-        cat("\n Warning: meta_data provided must be a data.frame. No groups (i.e. POOLs) used in transformations.")
+        message("Warning: meta_data provided must be a data.frame. No groups (i.e. POOLs) used in transformations.")
       }
     }
     pool = "total_pool"
@@ -285,7 +285,7 @@ apply_transformation = function(data = NULL,
     # if default pool variable already in use replace it
     if(pool %in% colnames(data)){
       if(verbose){
-        cat("\n Info: 'total_pool' variable will be added/replaced from data.")
+        message("Info: 'total_pool' variable will be added/replaced from data.")
       }
 
       data$total_pool = NULL
@@ -417,14 +417,14 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 
   # check verbose
   if (!is.logical(verbose)) {
-    cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
   # check trans_df
   if (is.null(trans_df)) {
     if (verbose) {
-      cat("Warning: no trans_df provided. Setting default trans_df. \n")
+      message("Warning: no trans_df provided. Setting default trans_df.")
     }
     trans_df = default_trans_df() %>%
       mutate(params = '')
@@ -542,41 +542,41 @@ run_model = function(data = NULL,
   # checks  ####
 
   if (!is.logical(verbose)) {
-    cat("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False. \n")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
   # check data is not provided
   if (is.null(data)) {
-    cat("Error: No data provided for transformations. Returning NULL. \n")
+    message("Error: No data provided for transformations. Returning NULL.")
     return(NULL)
   }
   if (!is.data.frame(data)) {
-    cat("Error: data provided must be a data.frame. Returning NULL. \n")
+    message("Error: data provided must be a data.frame. Returning NULL.")
     return(NULL)
   }
 
   # check dv is not provided
   if (is.null(dv)) {
-    cat("Error: no dependent variable ('dv') provided. Returning NULL. \n")
+    message("Error: no dependent variable ('dv') provided. Returning NULL.")
     return(NULL)
   }
 
   # check meta_data
   if (is.null(meta_data)) {
     if (verbose) {
-      cat("Info: No meta_data provided for transformations and normalisation. \n")
+      message("Info: No meta_data provided for transformations and normalisation.")
     }
   } else if (!is.data.frame(meta_data)) {
     if (verbose) {
-      cat(
-        "Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation. \n"
+      message(
+        "Warning: meta_data provided must be a data.frame. Not using 'meta_data' provided for transformations and normalisation."
       )
     }
   } else if (nrow(meta_data) == 0) {
     if (verbose) {
-      cat(
-        "Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation. \n"
+      message(
+        "Warning: meta_data provided has zero rows. Not using 'meta_data' provided for transformations and normalisation."
       )
     }
   }
@@ -584,7 +584,7 @@ run_model = function(data = NULL,
   # check trans_df
   if (is.null(trans_df)) {
     if (verbose) {
-      cat("Warning: no trans_df provided. Setting default trans_df. \n")
+      message("Warning: no trans_df provided. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   } else{
@@ -593,13 +593,13 @@ run_model = function(data = NULL,
       trans_df = check_trans_df(trans_df)
 
         if (verbose) {
-          cat("Warning: missing colums were added to trans_df. \n")
+          message("Warning: missing colums were added to trans_df.")
           print(trans_df)
         }
     } else{
       if (verbose) {
-        cat(
-          'Warning: trans_df must to of type data.frame. Setting to default trans_df (i.e. default_trans_df()). \n'
+        message(
+          'Warning: trans_df must to of type data.frame. Setting to default trans_df (i.e. default_trans_df()).'
         )
       }
     }
@@ -607,8 +607,8 @@ run_model = function(data = NULL,
 
   # if model_table and ivs not provided
   if (is.null(model_table) & is.null(ivs)) {
-    cat(
-      "Error: no independent variable, 'ivs' nor 'model_table', provided. Returning NULL. \n"
+    message(
+      "Error: no independent variable, 'ivs' nor 'model_table', provided. Returning NULL."
     )
     return(NULL)
   }
@@ -616,14 +616,14 @@ run_model = function(data = NULL,
   if (!is.null(model_table)) {
     if (!is.null(ivs)) {
       if (verbose)
-        cat("\n Info: will use variables from model_table and disregard 'ivs' argument.")
+        message("Info: will use variables from model_table and disregard 'ivs' argument.")
     }
     if (!is.data.frame(model_table)) {
       if (is.null(ivs)) {
-        cat("\n Error: no 'ivs' nor 'model_table' provided. Returning NULL.")
+        message("Error: no 'ivs' nor 'model_table' provided. Returning NULL.")
         return(NULL)
       } else{
-        cat("\n Warning: 'model_table' must be a data.frame. Using 'ivs' argument instead.")
+        message("Warning: 'model_table' must be a data.frame. Using 'ivs' argument instead.")
       }
     } else{
       # use model table variables as ivs
@@ -774,7 +774,7 @@ run_model = function(data = NULL,
 
     if (is.null(decomp_list)) {
       if (verbose) {
-        cat('Warning: decomposition failed. decomp_list will be NULL.\n')
+        message('Warning: decomposition failed. decomp_list will be NULL.')
       }
     } else{
       model$decomp_list = decomp_list
@@ -831,19 +831,19 @@ re_run_model = function(model,
 
   # check verbose
   if (!is.logical(verbose)) {
-    cat("Warning: verbose provided must be logical (TRUE or FALSE). Setting to FALSE. \n")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to FALSE.")
     verbose = FALSE
   }
 
   # check decompose
   if(is.null(decompose)){
-    if(verbose)cat("Warning: decompose provided must be logical (TRUE or FALSE). Setting to TRUE. \n")
+    if(verbose)message("Warning: decompose provided must be logical (TRUE or FALSE). Setting to TRUE.")
     decompose = TRUE
   }
 
   # check model
   if (!is(model,class2 = 'lm')) {
-    cat("Error: model must be of type 'lm'. Returning NULL. \n")
+    message("Error: model must be of type 'lm'. Returning NULL.")
     return(NULL)
   }
 

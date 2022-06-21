@@ -37,5 +37,5 @@ Calculates the decomposition of the independent variables based on an input mode
 This can be expanded by leveraging id variables (e.g. date) and categories (i.e. groups of variables).
 }
 \examples{
-run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) \%>\% decomping()
+run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'),decompose=FALSE) \%>\% decomping()
 }

@@ -2,6 +2,7 @@
 library(testthat)
 library(linea)
 library(dplyr)
+library(tidyr)
 
 # test_check("linea")
 

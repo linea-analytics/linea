@@ -24,57 +24,57 @@ what_next = function(model = NULL,
 
   # check verbose
   if (!is.logical(verbose)) {
-    cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   if (!is.logical(r2_diff)) {
     if (verbose)
-      cat("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE. \n")
+      message("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     r2_diff = TRUE
   }
 
   # check if model or model_table is provided is correct
   if (is.null(model)) {
-    cat("Error: no model provided. Returning NULL. \n")
+    message("Error: no model provided. Returning NULL.")
     return(NULL)
   } else{
     if (!is(model,class2 = 'lm')) {
-      cat("Error: model must be of type 'lm'. Returning NULL. \n")
+      message("Error: model must be of type 'lm'. Returning NULL.")
       return(NULL)
     }
     else{
       if (!('dv' %in% names(model))) {
-        cat("Error: model object must contain 'dv'. Returning NULL. \n")
+        message("Error: model object must contain 'dv'. Returning NULL.")
         return(NULL)
       } else{
         dv = model$dv
       }
 
       if (!('model_table' %in% names(model))) {
-        cat("Error: model object must contain 'model_table'. Returning NULL. \n")
+        message("Error: model object must contain 'model_table'. Returning NULL.")
         return(NULL)
       } else{
         model_table = model$model_table
       }
 
       if (!('meta_data' %in% names(model))) {
-        cat("Warning: model object does not contain 'meta_data'. \n")
+        message("Warning: model object does not contain 'meta_data'.")
       }
       meta_data = model$meta_data
 
       if (!('id_var' %in% names(model))) {
-        cat("Warning: model object does not contain 'id_var'.\n")
+        message("Warning: model object does not contain 'id_var'.")
       }
       id_var = model$id_var
 
       if (!('trans_df' %in% names(model))) {
-        cat("Warning: model object does not contain 'trans_df'. \n")
+        message("Warning: model object does not contain 'trans_df'.")
       }
       trans_df = model$trans_df
 
       if (!('normalise_by_pool' %in% names(model))) {
         if (verbose)
-          cat("Warning: model object does not contain normalise_by_pool. Setting to FALSE. \n")
+          message("Warning: model object does not contain normalise_by_pool. Setting to FALSE.")
         normalise_by_pool = FALSE
       } else{
         normalise_by_pool = model$normalise_by_pool
@@ -85,8 +85,8 @@ what_next = function(model = NULL,
 
   if (is.null(data)) {
     if (!('data' %in% names(model))) {
-      cat(
-        "Error: no data provided and model object does not contain 'data'. Returning NULL. \n"
+      message(
+        "Error: no data provided and model object does not contain 'data'. Returning NULL."
       )
       return(NULL)
     } else{
@@ -294,20 +294,20 @@ what_trans = function(model = NULL,
   # verbose = FALSE
 
   if (!is.logical(verbose)) {
-    cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   if (!is.logical(r2_diff)) {
     if (verbose)
-      cat("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE. \n")
+      message("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     r2_diff = TRUE
   }
   if (is.null(trans_df)) {
-    cat("Error: trans_df must be provided. Returning NULL. \n")
+    message("Error: trans_df must be provided. Returning NULL.")
     return(NULL)
   }
   if (is.null(variable)) {
-    cat("Error: variable must be provided. Returning NULL. \n")
+    message("Error: variable must be provided. Returning NULL.")
     return(NULL)
   }
 
@@ -315,24 +315,24 @@ what_trans = function(model = NULL,
   # check if model or model_table is provided is correct
   if (is.null(model)) {
     if (is.null(model_table)) {
-      cat("Error: no model or model_table provided. Returning NULL. \n")
+      message("Error: no model or model_table provided. Returning NULL.")
       return(NULL)
     }
   } else{
     if (!is(model,class2 = 'lm')) {
-      cat("Error: model must be of type 'lm'. Returning NULL. \n")
+      message("Error: model must be of type 'lm'. Returning NULL.")
       return(NULL)
     }
     else{
       if (!('dv' %in% names(model))) {
-        cat("Error: model object must contain 'dv'. Returning NULL. \n")
+        message("Error: model object must contain 'dv'. Returning NULL.")
         return(NULL)
       } else{
         dv = model$dv
       }
 
       if (!('model_table' %in% names(model))) {
-        cat("Error: model object must contain 'model_table'. Returning NULL. \n")
+        message("Error: model object must contain 'model_table'. Returning NULL.")
         return(NULL)
       } else{
         model_table = model$model_table
@@ -344,7 +344,7 @@ what_trans = function(model = NULL,
   if (is.null(data)) {
     data = model$data
     if (is.null(data)) {
-      cat('Error: no data provided as data or in model. \n')
+      message('Error: no data provided as data or in model.')
     }
   }
 
@@ -383,7 +383,7 @@ what_trans = function(model = NULL,
   # process ####
 
   # clean trans_df
-  trans_df = trans_df %>% 
+  trans_df = trans_df %>%
     check_trans_df() %>%
     mutate(val = gsub(
       pattern = ' ',
@@ -650,28 +650,28 @@ what_combo = function(model = NULL,
   # checks  ####
 
   if (!is.logical(verbose)) {
-    cat("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False. \n")
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   if (!is.logical(r2_diff)) {
     if (verbose)
-      cat("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE. \n")
+      message("Warning: r2_diff provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     r2_diff = TRUE
   }
   if (!is.logical(return_model_objects)) {
     if (verbose)
-      cat("Warning: return_model_objects provided mus be logical (TRUE or FALSE). Setting to TRUE. \n")
+      message("Warning: return_model_objects provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     return_model_objects = TRUE
   }
   if (is.null(trans_df)) {
-    cat("Error: trans_df must be provided. Returning NULL. \n")
+    message("Error: trans_df must be provided. Returning NULL.")
     return(NULL)
   }
 
   # check if model or dv and data are provided is correct
   if (is.null(model)) {
     if (is.null(dv) | is.null(data)) {
-      cat("Error: model or dv and data must be provided. Returning NULL. \n")
+      message("Error: model or dv and data must be provided. Returning NULL.")
       return(NULL)
     } else{
       model_null = TRUE
@@ -684,14 +684,14 @@ what_combo = function(model = NULL,
   } else{
     model_null = FALSE
     if (!is(model,class2 = 'lm')) {
-      cat("Error: model must be of type 'lm'. Returning NULL. \n")
+      message("Error: model must be of type 'lm'. Returning NULL.")
       return(NULL)
     }
     else{
       dv = model$dv
       if (!is.null(dv)) {
         if (verbose) {
-          cat('Warning: replacing dv provided as argument with model dv. \n')
+          message('Warning: replacing dv provided as argument with model dv.')
         }
       }
       if (is.null(data)) {
@@ -783,7 +783,7 @@ what_combo = function(model = NULL,
     long_trans_df = append(long_trans_df, list(temp_trans_df))
   }
 
-  long_trans_df = long_trans_df %>% 
+  long_trans_df = long_trans_df %>%
     Reduce(f = rbind)
 
 
@@ -835,7 +835,7 @@ what_combo = function(model = NULL,
     long_combo_df =  append(long_combo_df, list(temp_trans_df))
     names(long_combo_df)[length(long_combo_df)] = var
   }
-  
+
   # expand.grid for all combos across variables
   output_df = lapply(long_combo_df, function(x) {
     1:nrow(x)

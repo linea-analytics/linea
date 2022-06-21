@@ -160,17 +160,17 @@ get_seasonality = function(data,
   # checks  ####
   # check verbose
   if(!is.logical(verbose)){
-    cat("verbose must be logical (TRUE or FALSE). Setting to False. \n")
+    message("verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   # check data provided is a data.frame
   if(!is.data.frame(data)){
-    cat('data must be a dataframe. Returning NULL. \n')
+    message('data must be a dataframe. Returning NULL.')
     return(NULL)
   }
   # check data provided contains date_col
   if(!(date_col_name %in% colnames(data))){
-    cat('data must contain date_col_name. Returning NULL. \n')
+    message('data must contain date_col_name. Returning NULL.')
     return(NULL)
   }
   # check pool

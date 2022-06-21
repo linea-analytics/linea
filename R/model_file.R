@@ -1,13 +1,13 @@
 #' check_model_file
-#' 
+#'
 #' Check the excel model file
-#' 
+#'
 #' Check the model file contains all the needed sheets.
-#' 
+#'
 #' @param model_file File path to the model file as string
-#' @param verbose Boolean to specify whether to return the checked file 
-#' @param return_list Boolean to specify whether to print warnings 
-#' @import readxl 
+#' @param verbose Boolean to specify whether to return the checked file
+#' @param return_list Boolean to specify whether to print warnings
+#' @import readxl
 #' @return Messages and the checked file
 #' @export
 check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
@@ -26,9 +26,9 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
       print("model_file must point to an Excel file (i.e. .xlsx or .xls). Returning NULL.")
     return(NULL)
   }
-  
+
   # process  ####
-  
+
   # model file sheets
   needed_sheets = c(
     'data',
@@ -42,43 +42,43 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
     'colors',
     'trans_df'
   )
-  
+
   # check sheet names
   sheet_names = excel_sheets(model_file)
-  
+
   sheet_check =  needed_sheets %in% sheet_names
   if (!all(sheet_check)) {
-    cat("\nThese sheets were not found in model_file:\n- ")
-    cat(paste0(needed_sheets[!sheet_check], collapse = "\n- "))
-    cat("\nReturning NULL.\n")
+    message("These sheets were not found in model_file:- ")
+    message(paste0(needed_sheets[!sheet_check], collapse = "- "))
+    message("Returning NULL.")
     return(NULL)
   }
-  
+
   print('model_file check passed')
-  
+
   if (return_list) {
     # import excel file sheets to list
     model_file_list = lapply(sheet_names, function(s) {
       read_xlsx(path = model_file,
                 sheet = s)
     })
-    
+
     # use excel sheet names as list names
     names(model_file_list) = sheet_names
-    
+
     return(model_file_list)
   }
 }
 
 #' import_model
-#' 
+#'
 #' Import and run the excel model file
-#' 
+#'
 #' Import and run the excel model file using \code{check_model_file} and \code{run_model} functions
-#' 
+#'
 #' @param path File path to the model file as string
-#' @param verbose Boolean to specify whether to return the checked file 
-#' @import dplyr 
+#' @param verbose Boolean to specify whether to return the checked file
+#' @import dplyr
 #' @return model object
 #' @export
 import_model = function(path, verbose = FALSE){
@@ -87,10 +87,10 @@ import_model = function(path, verbose = FALSE){
   if (is.null(model_list)) {
     return(NULL)
   }
-  
+
   # extract model settings (data,dv,ivs,etc...)
-  model_table = model_list$model_table %>% 
-    zoo::na.fill('') %>% 
+  model_table = model_list$model_table %>%
+    zoo::na.fill('') %>%
     as.data.frame()
   categories = model_list$categories
   dv = model_list$dv$variable
@@ -99,7 +99,7 @@ import_model = function(path, verbose = FALSE){
   id_var = model_list$id_var$variable
   data = model_list$data
   trans_df = model_list$trans_df
-  
+
   model = run_model(
     data = data,
     dv = dv,
@@ -113,20 +113,20 @@ import_model = function(path, verbose = FALSE){
     save_raw_data = TRUE,
     decompose = TRUE
   )
-  
+
   return(model)
 }
 
 
 #' export_model
-#' 
+#'
 #' Export model to excel file
-#' 
-#' Export a model to an excel file 
-#' 
+#'
+#' Export a model to an excel file
+#'
 #' @param model Model object
 #' @param path File path to the model file as string
-#' @param overwrite Boolean to specify whether to overwrite the file in the specified path 
+#' @param overwrite Boolean to specify whether to overwrite the file in the specified path
 #' @importFrom openxlsx write.xlsx
 #' @export
 export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
@@ -142,7 +142,7 @@ export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
     colors = model$colors,
     trans_df = model$trans_df
   )
-  
+
   write.xlsx(model_list, file = path, overwrite = overwrite)
-  
+
 }

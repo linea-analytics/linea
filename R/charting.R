@@ -42,22 +42,30 @@ color_palette = function(){
 #' @import tidyverse
 #' @importFrom stats complete.cases
 #' @importFrom methods is
+#' @importFrom tidyr pivot_longer
 #' @importFrom magrittr '%>%'
 #' @importFrom reshape2 melt acast
 #' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
 #' @examples
-#' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) %>% decomping()
+#' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'),decompose=FALSE) %>% decomping()
 decomping = function(model = NULL,
                      de_normalise = TRUE,
                      raw_data = NULL,
                      categories = NULL,
                      id_var = NULL,
                      verbose = FALSE){
-  # checks ####
+  # checks  ####
 
+  # model =  run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'))
+  # de_normalise = TRUE
+  # raw_data = NULL
+  # categories = NULL
+  # id_var = NULL
+  # verbose = FALSE
+  
   # check verbose
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -65,13 +73,13 @@ decomping = function(model = NULL,
   # check if model is provided
   if(is.null(model)){
     if(verbose){
-      cat("\n Error: no model provided. Returning NULL.")
+      message("Error: no model provided. Returning NULL.")
     }
     return(NULL)
   }
   if(!is(model,'lm')){
     if(verbose){
-      cat("\n Error: model must be of type 'lm'. Returning NULL.")
+      message("Error: model must be of type 'lm'. Returning NULL.")
     }
     return(NULL)
   }
@@ -106,11 +114,11 @@ decomping = function(model = NULL,
     #check raw_data
     if(!is.data.frame(raw_data)){
       if (verbose) {
-        cat("\n Warning: raw_data must be a data.frame.")
+        message("Warning: raw_data must be a data.frame.")
       }
     }else if(any(complete.cases(raw_data))) {
       if(verbose){
-        cat("\n Warning: NA's found in raw data will be dropped.")
+        message("Warning: NA's found in raw data will be dropped.")
       }
       raw_data = raw_data[complete.cases(raw_data), ]
     }
@@ -119,7 +127,7 @@ decomping = function(model = NULL,
 
   if(!is.logical(de_normalise)){
     if(verbose){
-      cat("\n Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
+      message("Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
     }
     de_normalise = FALSE
   }
@@ -128,7 +136,7 @@ decomping = function(model = NULL,
   if (de_normalise) {
     # if no raw data provided
     if (is.null(raw_data) | !is.data.frame(raw_data)) {
-      if(verbose)cat("\n Warning: you must provide a raw_data data.frame to de normalise the data.")
+      if(verbose)message("Warning: you must provide a raw_data data.frame to de normalise the data.")
     }
 
     # if the raw data is supplied
@@ -146,7 +154,7 @@ decomping = function(model = NULL,
 
       } else{
         # else if(verbose)print warning
-        if(verbose)cat("\n Warning: dependent variable not found in raw_data supplied.")
+        if(verbose)message("Warning: dependent variable not found in raw_data supplied.")
 
       }
     }
@@ -160,8 +168,8 @@ decomping = function(model = NULL,
 
   # generate an id variable if one is not provided
   if (is.null(id_var)) {
-    if(verbose)cat(paste0(
-      "\n Info: no id variable supplied. New id variable generated as 1 to ",
+    if(verbose)message(paste0(
+      "Info: no id variable supplied. New id variable generated as 1 to ",
       nrow(data)
     ))
     id_var = "id"
@@ -170,9 +178,9 @@ decomping = function(model = NULL,
     # if and id_var is provided, check that raw data is provided
     if (is.null(raw_data)) {
       # if raw data not provided if(verbose)print warning and generate id_var_values
-      if(verbose)cat(
+      if(verbose)message(
         paste0(
-          "\n Warning: ID variable provided, but no raw data provided. New id variable generated as 1 to ",
+          "Warning: ID variable provided, but no raw data provided. New id variable generated as 1 to ",
           nrow(data)
         )
       )
@@ -184,9 +192,9 @@ decomping = function(model = NULL,
         id_var_values = raw_data %>% pull(!!sym(id_var))
       } else{
         # if raw data doesnt contain the id_var, if(verbose)print warning and generate id_variable
-        if(verbose)cat(
+        if(verbose)message(
           paste0(
-            "\n Warning: ID variable provided not found in raw data provided. New id variable generated as 1 to ",
+            "Warning: ID variable provided not found in raw data provided. New id variable generated as 1 to ",
             nrow(data)
           )
         )
@@ -201,8 +209,8 @@ decomping = function(model = NULL,
   # if no meta_data is provided
   if (is.null(meta_data)) {
     if(verbose){
-      cat(
-        "\n Info: no normalisation table (meta_data) found in model object. A pool variable ('total') will be generated."
+      message(
+        "Info: no normalisation table (meta_data) found in model object. A pool variable ('total') will be generated."
       )}
 
     pool = tibble("total_pool")
@@ -212,8 +220,8 @@ decomping = function(model = NULL,
 
     # if no raw data provided if(verbose)print a warning and generate a pool variable
     if (is.null(raw_data)) {
-      if(verbose)cat(
-        "\n Warning: no raw_data found to extract pool variable found in model's meta_data. A pool variable ('total') will be generated."
+      if(verbose)message(
+        "Warning: no raw_data found to extract pool variable found in model's meta_data. A pool variable ('total') will be generated."
       )
 
       pool = tibble("total_pool")
@@ -223,15 +231,15 @@ decomping = function(model = NULL,
         pool = raw_data[, pool_variable]
       } else{
         # if not, if(verbose)print warning and geterate pool variable
-        if(verbose)cat(
-          "\n Warning: pool variable from model's meta_data not found in raw_data. A pool variable ('total_pool') will be generated."
+        if(verbose)message(
+          "Warning: pool variable from model's meta_data not found in raw_data. A pool variable ('total_pool') will be generated."
         )
         pool = tibble("total_pool")
       }
     }else{
       # if not, if(verbose)print warning and geterate pool variable
-      if(verbose)cat(
-        "\n Warning: pool variable from model's meta_data not found in raw_data. A pool variable ('total_pool') will be generated."
+      if(verbose)message(
+        "Warning: pool variable from model's meta_data not found in raw_data. A pool variable ('total_pool') will be generated."
       )
       pool = tibble("total_pool")
     }
@@ -242,11 +250,16 @@ decomping = function(model = NULL,
     actual = c(actual),
     residual = model$residuals,
     predicted = model$fitted.values,
-    id = id_var_values,
-    pool = pool %>% pull()
-  ) %>%
-    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=FALSE)
-
+    id = id_var_values%>% factor(),
+    pool = pool %>% pull() %>% factor()
+  ) 
+  fitted_values = pivot_longer(
+    data = fitted_values,
+    cols = c('actual','residual','predicted'),
+    values_to = 'value',
+    names_to = "variable") %>% 
+    arrange(variable,id)
+  
   # get the independent variables decomp
   independendent_variables =  data[, 2:ncol(data)]
   if (length(coef) == 1) {
@@ -267,13 +280,19 @@ decomping = function(model = NULL,
   colnames(variable_decomp) = names(coef)
 
   # generate tibble df using the variable decomp, intercept and id variable
+  
+  
   variable_decomp = tibble(
     "(Intercept)" = intercept,
     variable_decomp,
     id = id_var_values,
     pool = pool %>% pull()
-  ) %>%
-    reshape2::melt(id.vars = c("id", "pool"),factorsAsStrings=FALSE) %>%
+  )
+  variable_decomp = variable_decomp %>% 
+    pivot_longer(cols = c('(Intercept)',names(coef)),
+                 names_to = 'variable',
+                 values_to = 'value') %>% 
+    arrange(variable,id) %>% 
     rename(contrib = value)
 
   # if an id variable name is provided use it
@@ -294,13 +313,13 @@ decomping = function(model = NULL,
   if (raw_actual_supplied & de_normalise) {
     # check if meta_data is provided
     if (is.null(meta_data)) {
-      if(verbose)cat("\n Warning: meta_data not found in model, but required to de-normalised.")
+      if(verbose)message("Warning: meta_data not found in model, but required to de-normalised.")
     } else{
       # else check if the dv is not in meta_data
       if (!(dv %in% meta_data$variable)) {
         # if the dv is not found in the norm table if(verbose)print warning
         ### STA could work if the de_normalise is true
-        cat("\n Warning: dv not found in meta_data.")
+        message("Warning: dv not found in meta_data.")
 
       } else{
         pool_mean = tibble(raw_actual = raw_actual %>% pull(),
@@ -327,7 +346,7 @@ decomping = function(model = NULL,
   if (is.null(categories)) {
     if(all(model_table$category == "")){
       if(verbose){
-        cat("Warning: no categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.\n")
+        message("Warning: no categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
@@ -340,13 +359,13 @@ decomping = function(model = NULL,
   } else if(!is.data.frame(categories)){
     if(all(model_table$category == "")){
       if(verbose){
-        cat("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.\n")
+        message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
 
       if(verbose){
-        cat("Warning: categories provided must be of type data.frame. Using model_table categories.\n")
+        message("Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
       categories = model_table %>%
@@ -356,17 +375,17 @@ decomping = function(model = NULL,
     }
   }else if(!(all(c('variable','category') %in% colnames(categories)))){
     if(verbose){
-      cat("Warning: categories provided must contain atleast columns 'variable' and 'category'.\n")
+      message("Warning: categories provided must contain atleast columns 'variable' and 'category'.")
     }
     if(all(model_table$category == "")){
       if(verbose){
-        cat("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.\n")
+        message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
 
       if(verbose){
-        cat("Warning: categories provided must be of type data.frame. Using model_table categories.\n")
+        message("Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
       categories = model_table %>%
@@ -380,7 +399,7 @@ decomping = function(model = NULL,
 
     if(!('calc' %in% colnames(categories))){
       if(verbose){
-        cat("Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'.\n")
+        message("Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'.")
       }
       categories$calc = 'none'
     }
@@ -496,7 +515,7 @@ decomp_chart = function(model = NULL,
 
   # Check verbose
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -504,7 +523,7 @@ decomp_chart = function(model = NULL,
   if(is.null(model)){
     if(is.null(decomp_list)){
       if(verbose){
-        cat("Error: no decomp_list provided. Returning NULL. \n ")
+        message("Error: no decomp_list provided. Returning NULL. ")
       }
       return(NULL)
     }
@@ -529,7 +548,7 @@ decomp_chart = function(model = NULL,
   }
   if(!all(c("pool","variable","contrib") %in% colnames(decomp))){
     if(verbose){
-      cat("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. \n ")
+      message("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. ")
     }
     return(NULL)
   }
@@ -543,7 +562,7 @@ decomp_chart = function(model = NULL,
   }
   if(!all(c("pool","variable","value") %in% colnames(fitted_values))){
     if(verbose){
-      cat("\n Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
+      message("Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
     }
     return(NULL)
   }
@@ -559,7 +578,7 @@ decomp_chart = function(model = NULL,
 
     if(!any(decomp$pool == pool)){
       if(verbose){
-        cat("\n Warning: POOL ",pool," not found. No POOL filtering applied.")
+        message("Warning: POOL ",pool," not found. No POOL filtering applied.")
       }
       decomp = decomp %>%
         rename(value = contrib)
@@ -573,7 +592,7 @@ decomp_chart = function(model = NULL,
 
   if(is.null(pool)){
     if(verbose){
-      cat("\n Warning: no pool provided. Aggregating by id_var.")
+      message("Warning: no pool provided. Aggregating by id_var.")
     }
 
     fitted_values = fitted_values %>%
@@ -649,10 +668,15 @@ fit_chart = function(model = NULL,
                      verbose = FALSE,
                      colors = NULL) {
 
-
+  # model = run_model(data = mtcars,dv = 'mpg',ivs = 'cyl')
+  # decomp_list = NULL
+  # pool = NULL
+  # verbose = FALSE
+  # colors = NULL
+  
   # Check verbose
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -661,7 +685,7 @@ fit_chart = function(model = NULL,
   if(is.null(model)){
     if(is.null(decomp_list)){
       if(verbose){
-        cat("\n Error: no decomp_list provided. Returning NULL.")
+        message("Error: no decomp_list provided. Returning NULL.")
       }
       return(NULL)
     }
@@ -678,7 +702,7 @@ fit_chart = function(model = NULL,
   if (!is.null(pool)) {
     if(!any(fitted_values$pool == pool)){
       if(verbose){
-        cat("\n Warning: POOL ",pool," not found. No POOL filtering applied.")
+        message("Warning: POOL ",pool," not found. No POOL filtering applied.")
       }
     }
     else{
@@ -688,7 +712,7 @@ fit_chart = function(model = NULL,
 
   if(is.null(pool)){
     if(verbose){
-      cat("\n Warning: no pool provided. Aggregating by id_var.")
+      message("Warning: no pool provided. Aggregating by id_var.")
     }
     fitted_values = fitted_values %>%
       group_by(variable,!!sym(id_var)) %>%
@@ -772,7 +796,7 @@ resid_hist_chart = function(model = NULL,
                             verbose = FALSE){
   # Check verbose
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -781,7 +805,7 @@ resid_hist_chart = function(model = NULL,
   if(is.null(model)){
     if(is.null(decomp_list)){
       if(verbose){
-        cat("\n Error: no decomp_list provided. Returning NULL.")
+        message("Error: no decomp_list provided. Returning NULL.")
       }
       return(NULL)
     }
@@ -843,7 +867,7 @@ heteroskedasticity_chart = function(model = NULL,
 
   # Check verbose
   if (!is.logical(verbose)) {
-    cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -852,7 +876,7 @@ heteroskedasticity_chart = function(model = NULL,
   if (is.null(model)) {
     if (is.null(decomp_list)) {
       if (verbose) {
-        cat("\n Error: no decomp_list provided. Returning NULL.")
+        message("Error: no decomp_list provided. Returning NULL.")
       }
       return(NULL)
     }
@@ -919,7 +943,7 @@ acf_chart = function(model = NULL,
 
   # Check verbose
   if (!is.logical(verbose)) {
-    cat("\n Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
 
@@ -928,7 +952,7 @@ acf_chart = function(model = NULL,
   if (is.null(model)) {
     if (is.null(decomp_list)) {
       if (verbose) {
-        cat("\n Error: no decomp_list provided. Returning NULL.")
+        message("Error: no decomp_list provided. Returning NULL.")
       }
       return(NULL)
     }
@@ -1104,7 +1128,7 @@ response_curves = function(
   optim_table = optim_table[c("variable", "variable_t",
                               trans_df$name, "coef")] %>% na.omit()
   if (nrow(optim_table) == 0) {
-    cat("Error: Check model and/or model_table. \n")
+    message("Error: Check model and/or model_table.")
     return(NULL)
   }
   curves_df = list()

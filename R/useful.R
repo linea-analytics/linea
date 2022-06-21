@@ -15,7 +15,7 @@
 #' read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")  
 read_xcsv = function(file, sheet = NULL, verbose = FALSE) {
   if(!is.logical(verbose)){
-    cat("\n Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   
