@@ -1,9 +1,29 @@
 ## Re-Submission
-This is a re-submission. In this re-submitted version I have:
 
-* Used new.env() when using assign() to not modify the .GlobalEnv
-* Added a, or adjusted the, @return value for all functions
-* Expanded the Description field to better explain the library
-* Dropped library name from the Description field
-* Replaced T,F with TRUE,FALSE
-* Removed class(model) == 'lm'
+This is a re-submission. In version 0.0.2 new features have been added as well as improvements and bug fixes across several functions.
+
+* Fixed bugs:
+  * `what_next()`
+  * `what_combo()`
+  * `check_model_file()`
+  * `import_model()`
+  * `export_model()`
+  * `get_seasonality()`
+
+
+* Amended:
+  * README
+  * author email
+  * `hill_function()`
+
+
+* Replaced:
+  * `rlist::list.append()` with `base::append()`
+  * `cat()` with `message()`
+
+
+* Added:
+ * `default_trans_df()`
+ * `check_trans_df()`
+ * `run_combo_model()`
+ * `re_run_model()`
