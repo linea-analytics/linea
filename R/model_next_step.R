@@ -739,6 +739,7 @@ what_combo = function(model = NULL,
 
   # clean trans_df
   trans_df = trans_df %>%
+    check_trans_df() %>% 
     apply(2, function(x)
       gsub(' ', '', x)) %>%
     as.data.frame() %>%
