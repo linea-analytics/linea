@@ -21,7 +21,7 @@ In version 0.0.2 new features have been added as well as improvements and bug fi
 
 
 * Added:
- * `default_trans_df()`
- * `check_trans_df()`
- * `run_combo_model()`
- * `re_run_model()`
+  * `default_trans_df()`
+  * `check_trans_df()`
+  * `run_combo_model()`
+  * `re_run_model()`
