@@ -49,7 +49,7 @@ gt_f = function(data,
       keyword = kw,
       time = time_str,
       onlyInterest = TRUE
-    )
+    ) %>% TRY()
   }
   else{
     gt = gtrends(
@@ -57,9 +57,14 @@ gt_f = function(data,
       geo = geo,
       time = time_str,
       onlyInterest = TRUE
-    )}
+    ) %>% TRY()
+  }
   
-  
+  # check gtrends call
+  if(is.null(gt)){
+    message('gtrends function failed. Check internet connection or attempt installing the gtrends package separately')
+    return(NULL)
+  }
   
   gt = gt[[1]]%>%
     select(date, hits) %>%
