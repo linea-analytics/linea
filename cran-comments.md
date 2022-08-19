@@ -1,29 +1,6 @@
 ## Re-Submission
 
-This is a re-submission. In version 0.0.2 new features have been added as well as improvements and bug fixes across several functions.
-
-* Fixed bugs:
-  * `what_next()`
-  * `what_combo()`
-  * `check_model_file()`
-  * `import_model()`
-  * `export_model()`
-  * `get_seasonality()`
-
+This is a re-submission. In version 0.0.2 the function `gt_f` wasn't failing gracefully. Version 0.0.3 addresses this by handling the error and returning an informative message.
 
 * Amended:
-  * README
-  * author email
-  * `hill_function()`
-
-
-* Replaced:
-  * `rlist::list.append()` with `base::append()`
-  * `cat()` with `message()`
-
-
-* Added:
- * `default_trans_df()`
- * `check_trans_df()`
- * `run_combo_model()`
- * `re_run_model()`
+  * `gt_f()` now fails gracefully with an informative message

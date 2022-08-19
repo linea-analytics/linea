@@ -13,6 +13,7 @@ In version 0.0.2 new features have been added as well as improvements and bug fi
 * Amended:
   * `get_seasonality()`
   * `hill_function()`
+  * `gt_f()`
 
 
 * Replaced:
