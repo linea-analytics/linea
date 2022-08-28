@@ -606,6 +606,7 @@ run_model = function(data = NULL,
   }
   
   model$id_var = id_var
+  model$tail_window = tail_window
   model$pool_var = pool_var
   model$dv = dv
   model$trans_df = trans_df
