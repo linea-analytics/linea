@@ -6,8 +6,7 @@
 \usage{
 apply_normalisation(
   raw_data = NULL,
-  meta_data = NULL,
-  model_table = NULL,
+  pool_var = NULL,
   dv = NULL,
   verbose = FALSE
 )
@@ -15,9 +14,7 @@ apply_normalisation(
 \arguments{
 \item{raw_data}{\code{data.frame} containing data for analysis}
 
-\item{meta_data}{\code{data.frame} mapping variable names to their roles (i.e. POOL)}
-
-\item{model_table}{\code{data.frame} as created in the \code{build_model_table} function}
+\item{pool_var}{string specifying the pool variable name (e.g. 'country')}
 
 \item{dv}{string specifying the dependent variable name}
 
@@ -31,4 +28,14 @@ Normalise data based on pool mean
 }
 \details{
 Normalise data by dividing all values in each pool by that pool's mean
+}
+\examples{
+pooled_data = read_xcsv(
+ verbose = FALSE,
+ file = "https://raw.githubusercontent.com/paladinic/data/main/pooled\%20data.csv")
+
+norm_data = apply_normalisation(
+ raw_data = pooled_data,
+ pool_var = 'country',
+ dv = 'amazon')
 }

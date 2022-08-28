@@ -9,13 +9,14 @@ run_model(
   dv = NULL,
   ivs = NULL,
   trans_df = NULL,
-  meta_data = NULL,
   id_var = NULL,
+  pool_var = NULL,
   model_table = NULL,
   verbose = FALSE,
   normalise_by_pool = FALSE,
-  save_raw_data = TRUE,
+  save_all_raw_data = TRUE,
   decompose = TRUE,
+  tail_window = NULL,
   categories = NULL
 )
 }
@@ -28,9 +29,9 @@ run_model(
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 
-\item{meta_data}{\code{data.frame} mapping variable names to their roles (i.e. POOL)}
-
 \item{id_var}{string of id variable name (e.g. date)}
+
+\item{pool_var}{string specifying the pool variable name (e.g. 'country')}
 
 \item{model_table}{\code{data.frame} as created in the \code{build_model_table} function}
 
@@ -38,9 +39,11 @@ run_model(
 
 \item{normalise_by_pool}{A boolean to specify whether to apply the normalisation}
 
-\item{save_raw_data}{A boolean to specify whether to save all input data variables to the model object}
+\item{save_all_raw_data}{A boolean to specify whether to save whole input data to the model object}
 
 \item{decompose}{A boolean to specify whether to generate the model decomposition}
+
+\item{tail_window}{for time series, length of tail in decomposition}
 
 \item{categories}{\code{data.frame} mapping variables to groups}
 }
@@ -51,7 +54,7 @@ Model object
 Run a linear regression model
 }
 \details{
-Run a linear regression model that captures the transformations applied in the \code{model_table} and the normalisation described in the \code{meta_data}.
+Run a linear regression model that captures the transformations applied in the \code{model_table} and the normalisation based on the \code{pool_var}.
 A model can be run also by only supplying a dependent variable name \code{dv}, a vector of independent variable names dependent variable \code{ivs}, and the data that contains these.
 }
 \examples{

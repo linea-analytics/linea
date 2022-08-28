@@ -26,5 +26,10 @@ Run a separate model for each numeric variable in the data provided.
 Then, for each model run, return that model's fit and the variables' statistics.
 }
 \examples{
-run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl')) \%>\% what_next()
+run_model(
+    data = mtcars,
+    dv = 'mpg',
+    ivs = c('disp', 'cyl')
+  ) \%>\% 
+  what_next()
 }

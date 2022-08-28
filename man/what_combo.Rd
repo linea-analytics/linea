@@ -65,9 +65,6 @@ trans_df = data.frame(
   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
                                               '.1,.7 ',
                                               offline_media)) \%>\%
-  dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
-                                              '.1,.7 ',
-                                              '')) \%>\%
   dplyr::mutate(promo = '')
 
 model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)

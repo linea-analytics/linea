@@ -7,9 +7,8 @@
 decomping(
   model = NULL,
   de_normalise = TRUE,
-  raw_data = NULL,
   categories = NULL,
-  id_var = NULL,
+  tail_window = NULL,
   verbose = FALSE
 )
 }
@@ -18,11 +17,9 @@ decomping(
 
 \item{de_normalise}{A boolean to specify whether to apply the normalisation}
 
-\item{raw_data}{\code{data.frame} containing data for analysis}
-
 \item{categories}{\code{data.frame} mapping variables to groups}
 
-\item{id_var}{string of id variable name (e.g. date)}
+\item{tail_window}{for time series, length of tail}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }

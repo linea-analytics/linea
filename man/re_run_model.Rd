@@ -10,8 +10,8 @@ re_run_model(
   dv = NULL,
   ivs = NULL,
   trans_df = NULL,
-  meta_data = NULL,
   id_var = NULL,
+  pool_var = NULL,
   model_table = NULL,
   normalise_by_pool = FALSE,
   verbose = FALSE,
@@ -29,9 +29,9 @@ re_run_model(
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 
-\item{meta_data}{\code{data.frame} mapping variable names to their roles (i.e. POOL)}
-
 \item{id_var}{string of id variable name (e.g. date)}
+
+\item{pool_var}{string of pool variable name (e.g. country)}
 
 \item{model_table}{\code{data.frame} as created in the \code{build_model_table} function}
 
@@ -51,9 +51,6 @@ Re-run a linear regression model
 Re-run a linear regression model using the function output of running \code{linea::run_model}.
 }
 \examples{
-model = run_model(
-   data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv"),
-   dv = 'ecommerce',
-   ivs = c('christmas','black.friday'))
+model = run_model(mtcars,ivs = 'cyl', dv = 'mpg',save_all_raw_data = TRUE)
 re_run_model(model,ivs = c('disp','cyl','wt'))
 }

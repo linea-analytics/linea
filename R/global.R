@@ -2,7 +2,6 @@ globalVariables(
   c('hits',
     'value',
     'acf',
-    'meta',
     'new_var',
     'variable',
     'variable_t',
@@ -24,5 +23,10 @@ globalVariables(
     'name',
     'trans_df',
     'func',
-    'ts'
+    'ts',
+    'tail_window',
+    'id_var',
+    'temp_dv_var',
+    'pool',
+    '.'
   ))

@@ -38,7 +38,7 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
     'id_var',
     'id_format',
     'normalise_by_pool',
-    'meta_data',
+    'pool_var',
     'colors',
     'trans_df'
   )
@@ -95,7 +95,7 @@ import_model = function(path, verbose = FALSE){
   categories = model_list$categories
   dv = model_list$dv$variable
   normalise_by_pool = model_list$normalise_by_pool$variable
-  meta_data = model_list$meta_data
+  pool_var = model_list$pool_var
   id_var = model_list$id_var$variable
   data = model_list$data
   trans_df = model_list$trans_df
@@ -105,12 +105,12 @@ import_model = function(path, verbose = FALSE){
     dv = dv,
     model_table = model_table,
     trans_df = trans_df,
-    meta_data = meta_data,
+    pool_var = pool_var,
     id_var = id_var,
     verbose = verbose,
     normalise_by_pool = normalise_by_pool,
     categories = categories,
-    save_raw_data = TRUE,
+    save_all_raw_data = TRUE,
     decompose = TRUE
   )
 
@@ -131,14 +131,14 @@ import_model = function(path, verbose = FALSE){
 #' @export
 export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
   model_list = list(
-    data = model$data,
+    data = model$raw_data,
     model_table = model$output_model_table,
     dv = data.frame(variable = model$dv),
     categories = model$categories,
     id_var = data.frame(variable = model$id_var),
     id_format = data.frame(variable = model$id_var_format),
     normalise_by_pool = data.frame(variable = model$normalise_by_pool),
-    meta_data = model$meta_data,
+    pool_var = model$pool_var,
     colors = model$colors,
     trans_df = model$trans_df
   )

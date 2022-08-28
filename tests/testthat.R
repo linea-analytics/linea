@@ -59,22 +59,17 @@ pooled_data = read_xcsv(verbose = FALSE,
                   date_col_name = "Week",
                   date_type = "weekly starting")
 
-# meta data
-pooled_meta_data = tibble(
-  variable = c("amazon", "rakhi", "country", "Week"),
-  meta = c("STA", "STA", "POOL", "ID")
-)
-
 # vars
 pooled_dv = "amazon"
 pooled_ivs = c("rakhi", "christmas", "diwali")
 pooled_id_var = "Week"
+pool_var = 'country'
 
 # model table
 pooled_model_table = build_model_table(c(pooled_ivs, "", ""))
 
 # category
-pooled_category = tibble(
+pooled_category = data.frame(
   variable = c("rakhi" , "christmas"),
   category = c("a", "a"),
   calc = c("", "")
@@ -82,14 +77,16 @@ pooled_category = tibble(
 
 # run model
 pooled_model = run_model(
-  verbose = FALSE,
+  verbose = TRUE,
   data = pooled_data,
   dv = pooled_dv,
-  meta_data =  pooled_meta_data,
+  id_var = pooled_id_var,
+  pool_var =  pool_var,
   model_table = pooled_model_table,
   normalise_by_pool = TRUE
 )
 
+###
 
 
 # tests  ####
@@ -160,17 +157,64 @@ test_that('run_model ivs, dv',{
 
 })
 
+
+test_that('run_model mt, dv - pooled',{
+  
+  run_model(data = pooled_data, dv = pooled_dv,model_table = pooled_model_table) %>%
+    class() %>%
+    expect_equal('lm')
+  
+})
+
+### decomping   ####
+
+test_that('decomp',{
+
+  model %>% 
+    decomp_chart() %>% 
+    class() %>%
+    {.[1]} %>% 
+    expect_equal('plotly')
+
+})
+
+
+test_that('decomp - pooled',{
+  
+  pooled_model %>% 
+    decomp_chart(model = .,pool = 'UK',verbose = T) %>% 
+    class() %>%
+    {.[1]} %>% 
+    expect_equal('plotly')
+  
+  
+})
+
+test_that('decomp - tails',{
+  
+  pooled_model %>%
+    decomping(
+      tail_window = 100,
+      de_normalise = T
+    ) %>%
+    decomp_chart(decomp_list = ., pool = 'India') %>% 
+    class() %>%
+    {.[1]} %>%
+    expect_equal('plotly')
+  
+})
+
 ### next steps  ---------------------------------------------------------------
 
 test_that("what next - output dataframe", {
   model %>%
-    what_next() %>%
+    what_next(data = data) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
 })
 test_that("what next - output not all na", {
   model %>%
-    what_next() %>%
+    what_next(data = data) %>%
     select(-variable) %>%
     is.na() %>%
     all() %>%
@@ -179,13 +223,13 @@ test_that("what next - output not all na", {
 
 test_that("what next - output dataframe - diff FALSE - not pooled", {
   model %>%
-    what_next(r2_diff = FALSE) %>%
+    what_next(r2_diff = FALSE,data = data) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
 })
 test_that("what next - output not all na - diff FALSE - not pooled", {
   model %>%
-    what_next(r2_diff = FALSE) %>%
+    what_next(r2_diff = FALSE,data = data) %>%
     select(-variable) %>%
     is.na() %>%
     all() %>%
@@ -194,13 +238,13 @@ test_that("what next - output not all na - diff FALSE - not pooled", {
 
 test_that("what next - pooled - output dataframe", {
   pooled_model %>%
-    what_next() %>%
+    what_next(data = pooled_data) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
 })
 test_that("what next - pooled - output not all na", {
   pooled_model %>%
-    what_next() %>%
+    what_next(data = pooled_data) %>%
     select(-variable) %>%
     is.na() %>%
     all() %>%

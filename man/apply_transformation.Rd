@@ -5,30 +5,46 @@
 \title{#' apply_transformation}
 \usage{
 apply_transformation(
-  data = NULL,
+  raw_data = NULL,
   model_table = NULL,
   trans_df = NULL,
-  meta_data = NULL,
+  pool_var = NULL,
   verbose = FALSE
 )
 }
 \arguments{
-\item{data}{\code{data.frame} containing data for analysis}
+\item{raw_data}{\code{data.frame} containing data for analysis}
 
 \item{model_table}{\code{data.frame} as created in the \code{build_model_table} function}
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 
-\item{meta_data}{\code{data.frame} mapping variable names to their roles (i.e. POOL)}
+\item{pool_var}{string specifying the pool variable name (e.g. 'country')}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{
-\code{tibble} of raw_data with added transformed variables
+\code{data.frame} of raw_data with added transformed variables
 }
 \description{
 Transform data based on model table
 }
 \details{
 Transform data based on the model table by applying the transformation functions (e.g. \code{decay}, \code{diminish}, \code{lag}, and \code{ma}) with the specified parameters to the respective variable
+}
+\examples{
+
+pooled_data = read_xcsv(
+ verbose = FALSE,
+ file = "https://raw.githubusercontent.com/paladinic/data/main/pooled\%20data.csv")
+
+
+model_table = build_model_table('christmas')
+model_table['decay'] = '0.5'
+
+trans_data = apply_transformation(
+ raw_data = pooled_data,
+ model_table = model_table,
+ pool_var = 'country')
+
 }

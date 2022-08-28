@@ -122,7 +122,7 @@ check_ts = function(data,
     other_types = sapply(data,function(x)is.numeric(x)|is.POSIXct(x))
 
     if(!all(other_types)){
-      if(verbose)print("Warning: non-numeric or non-date variables have been dropped.")
+      if(verbose)print("Warning: Non-numeric or non-date variables have been dropped.")
       return(data[,other_types])
     }
   }
