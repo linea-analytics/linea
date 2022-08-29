@@ -8,4 +8,8 @@
 
 `linea` is an R library, designed as an interface to accelerate linear regression modelling and visualization. The library allows users to build complex model specification through custom transformations.
 
-The library can be installed from CRAN using install.packages('linea') or from GitHub using devtools::install_github('paladinic/linea'). The [online guide](https://www.linea-r.org) provides a detailed walkthrough of how to use LINEA.
+The library can be installed from CRAN using `install.packages('linea')`.
+
+Alternatively, you can install the development version from GitHub using `devtools::install_github('paladinic/linea')`. 
+
+The [online guide](https://www.linea-r.org) provides a detailed walkthrough of how to use LINEA.
