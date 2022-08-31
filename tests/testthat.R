@@ -42,7 +42,8 @@ model = run_model(
   data = data,
   dv = dv,
   model_table = model_table,
-  normalise_by_pool = FALSE
+  normalise_by_pool = FALSE,
+  id_var = id_var 
 )
 
 
