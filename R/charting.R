@@ -166,8 +166,8 @@ decomping = function(model = NULL,
     actual = c(actual),
     residual = model$residuals,
     predicted = model$fitted.values,
-    id = id_var_values %>% factor(),
-    pool = pool_var_values %>% factor()
+    id = id_var_values, #%>% factor(),
+    pool = pool_var_values # %>% factor()
   ) 
   fitted_values = pivot_longer(
     data = fitted_values,
@@ -678,12 +678,24 @@ fit_chart = function(model = NULL,
                      colors = NULL) {
   # test    ####
   
-  # data = mtcars %>% rownames_to_column('cars')
-  # model = run_model(data = data,dv = 'mpg',ivs = 'cyl',pool_var = 'am',verbose = T, id_var = 'cars')
-  # decomp_list = NULL
-  # pool = 1
-  # verbose = FALSE
+  # data = read_xcsv(
+  #   verbose = FALSE,
+  #   file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  # dv = "ecommerce"
+  # ivs = c("black.friday", "christmas", "covid")
+  # id_var = "date"
+  # model = run_model(
+  #   verbose = FALSE,
+  #   data = data,
+  #   dv = dv,
+  #   ivs = ivs,
+  #   normalise_by_pool = FALSE,
+  #   id_var = id_var 
+  # )
+  # model %>% fit_chart()
+  # verbose = TRUE
   # colors = NULL
+  # pool = NULL
   
   # checks  #####
   
@@ -1154,7 +1166,7 @@ acf_chart = function(model = NULL,
     ) %>%
     layout(
       font = list(color = '#1c0022'),
-      title = 'ACF',
+      title = 'Autocorrelation Function',
       plot_bgcolor  = "rgba(0, 0, 0, 0)",
       paper_bgcolor = "rgba(0, 0, 0, 0)",
       xaxis = list(
