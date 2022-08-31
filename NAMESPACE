@@ -3,6 +3,8 @@
 export("%>%")
 export(TRY)
 export(acf_chart)
+export(add_total_pool)
+export(add_total_pool_to_data)
 export(apply_normalisation)
 export(apply_transformation)
 export(build_formula)
