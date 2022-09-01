@@ -482,9 +482,9 @@ what_trans = function(model = NULL,
       if (model$normalise_by_pool) {
         for (g in groups) {
           # g=groups[1]
-          x = data$temp_var[data[, pool] == g]
+          x = data$temp_var[data[, model$pool_var] == g]
           x = f %>% run_text(env = e)
-          data$temp_var[data[, pool] == g] = x
+          data$temp_var[data[, model$pool_var] == g] = x
 
         }
       } else{
@@ -626,7 +626,40 @@ what_combo = function(model = NULL,
   # - trans_df columns
   # - check vars are in data
   # - dv in data
-
+  
+  # test    ####
+  
+  # raw_data = read_xcsv(verbose = FALSE,
+  #                         file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+  # dv = "amazon"
+  # ivs = c("rakhi", "diwali")
+  # id_var = "Week"
+  # pool_var = 'country'
+  # 
+  # model_table = build_model_table(c(ivs, "", ""))
+  # model = run_model(
+  #   id_var = id_var,
+  #   verbose = FALSE,
+  #   data = raw_data,
+  #   dv = dv,
+  #   pool_var = pool_var,
+  #   model_table = model_table,
+  #   normalise_by_pool = TRUE
+  # )
+  # 
+  # wc_trans_df = model$trans_df %>% 
+  #   mutate(christmas = if_else(name == 'decay','.1,.5,.9',''))
+  # 
+  # trans_df = wc_trans_df
+  # 
+  # model %>% what_combo(trans_df = trans_df)
+  # 
+  # data = NULL
+  # dv = NULL
+  # r2_diff = TRUE
+  # return_model_objects = FALSE
+  # verbose = FALSE
+  
   # checks  ####
 
   if (!is.logical(verbose)) {
@@ -890,10 +923,10 @@ what_combo = function(model = NULL,
         if (model$normalise_by_pool) {
           for (g in groups) {
             # g=groups[1]
-            x = data$temp_var[data[, pool] == g]
+            x = data$temp_var[data[, model$pool_var] == g]
             assign('x',x,envir = e)
             x = f %>% run_text(env = e)
-            data$temp_var[data[, pool] == g] = x
+            data$temp_var[data[, model$pool_var] == g] = x
 
           }
         } else{
