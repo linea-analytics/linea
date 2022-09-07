@@ -108,13 +108,16 @@ decomping = function(model = NULL,
   
   # get the coefficients from the model object
   coef = model$coefficients
-  ivs = names(coef)[-1]
+  ivs = model$model_table %>% 
+    filter(variable_t != '') %>% 
+    pull(variable_t)
+  
   
   # TODO: function for checking model object to use in all functions
-  if(!("model_ table" %in% names(model))){
-    model_table = build_model_table(ivs = ivs,trans_df = model$trans_df)
+  if(!("model_table" %in% names(model))){
+    model_table = build_model_table(ivs = ivs,trans_df = model$trans_df) %>% 
+      get_variable_t()
   }
-  
   
   # extract dependent variable name
   dv = model$dv
@@ -135,8 +138,6 @@ decomping = function(model = NULL,
   actual = data %>% pull(!!sym(dv))
   raw_actual = raw_data %>% pull(!!sym(dv))
   
-  
-  
   if(!is.logical(de_normalise)){
     if(verbose){
       message("Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
@@ -149,6 +150,23 @@ decomping = function(model = NULL,
   intercept = coef[1]
   # keep the other coefficients
   coef = coef[-1]
+  
+  
+  # offset
+  if(any(model$model_table$fixed!='')){
+    
+    fixed_coefs = model$model_table %>% 
+      filter(fixed != '') %>% 
+      pull(fixed)
+    
+    fixed_vars = model$model_table %>% 
+      filter(fixed != '') %>% 
+      pull(variable_t)
+    
+    names(fixed_coefs) = fixed_vars
+    
+    coef = c(coef,fixed_coefs)
+  }
   
   
   # get pool var
@@ -896,7 +914,7 @@ add_total_pool_to_data = function(data,pool_var,id_var) {
   # calculate the aggregated pools
   totals = data %>%
     group_by(!!sym(id_var)) %>%
-    select_if(is.numaeric) %>%
+    select_if(is.numeric) %>%
     summarise_all(.funs = sum) %>%
     mutate(pool_var = 'Total')
   
@@ -912,6 +930,47 @@ add_total_pool_to_data = function(data,pool_var,id_var) {
   return(data)
   
 }
+
+
+
+
+#' filter_decomp_pool
+#'
+#' Filter a model's decomposition based on a given pool.
+#'
+#' Filter all \code{data.frame}'s within a model's decomposition based on a given pool.
+#'
+#' @param decomp A \code{list} of \code{data.frame} from a model object or generated using \code{decomping}.
+#' @param pool A string representing the variable name of the pool variable.
+#' @param verbose A boolean to specify whether to print warnings
+#' @import dplyr
+#' @export
+#' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
+filter_decomp_pool = function(decomp,pool,verbose = TRUE){
+  if (!(pool %in% colnames(decomp$variable_decomp))) {
+    if(verbose){
+      message("Error: pool string provided does not match decomp columns.")
+    }
+    return(decomp)
+  }
+  
+  variable_decomp = decomp$variable_decomp %>%
+    filter(pool == !!pool)
+  category_decomp = decomp$category_decomp%>%
+    filter(pool == !!pool)
+  fitted_values = decomp$fitted_values%>%
+    filter(pool == !!pool)
+  
+  decomp$variable_decomp = variable_decomp
+  decomp$category_decomp = category_decomp
+  decomp$fitted_values = fitted_values
+  
+  return(decomp)
+  
+  
+}
+
+
 
 #' resid_hist_chart
 #'

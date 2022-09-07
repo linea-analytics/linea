@@ -111,6 +111,7 @@ build_model_table = function(ivs,trans_df = NULL,ts = TRUE){
   model_table = data.frame(matrix(ncol = length(cols), nrow = rows,data = ''))
   colnames(model_table) = cols
   model_table$variable = ivs
+  model_table$fixed = ''
 
   return(model_table)
 
@@ -146,8 +147,8 @@ get_variable_t = function(model_table,
   if (excl_intercept) {
     model_table = model_table %>%
       filter(variable != "(Intercept)")
-
   }
+  
   if (excl_blanks) {
     model_table = model_table %>%
       filter(variable != "") %>%
@@ -195,7 +196,8 @@ build_formula = function(dv, ivs, model_table = NULL) {
     model_table = get_variable_t(model_table)
 
     ivs = model_table %>%
-      pull(variable_t)
+      filter(fixed == '') %>% # remove variables with fixed coefficients
+      pull(variable_t) # extract variable names
 
   }
   else{
@@ -207,4 +209,35 @@ build_formula = function(dv, ivs, model_table = NULL) {
                      paste0(ivs,
                             collapse = "` + `"),
                      "`"))
+}
+
+#' get_offset
+#'
+#' Build a formula's offset
+#'
+#' Build a formula's offset (e.g. lm(y ~ x1, offset = x2*-4)) dynamically 
+#' based no the inputs of the model_table.
+#'
+#' @export
+#' @param data \code{data.frame} containing variables included in the model_table
+#' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
+#' @import dplyr
+#' @return a \code{matrix} object
+get_offset = function(data, model_table) {
+    
+  model_table = get_variable_t(model_table)
+
+  vars = model_table %>%
+    filter(fixed != '') %>% 
+    pull(variable_t)
+  
+  coef = model_table %>%
+    filter(fixed != '') %>% 
+    pull(fixed) %>% 
+    as.numeric()
+  
+  offset = as.matrix(data[vars]) %*% coef
+  
+  return(offset)
+  
 }

@@ -397,7 +397,6 @@ run_model = function(data = NULL,
                      decompose = TRUE,
                      tail_window = NULL,
                      categories = NULL) {
-
   # test    ####
 
   # data = read_xcsv(file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
@@ -408,18 +407,19 @@ run_model = function(data = NULL,
   #
   # model = run_model(data = data, dv = dv , ivs = ivs, pool_var = pool_var, id_var = id_var)
 
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  # dv = 'ecommerce'
-  # ivs = c('christmas','black.friday')
-  # pool_var = NULL
-  # trans_df = NULL
-  # id_var = NULL
-  # model_table = NULL
-  # verbose = T
-  # normalise_by_pool = FALSE
-  # save_all_raw_data = TRUE
-  # decompose = TRUE
-  # categories = NULL
+  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  dv = 'ecommerce'
+  ivs = c('christmas','black.friday')
+  pool_var = NULL
+  trans_df = NULL
+  id_var = NULL
+  model_table = NULL
+  verbose = T
+  tail_window = NULL
+  normalise_by_pool = FALSE
+  save_all_raw_data = TRUE
+  decompose = TRUE
+  categories = NULL
 
   # checks  ####
 
@@ -475,8 +475,7 @@ run_model = function(data = NULL,
       group_by(!!sym(pool_var)) %>%
       mutate(id = row_number()) %>%
       ungroup()
-  }
-  else if(!(id_var %in% colnames(data))){
+  } else if(!(id_var %in% colnames(data))){
     if(verbose){
       message('Warning: id_var provided not found in data. Generating a new `id_var` in data')
     }
@@ -556,12 +555,6 @@ run_model = function(data = NULL,
     model_table$category = ""
   }
 
-  # formula ####
-
-  # build formula object
-  formula = build_formula(dv = dv, ivs = ivs_t)
-
-
   # data    ####
 
   # generate norm_data
@@ -590,16 +583,23 @@ run_model = function(data = NULL,
     verbose = verbose
   )
 
+  # formula ####
+
+  # build formula object
+  formula = build_formula(dv = dv, ivs = ivs_t)
+
+  # get offset
+  offset = get_offset(data = trans_data, model_table = model_table)
+  
   # model   ####
 
   # run model on norm_data
-  model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)])
+  model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)],offset = offset)
 
   # set colnames as ivs. bypass backticks added to ivs by lm()
   names(model$coefficients) = c("(Intercept)", ivs_t)
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
 
-  
   
   if(exists('pool_mean')){
     model$pool_mean = pool_mean
