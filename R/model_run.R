@@ -407,20 +407,34 @@ run_model = function(data = NULL,
   #
   # model = run_model(data = data, dv = dv , ivs = ivs, pool_var = pool_var, id_var = id_var)
 
-  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  dv = 'ecommerce'
-  ivs = c('christmas','black.friday')
-  pool_var = NULL
-  trans_df = NULL
-  id_var = NULL
-  model_table = NULL
-  verbose = T
-  tail_window = NULL
-  normalise_by_pool = FALSE
-  save_all_raw_data = TRUE
-  decompose = TRUE
-  categories = NULL
+  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  # dv = 'ecommerce'
+  # ivs = c('christmas','black.friday')
+  # pool_var = NULL
+  # trans_df = NULL
+  # id_var = NULL
+  # model_table = NULL
+  # verbose = T
+  # tail_window = NULL
+  # normalise_by_pool = FALSE
+  # save_all_raw_data = TRUE
+  # decompose = TRUE
+  # categories = NULL
 
+  # data = mtcars
+  # dv = 'mpg'
+  # ivs = c('wt','cyl','disp')
+  # pool_var = NULL
+  # trans_df = NULL
+  # id_var = NULL
+  # model_table = NULL
+  # verbose = T
+  # tail_window = NULL
+  # normalise_by_pool = FALSE
+  # save_all_raw_data = TRUE
+  # decompose = TRUE
+  # categories = NULL
+  
   # checks  ####
 
   if (!is.logical(verbose)) {
@@ -589,12 +603,24 @@ run_model = function(data = NULL,
   formula = build_formula(dv = dv, ivs = ivs_t)
 
   # get offset
-  offset = get_offset(data = trans_data, model_table = model_table)
+  # fixed_coef = get_offset(data = trans_data, model_table = model_table, verbose = verbose)
   
   # model   ####
 
   # run model on norm_data
-  model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)],offset = offset)
+  if(exists('fixed_coef')){
+    model = lm(
+      formula = formula,
+      data = trans_data[, c(dv, ivs_t)],
+      offset = get_offset(
+        data = trans_data,
+        model_table = model_table,
+        verbose = verbose
+      )
+    )
+  }else{
+    model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)])
+  }
 
   # set colnames as ivs. bypass backticks added to ivs by lm()
   names(model$coefficients) = c("(Intercept)", ivs_t)

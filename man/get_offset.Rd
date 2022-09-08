@@ -4,12 +4,14 @@
 \alias{get_offset}
 \title{get_offset}
 \usage{
-get_offset(data, model_table)
+get_offset(data, model_table, verbose = FALSE)
 }
 \arguments{
 \item{data}{\code{data.frame} containing variables included in the model_table}
 
 \item{model_table}{\code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function}
+
+\item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{
 a \code{matrix} object

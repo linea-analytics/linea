@@ -221,9 +221,10 @@ build_formula = function(dv, ivs, model_table = NULL) {
 #' @export
 #' @param data \code{data.frame} containing variables included in the model_table
 #' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
+#' @param verbose A boolean to specify whether to print warnings
 #' @import dplyr
 #' @return a \code{matrix} object
-get_offset = function(data, model_table) {
+get_offset = function(data, model_table, verbose = FALSE) {
     
   model_table = get_variable_t(model_table)
 
@@ -231,13 +232,18 @@ get_offset = function(data, model_table) {
     filter(fixed != '') %>% 
     pull(variable_t)
   
-  coef = model_table %>%
-    filter(fixed != '') %>% 
-    pull(fixed) %>% 
-    as.numeric()
-  
-  offset = as.matrix(data[vars]) %*% coef
-  
-  return(offset)
+  if(length(vars) == 0){
+    if(verbose){
+      message("Warning: No fixed coef found in model table. Returning NULL.")
+    }
+    return(NULL)
+  }else{
+    coef = model_table %>%
+      filter(fixed != '') %>% 
+      pull(fixed) %>% 
+      as.numeric()
+    
+    return(as.matrix(data[vars]) %*% coef) 
+  }
   
 }

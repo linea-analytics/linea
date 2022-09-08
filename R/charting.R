@@ -72,6 +72,8 @@ decomping = function(model = NULL,
   #   normalise_by_pool = TRUE
   # )
   # 
+  # rm(raw_data)
+  # rm(model_table)
   # rm(pool_var)
   # rm(ivs)
   # rm(id_var)
@@ -284,8 +286,7 @@ decomping = function(model = NULL,
       pool = pool_ext
     )
     
-  }
-  else{
+  }else{
     
     # check raw_data & tail_window
     if(!is.null(tail_window) & is.null(raw_data)){
@@ -367,7 +368,7 @@ decomping = function(model = NULL,
   
   # IMPROVE CATEGORIES CHECK?
   if (is.null(categories)) {
-    if(all(model_table$category == "")){
+    if(all(model$model_table$category == "")){
       if(verbose){
         message("Warning: No categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
