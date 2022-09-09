@@ -4,7 +4,7 @@
 \alias{build_formula}
 \title{build_formula}
 \usage{
-build_formula(dv, ivs, model_table = NULL)
+build_formula(dv, ivs, model_table = NULL, trans_df = NULL)
 }
 \arguments{
 \item{dv}{string of dependent variable name}
@@ -12,6 +12,8 @@ build_formula(dv, ivs, model_table = NULL)
 \item{ivs}{character vector of independent variable names}
 
 \item{model_table}{\code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function}
+
+\item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 }
 \value{
 a \code{formula} object

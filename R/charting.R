@@ -159,7 +159,8 @@ decomping = function(model = NULL,
     
     fixed_coefs = model$model_table %>% 
       filter(fixed != '') %>% 
-      pull(fixed)
+      pull(fixed) %>% 
+      as.numeric()
     
     fixed_vars = model$model_table %>% 
       filter(fixed != '') %>% 

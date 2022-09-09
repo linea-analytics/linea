@@ -205,6 +205,21 @@ test_that('decomp - tails',{
   
 })
 
+### offset      ####
+
+test_that('offset',{
+  
+  model_table %>%
+    mutate(fixed = if_else(variable == 'covid', '300', fixed)) %>%
+    run_model(dv = dv,
+              data = data,
+              model_table = .) %>%
+    with(offset) %>% 
+    {sum(.)>0} %>% 
+    expect_equal(TRUE)
+  
+})
+
 ### next steps  ---------------------------------------------------------------
 
 test_that("what next - output dataframe", {

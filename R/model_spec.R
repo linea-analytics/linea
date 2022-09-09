@@ -186,64 +186,62 @@ get_variable_t = function(model_table,
 #' @param dv string of dependent variable name
 #' @param ivs character vector of independent variable names
 #' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @import dplyr
 #' @importFrom stats formula
 #' @return a \code{formula} object
-build_formula = function(dv, ivs, model_table = NULL) {
+build_formula = function(dv, ivs, model_table = NULL, trans_df = NULL) {
 
   if(!is.null(model_table)){
-
-    model_table = get_variable_t(model_table)
-
+    
+    if(is.null(trans_df)){
+      trans_df = default_trans_df()
+    }
+    
+    model_table = get_variable_t(model_table,trans_df = trans_df)
+    
     ivs = model_table %>%
       filter(fixed == '') %>% # remove variables with fixed coefficients
       pull(variable_t) # extract variable names
-
-  }
-  else{
-    ivs = ivs[(!is.null(ivs))&(!is.na(ivs))&(ivs != "")]
-  }
-  f = formula(paste0("`",
-                     dv,
-                     "` ~ `",
-                     paste0(ivs,
-                            collapse = "` + `"),
-                     "`"))
-}
-
-#' get_offset
-#'
-#' Build a formula's offset
-#'
-#' Build a formula's offset (e.g. lm(y ~ x1, offset = x2*-4)) dynamically 
-#' based no the inputs of the model_table.
-#'
-#' @export
-#' @param data \code{data.frame} containing variables included in the model_table
-#' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
-#' @param verbose A boolean to specify whether to print warnings
-#' @import dplyr
-#' @return a \code{matrix} object
-get_offset = function(data, model_table, verbose = FALSE) {
     
-  model_table = get_variable_t(model_table)
-
-  vars = model_table %>%
-    filter(fixed != '') %>% 
-    pull(variable_t)
-  
-  if(length(vars) == 0){
-    if(verbose){
-      message("Warning: No fixed coef found in model table. Returning NULL.")
+    fixed_ivs = model_table %>%
+      filter(fixed != '') %>% # remove variables with fixed coefficients
+      pull(variable_t) # extract variable names
+    
+    if(length(fixed_ivs)==0){
+      f = formula(paste0("`",
+                         dv,
+                         "` ~ `",
+                         paste0(ivs,
+                                collapse = "` + `"),
+                         "`"))
+      return(f)
     }
-    return(NULL)
-  }else{
-    coef = model_table %>%
-      filter(fixed != '') %>% 
-      pull(fixed) %>% 
-      as.numeric()
     
-    return(as.matrix(data[vars]) %*% coef) 
+    fixed_coef = model_table %>%
+      filter(fixed != '') %>% # remove variables with fixed coefficients
+      pull(fixed) # extract variable names
+    
+    
+    f = formula(paste0(
+      "`",
+      dv,
+      "` ~ `",
+      paste0(ivs,
+             collapse = "` + `"),
+      "`  + ",
+      paste0('offset(', paste0(fixed_coef, " * `", fixed_ivs), '`)', collapse = ' + ')
+    ))
+  }else{
+    ivs = ivs[(!is.null(ivs))&(!is.na(ivs))&(ivs != "")]
+    
+    
+    f = formula(paste0("`",
+                       dv,
+                       "` ~ `",
+                       paste0(ivs,
+                              collapse = "` + `"),
+                       "`"))
   }
-  
+  return(f)
 }

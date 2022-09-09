@@ -399,14 +399,6 @@ run_model = function(data = NULL,
                      categories = NULL) {
   # test    ####
 
-  # data = read_xcsv(file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
-  # dv = 'amazon'
-  # id_var =' Week'
-  # pool_var = 'country'
-  # ivs = 'christmas'
-  #
-  # model = run_model(data = data, dv = dv , ivs = ivs, pool_var = pool_var, id_var = id_var)
-
   # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
   # dv = 'ecommerce'
   # ivs = c('christmas','black.friday')
@@ -427,13 +419,49 @@ run_model = function(data = NULL,
   # pool_var = NULL
   # trans_df = NULL
   # id_var = NULL
-  # model_table = NULL
+  # model_table = build_model_table(ivs = ivs) %>%
+  #   mutate(fixed = if_else(variable == 'wt','3',''))
   # verbose = T
   # tail_window = NULL
   # normalise_by_pool = FALSE
   # save_all_raw_data = TRUE
   # decompose = TRUE
   # categories = NULL
+  
+  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  # dv = 'ecommerce'
+  # ivs = c('christmas','black.friday')
+  # verbose = T
+  # tail_window = NULL
+  # normalise_by_pool = FALSE
+  # save_all_raw_data = TRUE
+  # decompose = TRUE
+  # categories = NULL
+  # model_table = NULL
+  # pool_var = NULL
+  # id_var = NULL
+  # 
+  # trans_df = data.frame(
+  #   name = c('diminish', 'decay', 'hill', 'exp'),
+  #   ts = c(FALSE,TRUE,FALSE,FALSE),
+  #   func = c(
+  #     'linea::diminish(x,a)',
+  #     'linea::decay(x,a)',
+  #     "linea::hill_function(x,a,b,c)",
+  #     '(x^a)'
+  #   ),
+  #   order = 1:4
+  # ) %>%
+  #   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+  #                                                '(1,50),(1),(1,100)',
+  #                                                '')) %>%
+  #   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+  #                                               '.1,.7 ',
+  #                                               offline_media)) %>%
+  #   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+  #                                               '.1,.7 ',
+  #                                               '')) %>%
+  #   dplyr::mutate(promo = '')
   
   # checks  ####
 
@@ -551,8 +579,9 @@ run_model = function(data = NULL,
       model_table = model_table %>%
         get_variable_t(excl_blanks = TRUE, trans_df = trans_df)
 
-      ivs = model_table %>% pull(variable) %>% unique()
-      ivs_t = model_table %>% pull(variable_t) %>% unique()
+      ivs = model_table %>% filter(fixed=='') %>% pull(variable) %>% unique()
+      ivs_t = model_table %>% filter(fixed=='') %>% pull(variable_t) %>% unique()
+      fixed_ivs_t = model_table %>% filter(fixed!='')  %>% pull(variable_t) %>% unique()
     }
   } else{
     model_table = build_model_table(ivs = ivs, trans_df = trans_df)
@@ -561,6 +590,7 @@ run_model = function(data = NULL,
       get_variable_t(excl_blanks = TRUE, trans_df = trans_df) %>% unique()
 
     ivs_t = model_table %>% pull(variable_t) %>% unique()
+    fixed_ivs_t = NULL
   }
 
 
@@ -600,27 +630,18 @@ run_model = function(data = NULL,
   # formula ####
 
   # build formula object
-  formula = build_formula(dv = dv, ivs = ivs_t)
-
-  # get offset
-  # fixed_coef = get_offset(data = trans_data, model_table = model_table, verbose = verbose)
+  formula = build_formula(dv = dv,
+                          model_table = model_table,
+                          trans_df = trans_df)
   
   # model   ####
+  
+  # run model
 
-  # run model on norm_data
-  if(exists('fixed_coef')){
-    model = lm(
-      formula = formula,
-      data = trans_data[, c(dv, ivs_t)],
-      offset = get_offset(
-        data = trans_data,
-        model_table = model_table,
-        verbose = verbose
-      )
-    )
-  }else{
-    model = lm(formula = formula, data = trans_data[, c(dv, ivs_t)])
-  }
+  model = lm(
+    formula = formula,
+    data = trans_data[, c(dv, ivs_t, fixed_ivs_t)]
+  )
 
   # set colnames as ivs. bypass backticks added to ivs by lm()
   names(model$coefficients) = c("(Intercept)", ivs_t)
