@@ -132,7 +132,7 @@ build_model_table = function(ivs,trans_df = NULL,ts = TRUE){
 #' @import dplyr
 #' @return \code{tibble} of model table with added variable_t column
 #' @examples
-#' build_model_table(colnames(mtcars)) %>%
+#' model_table = build_model_table(colnames(mtcars)) %>%
 #'    get_variable_t()
 get_variable_t = function(model_table,
                           excl_intercept = TRUE,
@@ -222,6 +222,15 @@ build_formula = function(dv, ivs, model_table = NULL, trans_df = NULL) {
       filter(fixed != '') %>% # remove variables with fixed coefficients
       pull(fixed) # extract variable names
     
+    if(length(ivs)==0){
+      f = formula(paste0("`",
+                         dv,
+                         "` ~ ",
+                         paste0(
+                           'offset(', paste0(fixed_coef, " * `", fixed_ivs), '`)', collapse = ' + '
+                         )))
+      return(f)
+    }
     
     f = formula(paste0(
       "`",

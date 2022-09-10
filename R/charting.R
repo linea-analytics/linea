@@ -79,6 +79,7 @@ decomping = function(model = NULL,
   # rm(id_var)
   # rm(dv)
   # 
+  # de_normalise = FALSE
   # de_normalise = TRUE
   # categories = NULL
   # verbose = FALSE
@@ -157,14 +158,11 @@ decomping = function(model = NULL,
   # offset
   if(any(model$model_table$fixed!='')){
     
-    fixed_coefs = model$model_table %>% 
-      filter(fixed != '') %>% 
-      pull(fixed) %>% 
-      as.numeric()
-    
     fixed_vars = model$model_table %>% 
       filter(fixed != '') %>% 
       pull(variable_t)
+    
+    fixed_coefs = rep(1,length(fixed_vars))
     
     names(fixed_coefs) = fixed_vars
     
