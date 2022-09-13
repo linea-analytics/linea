@@ -10,16 +10,6 @@ library(tidyr)
 ### NOT POOLED  ----
 
 # import data
-data = read_xcsv(file = '../../../Untitled spreadsheet - Sheet1.csv') %>% 
-  check_ts(verbose = TRUE,
-           date_col = "date") %>%
-  get_seasonality(verbose = FALSE,
-                  date_col_name = "date",
-                  date_type = "weekly starting")
-
-model = run_model(data = data,dv = 'sales',ivs = 'adv')
-model %>% fit_chart()
-
 data = read_xcsv(verbose = FALSE,
                  file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") %>%
   check_ts(verbose = FALSE,
@@ -219,24 +209,9 @@ test_that('decomp - tails',{
 
 test_that('offset',{
   
-  mt = model_table %>%
+  model_table %>%
     mutate(fixed = if_else(variable == 'covid', '3000', fixed)) %>% 
-    # mutate(fixed = if_else(variable == 'christmas', '300', fixed)) %>% 
-    mutate(fixed = if_else(variable == 'black.friday', '3000', fixed)) 
-  
-  
-  
-  m = mt %>%
-    run_model(dv = dv,
-              data = data,
-              model_table = .) 
-  
-  m %>%
-    fit_chart()
-  
-  m %>%
-    decomp_chart()
-    
+    mutate(fixed = if_else(variable == 'black.friday', '3000', fixed)) %>% 
     with(offset) %>% 
     {sum(.)>0} %>% 
     expect_equal(TRUE)

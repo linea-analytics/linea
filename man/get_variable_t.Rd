@@ -33,6 +33,6 @@ Generate more specific variable names
 Generate variable names that capture the transformations applied
 }
 \examples{
-build_model_table(colnames(mtcars)) \%>\%
+model_table = build_model_table(colnames(mtcars)) \%>\%
    get_variable_t()
 }
