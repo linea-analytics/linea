@@ -8,7 +8,6 @@
 #' @import tidyverse
 #' @import tibble
 #' @import gtrendsR
-#' @importFrom anytime anydate 
 #' @param data \code{data.frame} containing data for analysis
 #' @param kw a string of the search keyword
 #' @param date_col a string specifying the date column name
@@ -26,15 +25,24 @@ gt_f = function(data,
                 date_col = "date",
                 date_type = "weekly starting",
                 geo = "all",
-                append = FALSE) {
+                append = TRUE) {
+  # test                ####
+  
+  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") 
+  # kw = 'bitcoin'
+  # date_col = "date"
+  # date_type = "weekly starting"
+  # geo = "all"
+  # append = TRUE
+  
   # get gtrends data    ####
   
   # get dates from data
   dates = data %>% pull(sym(date_col)) %>% as.Date() %>% unique()
   
   
-  min_date = min(dates) %>% anytime::anydate(tz = 0)
-  max_date = max(dates) %>% anytime::anydate(tz = 0)
+  min_date = min(dates) #%>% anytime::anydate(tz = 0)
+  max_date = max(dates) #%>% anytime::anydate(tz = 0)
   
   if(max_date > Sys.Date()){
     max_date = Sys.Date()
@@ -50,8 +58,7 @@ gt_f = function(data,
       time = time_str,
       onlyInterest = TRUE
     ) %>% TRY()
-  }
-  else{
+  }else{
     gt = gtrends(
       keyword = kw,
       geo = geo,
@@ -62,8 +69,8 @@ gt_f = function(data,
   
   # check gtrends call
   if(is.null(gt)){
-    message('gtrends function failed. Check internet connection or attempt installing the gtrends package separately')
-    return(NULL)
+    message('gtrends function failed. Check internet connection or attempt installing the gtrends package separately. Returning data.')
+    return(data)
   }
   
   gt = gt[[1]]%>%

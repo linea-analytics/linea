@@ -10,7 +10,7 @@ gt_f(
   date_col = "date",
   date_type = "weekly starting",
   geo = "all",
-  append = FALSE
+  append = TRUE
 )
 }
 \arguments{
