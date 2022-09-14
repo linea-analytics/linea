@@ -212,8 +212,9 @@ test_that('offset',{
   model_table %>%
     mutate(fixed = if_else(variable == 'covid', '3000', fixed)) %>% 
     mutate(fixed = if_else(variable == 'black.friday', '3000', fixed)) %>% 
-    with(offset) %>% 
-    {sum(.)>0} %>% 
+    with(fixed) %>%
+    as.numeric() %>% 
+    {sum(.,na.rm = TRUE)>0} %>% 
     expect_equal(TRUE)
   
 })

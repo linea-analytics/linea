@@ -5,13 +5,14 @@ In version 0.1.1 major adjustments have been implemented. Core functions have be
 * Amends:
   * The meta_data input has been dropped as redundant. The functions now only rely on `pool_var` for pooled regressions.
   * The data object passed to `run_model()` is stored in the output object.
-  * `run_model()`'s `output_model_table` now includes the regression's VIF.[in-progress]
+  * `run_model()`'s `output_model_table` now includes the regression's VIF.
+  * `build_formula()` now allows for fixed coefficients.
+  * The google trends wrapper `gt_f()` fails gracefully.
 
 * Functions:
   * `filter_decomp_pool()`
   * `add_total_pool()`
   * `add_total_pool_to_data()`
-  * `get_offset()`
 
 * Features:
   * `decomping()` allows to measure tails of decomposition over time.
