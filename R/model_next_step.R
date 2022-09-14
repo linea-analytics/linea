@@ -272,6 +272,30 @@ what_trans = function(model = NULL,
                       data = NULL,
                       r2_diff = TRUE,
                       verbose = FALSE) {
+  # tests   ####
+  
+  # model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','cyl'))
+  # 
+  # trans_df = data.frame(
+  #      name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+  #      ts = c(FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE),
+  #      func = c('linea::diminish(x,a)',
+  #               'linea::decay(x,a)',
+  #               'linea::lag(x,a)',
+  #               'linea::ma(x,a)',
+  #               'log(x,a)',
+  #               "linea::hill_function(x,a,b,c)",
+  #               'sin(x*a)',
+  #               '(x^a)'),order = 1:8) %>%
+  #   dplyr::mutate(val = '') %>%
+  #   dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
+  #                                      '(1,5,50),(1 ,5,50),(1,5,50)',
+  #                                      val))
+  # variable = 'cyl'
+  # data = NULL
+  # r2_diff = TRUE
+  # verbose = FALSE
+  
   # checks  ####
 
   # data = NULL

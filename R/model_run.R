@@ -359,6 +359,7 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #' @import tibble
 #' @import zoo
 #' @importFrom stats lm na.omit
+#' @importFrom car vif
 #' @return Model object
 #' @examples
 #'
@@ -401,7 +402,7 @@ run_model = function(data = NULL,
 
   # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
   # dv = 'ecommerce'
-  # ivs = c('christmas','black.friday')
+  # ivs = c('christmas')
   # pool_var = NULL
   # trans_df = NULL
   # id_var = NULL
@@ -647,6 +648,14 @@ run_model = function(data = NULL,
   names(model$coefficients) = c("(Intercept)", ivs_t)
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
 
+  if(length(ivs_t)>1){
+    vif_df = car::vif(model)
+    
+  }else{
+    vif_df = c(vif='0')
+  }
+  vif_df = data.frame(vif = vif_df,
+                      variable = names(vif_df))
   
   if(exists('pool_mean')){
     model$pool_mean = pool_mean
@@ -698,7 +707,8 @@ run_model = function(data = NULL,
       p_value = as.numeric(p_value),
       category = as.character(category)
     ) %>%
-    mutate(category = if_else(variable == "(Intercept)", "Base", category))
+    mutate(category = if_else(variable == "(Intercept)", "Base", category)) %>% 
+    left_join(vif_df,by = ('variable_t'='variable'),suffix = c('',''))
 
   # create moodel output table with tran's and stats's (e.g. tstats)
   model$output_model_table = output_model_table

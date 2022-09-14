@@ -1,6 +1,6 @@
 Package: linea
 Title: Linear Regression Interface
-Version: 0.0.3
+Version: 0.1.1
 Authors@R:
     person("Claudio", "Paladini", , "claudio.paladini@bath.edu", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-5551-1380"))
@@ -11,8 +11,8 @@ Description: An interface to accelerate linear regression (Ordinary least square
   Finally, models can be imported and exported as Excel files where all the information necessary for re-running the models is stored in separate sheets.
 License: GPL-3
 Encoding: UTF-8
-Imports: anytime,
-  dplyr ,
+Imports: car,
+  dplyr,
   ggplot2,
   gtrendsR,
   lubridate ,
