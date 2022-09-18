@@ -1045,12 +1045,14 @@ what_combo = function(model = NULL,
                   trans_parameters = long_combo_df,
                   variables = vars,
                   long_trans_df = long_trans_df,
-                  model_list = model_list)
+                  model_list = model_list,
+                  model = model)
   }else{
     combos = list(results = output_df,
                   trans_parameters = long_combo_df,
                   long_trans_df = long_trans_df,
-                  variables = vars)
+                  variables = vars,
+                  model = model)
   }
 
   return(combos)
@@ -1108,9 +1110,10 @@ what_combo = function(model = NULL,
 #' combos %>%
 #'  run_combo_model(model,1)
 run_combo_model = function(combos,
-                           model,
                            model_null = FALSE,
                            results_row = 1){
+  
+  model = combos$model
   res = combos$results
   input = res[results_row, ]
   vars = combos$variables
