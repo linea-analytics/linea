@@ -14,4 +14,4 @@ Alternatively, you can install the development version from GitHub using `devtoo
 
 The [online guide](https://www.linea-r.org) provides a detailed walkthrough of how to use LINEA.
 
-> **Note** `linea` is still in alpha and the library may change. Feedback is very welcome but please don’t use it for production applications just yet!
+> **Note:** `linea` is still in alpha and the library may change. Feedback is very welcome but please don’t use it for production applications just yet!
