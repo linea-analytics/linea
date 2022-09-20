@@ -648,11 +648,12 @@ run_model = function(data = NULL,
   names(model$coefficients) = c("(Intercept)", ivs_t)
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
 
-  if(length(ivs_t)>1){
-    vif_df = car::vif(model)
-    
-  }else{
+  # vif
+  vif_df = car::vif(model) %>% 
+    TRY()
+  if(is.null(vif_df)){
     vif_df = c(vif='0')
+    
   }
   vif_df = data.frame(vif = vif_df,
                       variable = names(vif_df))
