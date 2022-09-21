@@ -13,6 +13,7 @@
 #' @param date_col a string specifying the date column name
 #' @param date_type The date column type as either of the following strings:'weekly starting','weekly ending','daily'
 #' @param geo a string specifying the country code of the search found in \code{countrycode::codelist}
+#' @param verbose A boolean to specify whether to print warnings
 #' @param append a boolean specifying whether to return the original data.frame as well as the added column
 #' @return \code{data.frame} of the original data with the added google trend column
 #' @examples 
@@ -25,10 +26,11 @@ gt_f = function(data,
                 date_col = "date",
                 date_type = "weekly starting",
                 geo = "all",
+                verbose = FALSE,
                 append = TRUE) {
   # test                ####
   
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") 
+  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
   # kw = 'bitcoin'
   # date_col = "date"
   # date_type = "weekly starting"
@@ -45,6 +47,9 @@ gt_f = function(data,
   max_date = max(dates) #%>% anytime::anydate(tz = 0)
   
   if(max_date > Sys.Date()){
+    if(verbose){
+      message("Warning: max_date set to today as google trends are not forecasts.")
+      }
     max_date = Sys.Date()
   }
   
@@ -127,7 +132,7 @@ gt_f = function(data,
   df = daily_map %>%
     left_join(gt_daily,by = "day")%>%
     group_by(week) %>%
-    summarise(hits = mean(hits)) %>%
+    summarise(hits = mean(hits,na.rm = TRUE)) %>%
     ungroup()
   
   

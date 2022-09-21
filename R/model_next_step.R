@@ -880,9 +880,7 @@ what_combo = function(model = NULL,
 
   # define output table to fill with loop
   output_df = cbind(output_df, tibble(
-    adj_R2 = 0,
-    t_stat = 0,
-    coef = 0
+    adj_R2 = 0
   ))
 
   # for each combo
@@ -995,28 +993,24 @@ what_combo = function(model = NULL,
 
     } else{
       # get model summary
-      ms = summary(model_temp)
+      ms = summary(model_temp) %>% 
+        TRY()
 
       # drop back ticks
       # ...added because the var names have special characters
       rownames(ms$coefficients) = gsub(x =rownames(ms$coefficients),pattern = '`',replacement = '')
 
       # generate row
-      coef = ms$coefficients[var_t_name, "Estimate"] %>%
-        TRY()
-      if (is.null(coef)) {
+      if (is.null(ms)) {
         adj_R2 = 0
-        t_stat = 0
-        coef = 0
 
       } else{
         adj_R2 = ms$adj.r.squared
-        t_stat = ms$coefficients[var_t_name, "t value"]
       }
 
-      row = list(adj_R2, t_stat, coef)
+      row = list(adj_R2)
 
-      output_df[i, (ncol(output_df) - 2):(ncol(output_df))] = row
+      output_df[i,ncol(output_df)] = row
 
     }
   }
@@ -1067,7 +1061,6 @@ what_combo = function(model = NULL,
 #' Using the specs from the output of \code{linea::what_combo()} a new model is run.
 #'
 #' @param combos output of \code{linea::what_combo()} function
-#' @param model Model object
 #' @param model_null a boolean to specify whether the model should be used as starting point
 #' @param results_row numeric value of the model (i.e. row from what_combo()$results) to run
 #' @import dplyr
@@ -1108,10 +1101,16 @@ what_combo = function(model = NULL,
 #' combos = what_combo(model = model,trans_df = trans_df)
 #'
 #' combos %>%
-#'  run_combo_model(model,1)
+#'  run_combo_model()
 run_combo_model = function(combos,
-                           model_null = FALSE,
-                           results_row = 1){
+                           results_row = 1,
+                           model_null = FALSE){
+  # test    ####
+  
+  # results_row = 1
+  # model_null = FALSE
+  
+  # check   ####
   
   model = combos$model
   res = combos$results

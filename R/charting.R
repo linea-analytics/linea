@@ -82,7 +82,7 @@ decomping = function(model = NULL,
   # de_normalise = FALSE
   # de_normalise = TRUE
   # categories = NULL
-  # verbose = FALSE
+  # verbose = TRUE
   # tail_window = 10
 
   # checks  ####
@@ -130,7 +130,7 @@ decomping = function(model = NULL,
   raw_data = model$raw_data
 
   # if raw_data is found, check for and drop NAs
-  if(any(complete.cases(raw_data))) {
+  if(any(!complete.cases(raw_data))) {
     if (verbose) {
       message("Warning: NA's found in raw data will be dropped.")
     }
@@ -1095,7 +1095,7 @@ heteroskedasticity_chart = function(model = NULL,
     if (pool %in% pool_var) {
       df = df[pool_var == pool, ]
     } else{
-      print('Warning: pool not found in data. Using full data.')
+      message('Warning: pool not found in data. Using full data.')
     }
   }
 
@@ -1247,6 +1247,7 @@ acf_chart = function(model = NULL,
 #' @param y_min number specifying vertical axis min
 #' @param y_max number specifying vertical axis max
 #' @param interval number specifying interval between points of the curve
+#' @param pool string specifying a group within the pool column to be filtered
 #' @param trans_only a boolean specifying whether to display non-linear only \code{y = b*dim_rest(x)}
 #' @param colors character vector of colors in hexadecimal notation
 #' @param verbose A boolean to specify whether to print warnings
@@ -1263,9 +1264,13 @@ acf_chart = function(model = NULL,
 #' @export
 #' @return a \code{plotly} line chart of the model's response curves
 #' @examples
-#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
+#' model = run_model(data = mtcars,
+#'                   dv = 'mpg',
+#'                   ivs = c('disp','wt'),
+#'                   pool_var='cyl',
+#'                   normalise_by_pool=TRUE)
 #' model %>%
-#'    response_curves()
+#'    response_curves(pool='4')
 #' model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
 #' 
 #' model %>%
@@ -1283,6 +1288,7 @@ response_curves = function(
     y_min = NULL,
     y_max = NULL,
     interval = NULL,
+    pool = NULL,
     trans_only = FALSE,
     colors = color_palette(),
     plotly = TRUE,
@@ -1290,51 +1296,92 @@ response_curves = function(
     table = FALSE,
     add_intercept = FALSE,
     points = FALSE){
-  # checks  ####
-  # model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp','wt'))
-  # x_min = NULL
-  # x_max = NULL
+  # test    #####
+  
+  # data = mtcars
+  # dv = 'mpg'
+  # ivs = c('disp','wt','qsec')
+  # model_table = build_model_table(ivs) %>%
+  #   mutate(hill = if_else(variable=='wt','3,5',hill))
+  # pool_var='cyl'
+  # 
+  # model = run_model(data = mtcars %>% rownames_to_column('cars'),id_var = 'cars',dv = 'mpg',ivs = c('disp','wt'),pool_var='cyl',normalise_by_pool = T)
+  # model = run_model(data = mtcars %>% rownames_to_column('cars'),
+  #                   id_var = 'cars',
+  #                   dv = 'mpg',
+  #                   model_table = model_table,
+  #                   pool_var='cyl',
+  #                   normalise_by_pool = T)
+  # 
+  # model %>% fit_chart(pool = '2')
+  # model %>% response_curves(x_min = 0,x_max = 30,trans_only = T)
+  # x_min = 0
+  # x_max = 30
+  # # x_min = NULL
+  # # x_max = NULL
   # y_min = NULL
   # y_max = NULL
   # interval = NULL
-  # trans_only = FALSE
+  # trans_only = T
   # colors = color_palette()
   # plotly = TRUE
   # verbose = FALSE
   # table = FALSE
+  # pool = NULL
+  # pool = '6'
   # add_intercept = FALSE
   # points = FALSE
+  
+  # checks  ####
   
   if (is.null(x_max)) x_max = 1e+05
   if (is.null(x_min)) x_min = -1e+05
   if (is.null(interval)) interval = (x_max-x_min)/100
-  if (is.null(y_max)) y_max = x_max
-  if (is.null(y_min)) y_min = x_min
+  if (is.null(y_max)) y_max =  1e+05
+  if (is.null(y_min)) y_min = -1e+05
 
   # process ####
-  optim_table = model$output_model_table
+  output_model_table = model$output_model_table
 
+  if(!is.null(pool) & !is.null(model$pool_mean)){
+    mean = model$pool_mean$mean[model$pool_mean$pool==pool]
+    if(!(pool %in% model$pool_mean$pool)){
+      if(verbose){message('Warning: pool provided not found in model pools.')}
+    }else{
+      output_model_table =  output_model_table %>% 
+        mutate(coef = coef * mean)
+    }
+  }
+  if(!is.null(pool) & is.null(model$pool_mean)){
+    if(verbose){message('Info: model normalised by pool but no pool provided.')}
+  }
+  if(is.null(pool) & !is.null(model$pool_mean)){
+    if(verbose){message('Warning: pool provided but model is not normalised by pool.')}
+  }
 
   trans_df = model$trans_df %>%
     filter(ts == FALSE)
 
   if (trans_only) {
-    optim_table = optim_table[!(((optim_table[trans_df$name] ==
+    output_model_table = output_model_table[!(((output_model_table[trans_df$name] ==
                                     "") %>% data.frame() %>% rowSums()) == nrow(trans_df)),
     ]
   }
-  optim_table = optim_table %>% filter(variable != "(Intercept)")
-  optim_table = optim_table[c("variable", "variable_t",
-                              trans_df$name, "coef")] %>% na.omit()
-  if (nrow(optim_table) == 0) {
+  output_model_table = output_model_table %>% filter(variable != "(Intercept)") %>% 
+    select(c("variable", "variable_t", trans_df$name, "coef")) %>%
+    na.omit()
+  
+  if (nrow(output_model_table) == 0) {
     message("Error: Check model and/or model_table.")
     return(NULL)
   }
   curves_df = list()
   x_raw = seq(x_min, x_max, interval)
-  for (i in 1:nrow(optim_table)) {
-    var = optim_table$variable_t[i]
-    coef = optim_table$coef[i]
+  coefs = output_model_table$coef
+  
+  for (i in 1:nrow(output_model_table)) {
+    var = output_model_table$variable_t[i]
+    coef = coefs[i]
     x = x_raw
     for (j in 1:nrow(trans_df)) {
       t_name = trans_df$name[j]
@@ -1404,9 +1451,9 @@ response_curves = function(
 
       # calculate predicted points through functions
       curves_df = list()
-      for (i in 1:nrow(optim_table)) {
-        var = optim_table$variable_t[i]
-        coef = optim_table$coef[i]
+      for (i in 1:nrow(output_model_table)) {
+        var = output_model_table$variable_t[i]
+        coef = output_model_table$coef[i]
         x_raw = raw_data %>% pull(!!sym(var))
         x = x_raw
         for (j in 1:nrow(trans_df)) {

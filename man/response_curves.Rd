@@ -11,6 +11,7 @@ response_curves(
   y_min = NULL,
   y_max = NULL,
   interval = NULL,
+  pool = NULL,
   trans_only = FALSE,
   colors = color_palette(),
   plotly = TRUE,
@@ -32,6 +33,8 @@ response_curves(
 \item{y_max}{number specifying vertical axis max}
 
 \item{interval}{number specifying interval between points of the curve}
+
+\item{pool}{string specifying a group within the pool column to be filtered}
 
 \item{trans_only}{a boolean specifying whether to display non-linear only \code{y = b*dim_rest(x)}}
 
@@ -57,9 +60,13 @@ Line chart of variable response curves
 Line chart of variable response curves visualising the relationship of each independent variable with the dependent variable
 }
 \examples{
-model = run_model(data = mtcars,dv = 'mpg',ivs = c('disp'))
+model = run_model(data = mtcars,
+                  dv = 'mpg',
+                  ivs = c('disp','wt'),
+                  pool_var='cyl',
+                  normalise_by_pool=TRUE)
 model \%>\%
-   response_curves()
+   response_curves(pool='4')
 model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
 
 model \%>\%

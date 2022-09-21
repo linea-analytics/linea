@@ -10,6 +10,7 @@ gt_f(
   date_col = "date",
   date_type = "weekly starting",
   geo = "all",
+  verbose = FALSE,
   append = TRUE
 )
 }
@@ -23,6 +24,8 @@ gt_f(
 \item{date_type}{The date column type as either of the following strings:'weekly starting','weekly ending','daily'}
 
 \item{geo}{a string specifying the country code of the search found in \code{countrycode::codelist}}
+
+\item{verbose}{A boolean to specify whether to print warnings}
 
 \item{append}{a boolean specifying whether to return the original data.frame as well as the added column}
 }
