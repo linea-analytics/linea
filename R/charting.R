@@ -947,12 +947,12 @@ add_total_pool_to_data = function(data,pool_var,id_var) {
 #' @export
 #' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
 filter_decomp_pool = function(decomp,pool,verbose = TRUE){
-  if (!(pool %in% colnames(decomp$variable_decomp))) {
-    if(verbose){
-      message("Error: pool string provided does not match decomp columns.")
-    }
-    return(decomp)
-  }
+  # if (!(pool %in% colnames(decomp$variable_decomp))) {
+  #   if(verbose){
+  #     message("Error: pool string provided does not match decomp columns.")
+  #   }
+  #   return(decomp)
+  # }
   
   variable_decomp = decomp$variable_decomp %>%
     filter(pool == !!pool)

@@ -686,6 +686,7 @@ what_combo = function(model = NULL,
   
   # checks  ####
 
+  # check logical
   if (!is.logical(verbose)) {
     message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
@@ -700,6 +701,8 @@ what_combo = function(model = NULL,
       message("Warning: return_model_objects provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     return_model_objects = TRUE
   }
+  
+  # check trans_df (MUST HAVE)
   if (is.null(trans_df)) {
     message("Error: trans_df must be provided. Returning NULL.")
     return(NULL)
