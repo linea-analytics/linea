@@ -54,7 +54,9 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
     return(NULL)
   }
 
-  print('model_file check passed')
+  if(verbose){
+    message('Info: check_model_file passed.')
+  }
 
   if (return_list) {
     # import excel file sheets to list
@@ -142,9 +144,10 @@ export_model = function(model,path = NULL,overwrite = FALSE){
     dv = data.frame(variable = model$dv),
     categories = model$categories,
     id_var = data.frame(variable = model$id_var),
-    id_format = data.frame(variable = model$id_var_format),
+    id_format = data.frame(variable = model$id_format),
     normalise_by_pool = data.frame(variable = model$normalise_by_pool),
     pool_var = data.frame(variable = model$pool_var),
+    pool_switch = data.frame(variable = model$pool_switch),
     colors = model$colors,
     trans_df = model$trans_df
   )
