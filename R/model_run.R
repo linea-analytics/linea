@@ -494,15 +494,19 @@ run_model = function(data = NULL,
 
     pool_var = 'total_pool'
     data[pool_var] = pool_var
+    pool_switch = FALSE
 
-  }
-  if(!(pool_var %in% colnames(data))){
-    if(verbose){
+  }else{
+    if(!(pool_var %in% colnames(data))){
       message("Warning: pool variable not found in data. A new `total_pool` variable will be generated.")
+      pool_var = 'total_pool'
+      data[pool_var] = pool_var
+      pool_switch = FALSE
+    }else{
+      pool_switch = TRUE
     }
-    pool_var = 'total_pool'
-    data[pool_var] = pool_var
   }
+  
 
   # check id_var
   if(is.null(id_var)){
@@ -667,6 +671,7 @@ run_model = function(data = NULL,
   model$trans_df = trans_df
   model$model_table = model_table
   model$normalise_by_pool = normalise_by_pool
+  model$pool_switch = pool_switch
 
   output_model_table = model_table %>%
     filter(variable != "") %>%
