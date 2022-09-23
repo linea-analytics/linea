@@ -194,9 +194,7 @@ apply_transformation = function(raw_data = NULL,
 
   }
   if(!(pool_var %in% colnames(raw_data))){
-    if(verbose){
-      message("Warning: pool variable not found in raw_data. A new `total_pool` variable will be generated.")
-    }
+    message("Warning: pool variable not found in raw_data. A new `total_pool` variable will be generated.")
     pool_var = 'total_pool'
     raw_data[pool_var] = pool_var
   }
