@@ -91,7 +91,8 @@ import_model = function(path, verbose = FALSE){
   # extract model settings (data,dv,ivs,etc...)
   model_table = model_list$model_table %>%
     zoo::na.fill('') %>%
-    as.data.frame()
+    as.data.frame() %>% 
+    select(-coef,-t_stat,-vif,-p_value,-se)
   categories = model_list$categories
   dv = model_list$dv$variable
   normalise_by_pool = model_list$normalise_by_pool$variable
@@ -129,7 +130,12 @@ import_model = function(path, verbose = FALSE){
 #' @param overwrite Boolean to specify whether to overwrite the file in the specified path
 #' @importFrom openxlsx write.xlsx
 #' @export
-export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
+export_model = function(model,path = NULL,overwrite = FALSE){
+  
+  if(is.null(path)){
+    path = paste0(model$dv,"_",Sys.Date(),".xlsx")
+  }
+  
   model_list = list(
     data = model$raw_data,
     model_table = model$output_model_table,
@@ -138,11 +144,11 @@ export_model = function(model,path = 'model.xlsx',overwrite = FALSE){
     id_var = data.frame(variable = model$id_var),
     id_format = data.frame(variable = model$id_var_format),
     normalise_by_pool = data.frame(variable = model$normalise_by_pool),
-    pool_var = model$pool_var,
+    pool_var = data.frame(variable = model$pool_var),
     colors = model$colors,
     trans_df = model$trans_df
   )
 
-  write.xlsx(model_list, file = path, overwrite = overwrite)
+  openxlsx::write.xlsx(model_list, file = path, overwrite = overwrite)
 
 }
