@@ -547,9 +547,7 @@ decomp_chart = function(model = NULL,
   # Check decomp_list , model
   if(is.null(model)){
     if(is.null(decomp_list)){
-      if(verbose){
-        message("Error: No decomp_list provided. Returning NULL. ")
-      }
+      message("Error: No decomp_list provided. Returning NULL. ")
       return(NULL)
     }
   }else{
@@ -572,9 +570,7 @@ decomp_chart = function(model = NULL,
   if(!is.data.frame(decomp)){
   }
   if(!all(c("pool","variable","contrib") %in% colnames(decomp))){
-    if(verbose){
-      message("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. ")
-    }
+    message("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. ")
     return(NULL)
   }
 
@@ -586,9 +582,7 @@ decomp_chart = function(model = NULL,
     ##
   }
   if(!all(c("pool","variable","value") %in% colnames(fitted_values))){
-    if(verbose){
-      message("Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
-    }
+    message("Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
     return(NULL)
   }
 
@@ -602,9 +596,7 @@ decomp_chart = function(model = NULL,
   if (!is.null(pool)) {
 
     if(!any(decomp$pool == pool)){
-      if(verbose){
-        message("Warning: POOL ",pool," not found. No POOL filtering applied.")
-      }
+      message("Warning: POOL ",pool," not found. No POOL filtering applied.")
       decomp = decomp %>%
         rename(value = contrib)
     }
@@ -727,9 +719,7 @@ fit_chart = function(model = NULL,
   # Check decomp_list , model
   if(is.null(model)){
     if(is.null(decomp_list)){
-      if(verbose){
-        message("Error: No decomp_list provided. Returning NULL.")
-      }
+      message("Error: No decomp_list provided. Returning NULL.")
       return(NULL)
     }
   }else{
@@ -744,9 +734,7 @@ fit_chart = function(model = NULL,
   # filter by pool if provided
   if (!is.null(pool)) {
     if(!any(fitted_values$pool == pool)){
-      if(verbose){
-        message("Warning: POOL ",pool," not found. No POOL filtering applied.")
-      }
+      message("Warning: POOL ",pool," not found. No POOL filtering applied.")
     }
     else{
       fitted_values = fitted_values[fitted_values$pool == pool, ]
