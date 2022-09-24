@@ -11,6 +11,7 @@ gt_f(
   date_type = "weekly starting",
   geo = "all",
   verbose = FALSE,
+  graceful = TRUE,
   append = TRUE
 )
 }
@@ -26,6 +27,8 @@ gt_f(
 \item{geo}{a string specifying the country code of the search found in \code{countrycode::codelist}}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+
+\item{graceful}{A boolean to specify whether to fail gracefully}
 
 \item{append}{a boolean specifying whether to return the original data.frame as well as the added column}
 }
