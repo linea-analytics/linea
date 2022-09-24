@@ -14,6 +14,7 @@
 #' @param date_type The date column type as either of the following strings:'weekly starting','weekly ending','daily'
 #' @param geo a string specifying the country code of the search found in \code{countrycode::codelist}
 #' @param verbose A boolean to specify whether to print warnings
+#' @param graceful A boolean to specify whether to fail gracefully 
 #' @param append a boolean specifying whether to return the original data.frame as well as the added column
 #' @return \code{data.frame} of the original data with the added google trend column
 #' @examples 
@@ -27,6 +28,7 @@ gt_f = function(data,
                 date_type = "weekly starting",
                 geo = "all",
                 verbose = FALSE,
+                graceful = TRUE,
                 append = TRUE) {
   # test                ####
   
@@ -36,6 +38,7 @@ gt_f = function(data,
   # date_type = "weekly starting"
   # geo = "all"
   # append = TRUE
+  # graceful = TRUE
   
   # get gtrends data    ####
   
@@ -43,8 +46,8 @@ gt_f = function(data,
   dates = data %>% pull(sym(date_col)) %>% as.Date() %>% unique()
   
   
-  min_date = min(dates) #%>% anytime::anydate(tz = 0)
-  max_date = max(dates) #%>% anytime::anydate(tz = 0)
+  min_date = min(dates)
+  max_date = max(dates)
   
   if(max_date > Sys.Date()){
     if(verbose){
@@ -74,8 +77,13 @@ gt_f = function(data,
   
   # check gtrends call
   if(is.null(gt)){
-    message('gtrends function failed. Check internet connection or attempt installing the gtrends package separately. Returning data.')
-    return(data)
+    if(graceful){
+      message('Error: gtrends function failed. Check internet connection or attempt installing the gtrends package separately. Returning data.')
+      return(data)
+    }else{
+      message('Error: gtrends function failed. Check internet connection or attempt installing the gtrends package separately. Returning NULL.')
+      return(NULL) 
+    }
   }
   
   gt = gt[[1]]%>%
@@ -137,7 +145,7 @@ gt_f = function(data,
   
   
   colnames(df)[1] = date_col
-  colnames(df)[2] = paste0("gtrends_",kw)
+  colnames(df)[2] = paste0(kw,geo,'gt',collapse = '_')
   
   if(append){
     df = data %>% left_join(df,by=date_col)
