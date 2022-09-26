@@ -584,6 +584,236 @@ what_trans = function(model = NULL,
 }
 
 
+
+#' combo_number
+#'
+#' The number of models from all combinations of transformations and variables
+#'
+#' Count the number of models from all combinations of transformations and variables
+#'
+#' @param model Model object
+#' @param trans_df \code{data.frame} containing the transformations, variables and parameter values
+#' @param verbose A boolean to specify whether to print warnings
+#' @importFrom purrr discard
+#' @importFrom methods is
+#' @import dplyr
+#' @export
+#' @return numeric count of what_combo models
+#' @examples
+#'
+#' # using a model object
+#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+#' dv = 'ecommerce'
+#' ivs = c('christmas','black.friday')
+#'
+#'
+#' trans_df = data.frame(
+#'   name = c('diminish', 'decay', 'hill', 'exp'),
+#'   ts = c(FALSE,TRUE,FALSE,FALSE),
+#'   func = c(
+#'     'linea::diminish(x,a)',
+#'     'linea::decay(x,a)',
+#'     "linea::hill_function(x,a,b,c)",
+#'     '(x^a)'
+#'   ),
+#'   order = 1:4
+#' ) %>%
+#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+#'                                                '(1,50),(1),(1,100)',
+#'                                                '')) %>%
+#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+#'                                               '.1,.7 ',
+#'                                               offline_media)) %>%
+#'   dplyr::mutate(promo = '')
+#'
+#' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
+#'
+#' combos = combo_number(model = model,trans_df = trans_df)
+#'
+#' #using the trans_df, data, and dv
+#' combo_number(trans_df = trans_df, data = data, dv = dv)
+combo_number = function(model = NULL,
+                      trans_df = NULL,
+                      verbose = FALSE) {
+  # test    ####
+  
+  # raw_data = read_xcsv(verbose = FALSE,
+  #                         file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+  # dv = "amazon"
+  # ivs = c("rakhi", "diwali")
+  # id_var = "Week"
+  # pool_var = 'country'
+  # 
+  # model_table = build_model_table(c(ivs, "", ""))
+  # model = run_model(
+  #   id_var = id_var,
+  #   verbose = FALSE,
+  #   data = raw_data,
+  #   dv = dv,
+  #   pool_var = pool_var,
+  #   model_table = model_table,
+  #   normalise_by_pool = TRUE
+  # )
+  # 
+  # wc_trans_df = model$trans_df %>% 
+  #   mutate(christmas = if_else(name == 'decay','.1,.5,.9',''))
+  # 
+  # trans_df = wc_trans_df
+  # 
+  # model %>% what_combo(trans_df = trans_df)
+  # 
+  # data = NULL
+  # dv = NULL
+  # r2_diff = TRUE
+  # return_model_objects = FALSE
+  # verbose = FALSE
+  
+  # checks  ####
+  
+  # check logical
+  if (!is.logical(verbose)) {
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
+    verbose = FALSE
+  }
+  
+  # check trans_df (MUST HAVE)
+  if (is.null(trans_df)) {
+    message("Error: trans_df must be provided. Returning NULL.")
+    return(NULL)
+  }
+  
+  # check if model or dv and data are provided is correct
+  if (is.null(model)) {
+    if (is.null(dv) | is.null(data)) {
+      message("Error: model or dv and data must be provided. Returning NULL.")
+      return(NULL)
+    } else{
+      vars = colnames(trans_df)
+      vars = vars[!(vars %in% c('name', 'order', 'func','ts'))]
+      model = run_model(dv = dv,
+                        data = data,
+                        ivs = vars)
+    }
+  } else{
+    if (!is(model,class2 = 'lm')) {
+      message("Error: model must be of type 'lm'. Returning NULL.")
+      return(NULL)
+    }
+  }
+  
+  model_table = model$model_table
+  
+  # process ####
+  
+  # clean trans_df
+  trans_df = trans_df %>%
+    check_trans_df() %>% 
+    apply(2, function(x)
+      gsub(' ', '', x)) %>%
+    as.data.frame() %>%
+    discard(~all(is.na(.) | . ==""))
+  
+  
+  # get variables
+  vars = colnames(trans_df)
+  vars = vars[!(vars %in% c('name', 'order', 'func','ts'))]
+  
+  long_trans_df = list()
+  
+  for (var in vars) {
+    # var = vars[1]
+    
+    ncols = max(stringr::str_count(trans_df[, var], "\\),\\(")) + 1
+    cols = letters[1:ncols]
+    temp_trans_df = tidyr::separate(
+      fill = 'right',
+      data = trans_df,
+      col = var,
+      into = cols,
+      sep = "\\).\\("
+    ) %>%
+      zoo::na.fill('') %>%
+      as.data.frame() %>%
+      select(-vars[vars != var]) %>%
+      reshape2::melt(id.vars = c('name', 'order', 'func','ts'),
+                     factorsAsStrings = FALSE) %>%
+      filter(value != '')  %>%
+      mutate(value = gsub(
+        pattern = '\\(|\\)',
+        replacement = '',
+        x = value
+      )) %>%
+      rename(parameter = variable) %>%
+      mutate(variable = var)
+    
+    long_trans_df = append(long_trans_df, list(temp_trans_df))
+  }
+  
+  long_trans_df = long_trans_df %>%
+    Reduce(f = rbind)
+  
+  
+  # split each parameter (to be tested)
+  ncols = max(stringr::str_count(long_trans_df$value, ",")) + 1
+  cols = paste0('param_', 1:ncols)
+  long_trans_df = long_trans_df %>%
+    tidyr::separate(
+      fill = 'right',
+      col = 'value',
+      into = cols,
+      sep = ","
+    ) %>%
+    zoo::na.fill('') %>%
+    as.data.frame()
+  
+  
+  
+  # expand.grid for all combos of a single variable
+  long_combo_df = list()
+  
+  for (var in vars) {
+    # var = vars[1]
+    temp_trans_df = long_trans_df %>%
+      filter(variable == var)
+    
+    if (nrow(temp_trans_df) == 0) {
+      next
+    }
+    
+    col_names = paste0(temp_trans_df$name, '_', temp_trans_df$parameter)
+    
+    temp_trans_df = lapply(1:nrow(temp_trans_df), function(x) {
+      v = temp_trans_df[x, ] %>%
+        as.vector()
+      
+      v = v[!(names(v) %in% c('name','order','func','ts','parameter','variable'))]
+      v = as.numeric(v[v != ''])
+      
+      return(v)
+    }) %>%
+      expand.grid() %>%
+      zoo::na.fill('') %>%
+      as.data.frame() %>%
+      mutate(variable = var)
+    
+    colnames(temp_trans_df)[1:length(col_names)] = col_names
+    
+    long_combo_df =  append(long_combo_df, list(temp_trans_df))
+    names(long_combo_df)[length(long_combo_df)] = var
+  }
+  
+  # expand.grid for all combos across variables
+  output_df = lapply(long_combo_df, function(x) {
+    1:nrow(x)
+  }) %>%
+    expand.grid()
+  
+  n_rows = nrow(output_df)
+  
+  return(n_rows)
+  
+}
+
 #' what_combo
 #'
 #' run models across combinations of transformations and variables
@@ -882,9 +1112,7 @@ what_combo = function(model = NULL,
     expand.grid()
 
   # define output table to fill with loop
-  output_df = cbind(output_df, tibble(
-    adj_R2 = 0
-  ))
+  output_df = cbind(output_df, tibble(adj_R2 = 0))
 
   # for each combo
   ## generate variable
