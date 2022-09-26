@@ -145,7 +145,7 @@ gt_f = function(data,
   
   
   colnames(df)[1] = date_col
-  colnames(df)[2] = paste0(kw,geo,'gt',collapse = '_')
+  colnames(df)[2] = paste0(c(kw,geo,'gt'),collapse = '_')
   
   if(append){
     df = data %>% left_join(df,by=date_col)
