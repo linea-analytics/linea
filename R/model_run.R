@@ -419,7 +419,7 @@ run_model = function(data = NULL,
   # trans_df = NULL
   # id_var = NULL
   # model_table = build_model_table(ivs = ivs) %>%
-  #   mutate(fixed = if_else(variable == 'wt','3',''))
+  #   mutate(hill = if_else(variable == 'wt','3,3',''))
   # verbose = T
   # tail_window = NULL
   # normalise_by_pool = FALSE
@@ -651,14 +651,14 @@ run_model = function(data = NULL,
   colnames(model$qr$qr) = c("(Intercept)", ivs_t)
 
   # vif
-  vif_df = car::vif(model) %>% 
+  vif_df = car::vif(model) %>%
     TRY()
   if(is.null(vif_df)){
     vif_df = c(vif='0')
     
   }
   vif_df = data.frame(vif = vif_df,
-                      variable = names(vif_df))
+                      variable = ivs_t)
   
   if(exists('pool_mean')){
     model$pool_mean = pool_mean
