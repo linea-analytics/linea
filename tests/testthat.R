@@ -27,7 +27,8 @@ id_var = "date"
 
 # model table
 model_table = build_model_table(ivs)
-model_table$dec[1] = '0.5'
+model_table$decay[1] = '0.5'
+model_table = model_table %>% get_variable_t()
 
 # category
 category = tibble(
