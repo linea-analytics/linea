@@ -150,5 +150,6 @@ gt_f = function(data,
   if(append){
     df = data %>% left_join(df,by=date_col)
   }
+  message('Data source: Google Trends (https://www.google.com/trends).')
   return(df)
 }
