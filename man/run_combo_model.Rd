@@ -4,14 +4,12 @@
 \alias{run_combo_model}
 \title{run_combo_model}
 \usage{
-run_combo_model(combos, results_row = 1, model_null = FALSE)
+run_combo_model(combos, results_row = 1)
 }
 \arguments{
 \item{combos}{output of \code{linea::what_combo()} function}
 
 \item{results_row}{numeric value of the model (i.e. row from what_combo()$results) to run}
-
-\item{model_null}{a boolean to specify whether the model should be used as starting point}
 }
 \value{
 list of two \code{data.frame} mapping variables' transformations to the respective model's statistics.
