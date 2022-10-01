@@ -419,7 +419,8 @@ run_model = function(data = NULL,
   # trans_df = NULL
   # id_var = NULL
   # model_table = build_model_table(ivs = ivs) %>%
-  #   mutate(hill = if_else(variable == 'wt','3,3',''))
+  #   mutate(hill = if_else(variable == 'wt','3,3','')) %>% 
+  #   mutate(decay = if_else(variable == 'wt','.3',''))
   # verbose = T
   # tail_window = NULL
   # normalise_by_pool = FALSE
@@ -653,10 +654,13 @@ run_model = function(data = NULL,
   # vif
   vif_df = car::vif(model) %>%
     TRY()
+  
+  # TODO: change to check number of vars
+  # - vif useless with 1 var
   if(is.null(vif_df)){
     vif_df = c(vif='0')
-    
   }
+  
   vif_df = data.frame(vif = vif_df,
                       variable = ivs_t)
   
@@ -672,7 +676,7 @@ run_model = function(data = NULL,
   model$model_table = model_table
   model$normalise_by_pool = normalise_by_pool
   model$pool_switch = pool_switch
-
+  
   output_model_table = model_table %>%
     filter(variable != "") %>%
     right_join(
@@ -712,7 +716,7 @@ run_model = function(data = NULL,
       category = as.character(category)
     ) %>%
     mutate(category = if_else(variable == "(Intercept)", "Base", category)) %>% 
-    left_join(vif_df,by = ('variable_t'='variable'),suffix = c('',''))
+    left_join(vif_df,by = c('variable_t'='variable')) #add vif
 
   # create moodel output table with tran's and stats's (e.g. tstats)
   model$output_model_table = output_model_table
