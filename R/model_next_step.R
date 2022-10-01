@@ -1292,7 +1292,6 @@ what_combo = function(model = NULL,
 #' Using the specs from the output of \code{linea::what_combo()} a new model is run.
 #'
 #' @param combos output of \code{linea::what_combo()} function
-#' @param model_null a boolean to specify whether the model should be used as starting point
 #' @param results_row numeric value of the model (i.e. row from what_combo()$results) to run
 #' @import dplyr
 #' @export
@@ -1334,8 +1333,9 @@ what_combo = function(model = NULL,
 #' combos %>%
 #'  run_combo_model()
 run_combo_model = function(combos,
-                           results_row = 1,
-                           model_null = FALSE){
+                           results_row = 1#,
+                           # model_null = FALSE
+                           ){
   # test    ####
   
   # results_row = 1
@@ -1352,9 +1352,9 @@ run_combo_model = function(combos,
 
   model_table = model$model_table
 
-  if(model_null){
-    model_table = model_table[0,]
-  }
+  # if(model_null){
+  #   model_table = model_table[0,]
+  # }
 
   # for each var
   for (var in vars) {
