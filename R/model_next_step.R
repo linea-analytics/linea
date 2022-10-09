@@ -28,11 +28,11 @@ what_next = function(model = NULL,
 
   # test    ####
   
-  # model = run_model(data = mtcars,'mpg',ivs = 'cyl',save_all_raw_data = F)
   # model = run_model(data = mtcars,'mpg',ivs = 'cyl',save_all_raw_data = T)
   # data = NULL
   # verbose = FALSE
   # r2_diff = TRUE
+  # 
   # model %>% what_next()
 
   # checks  ####
@@ -100,6 +100,7 @@ what_next = function(model = NULL,
 
   #2. get transformed value of non-test-vars
   trans_data = apply_transformation(
+    model_table = model_table,
     raw_data = norm_data,
     trans_df = trans_df,
     verbose = verbose,
@@ -630,8 +631,8 @@ what_trans = function(model = NULL,
 #'
 #' combos = combo_number(model = model,trans_df = trans_df)
 #'
-#' #using the trans_df, data, and dv
-#' combo_number(trans_df = trans_df, data = data, dv = dv)
+#' #using the trans_df
+#' combo_number(trans_df = trans_df)
 combo_number = function(model = NULL,
                       trans_df = NULL,
                       verbose = FALSE) {
@@ -1333,8 +1334,7 @@ what_combo = function(model = NULL,
 #' combos %>%
 #'  run_combo_model()
 run_combo_model = function(combos,
-                           results_row = 1#,
-                           # model_null = FALSE
+                           results_row = 1
                            ){
   # test    ####
   

@@ -9,6 +9,8 @@ globalVariables(
     'category',
     'calc',
     'day',
+    'data',
+    'dv',
     'week',
     'month',
     'year',

@@ -16,7 +16,8 @@ decay = function(v,decay){
     return(v)
   }
   else {
-    stats::filter(v, decay, method = "recursive")
+    stats::filter(v, decay, method = "recursive") %>% 
+      as.numeric()
   }
 }
 

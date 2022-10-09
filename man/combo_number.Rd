@@ -53,6 +53,6 @@ model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 
 combos = combo_number(model = model,trans_df = trans_df)
 
-#using the trans_df, data, and dv
-combo_number(trans_df = trans_df, data = data, dv = dv)
+#using the trans_df
+combo_number(trans_df = trans_df)
 }

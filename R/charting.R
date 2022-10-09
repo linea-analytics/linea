@@ -1481,7 +1481,7 @@ response_curves = function(
   # ggplot  ####
   if(!plotly){
     
-    p = ggplot(data=curves_df, aes(x=x, y=value, col=variable)) +
+    p = ggplot(data = curves_df, aes(x = x, y = value, col = variable)) +
       geom_line() +
       scale_color_manual(values = color_palette()) +
       theme(
