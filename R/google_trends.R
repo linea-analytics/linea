@@ -46,7 +46,7 @@ gt_f = function(data,
   dates = data %>% pull(sym(date_col)) %>% as.Date() %>% unique()
   
   
-  min_date = min(dates)
+  min_date = min(dates) - 7
   max_date = max(dates)
   
   if(max_date > Sys.Date()){
