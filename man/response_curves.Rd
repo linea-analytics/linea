@@ -14,6 +14,10 @@ response_curves(
   pool = NULL,
   trans_only = FALSE,
   colors = color_palette(),
+  plot_bgcolor = "rgba(0, 0, 0, 0)",
+  paper_bgcolor = "rgba(0, 0, 0, 0)",
+  font_color = "#1c0022",
+  zero_line_color = "#1c0022",
   plotly = TRUE,
   verbose = FALSE,
   table = FALSE,
@@ -39,6 +43,14 @@ response_curves(
 \item{trans_only}{a boolean specifying whether to display non-linear only \code{y = b*dim_rest(x)}}
 
 \item{colors}{character vector of colors in hexadecimal notation}
+
+\item{plot_bgcolor}{string representing chart color of plot_bgcolor}
+
+\item{paper_bgcolor}{string representing chart color of paper_bgcolor}
+
+\item{font_color}{string representing chart color of font}
+
+\item{zero_line_color}{string representing chart color zerolinecolor}
 
 \item{plotly}{A boolean to specify whether to include use ggplot over plotly}
 

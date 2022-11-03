@@ -9,6 +9,10 @@ acf_chart(
   decomp_list,
   pool = NULL,
   color = "black",
+  plot_bgcolor = "rgba(0, 0, 0, 0)",
+  paper_bgcolor = "rgba(0, 0, 0, 0)",
+  font_color = "#1c0022",
+  zero_line_color = "#1c0022",
   verbose = FALSE
 )
 }

@@ -9,6 +9,10 @@ heteroskedasticity_chart(
   decomp_list = NULL,
   pool = NULL,
   color = "black",
+  plot_bgcolor = "rgba(0, 0, 0, 0)",
+  paper_bgcolor = "rgba(0, 0, 0, 0)",
+  font_color = "#1c0022",
+  zero_line_color = "#1c0022",
   verbose = FALSE
 )
 }
@@ -20,6 +24,14 @@ heteroskedasticity_chart(
 \item{pool}{string specifying a group within the pool column to be filtered}
 
 \item{color}{string specifying bar color}
+
+\item{plot_bgcolor}{string representing chart color of plot_bgcolor}
+
+\item{paper_bgcolor}{string representing chart color of paper_bgcolor}
+
+\item{font_color}{string representing chart color of font}
+
+\item{zero_line_color}{string representing chart color zerolinecolor}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }
