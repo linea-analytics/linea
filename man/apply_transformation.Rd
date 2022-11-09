@@ -34,9 +34,7 @@ Transform data based on the model table by applying the transformation functions
 }
 \examples{
 
-pooled_data = read_xcsv(
- verbose = FALSE,
- file = "https://raw.githubusercontent.com/paladinic/data/main/pooled\%20data.csv")
+pooled_data = pooled_gt_data
 
 
 model_table = build_model_table('christmas')

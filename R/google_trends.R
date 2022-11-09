@@ -1,8 +1,8 @@
-#' apply_normalisation
+#' gt_f
 #' 
-#' Normalise data based on pool mean
+#' Google Trends function
 #' 
-#' Normalise data by dividing all values in each pool by that pool's mean
+#' Google Trends data based on input data, for dates, and keyword
 #' 
 #' @export
 #' @import tidyverse
@@ -18,9 +18,9 @@
 #' @param append a boolean specifying whether to return the original data.frame as well as the added column
 #' @return \code{data.frame} of the original data with the added google trend column
 #' @examples 
-#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") %>% 
-#'   gt_f(kw = 'covid') %>% 
-#'   gt_f(kw = 'bitcoin')
+#' data = linea::sales_ts %>% 
+#'   gt_f(kw = 'covid',date_col = 'week') %>% 
+#'   gt_f(kw = 'bitcoin',date_col = 'week')
 #' 
 gt_f = function(data,
                 kw,
@@ -32,7 +32,7 @@ gt_f = function(data,
                 append = TRUE) {
   # test                ####
   
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
+  # data = linea::sales_ts
   # kw = 'bitcoin'
   # date_col = "date"
   # date_type = "weekly starting"

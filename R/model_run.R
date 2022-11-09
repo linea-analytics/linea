@@ -13,9 +13,7 @@
 #' @param pool_var string specifying the pool variable name (e.g. 'country')
 #' @return \code{list} containing a \code{tibble} of normalised data and a \code{tibble} of pool means
 #' @examples
-#' pooled_data = read_xcsv(
-#'  verbose = FALSE,
-#'  file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+#' pooled_data = pooled_gt_data
 #'
 #' norm_data = apply_normalisation(
 #'  raw_data = pooled_data,
@@ -107,9 +105,7 @@ apply_normalisation = function(raw_data = NULL,
 #' @return \code{data.frame} of raw_data with added transformed variables
 #' @examples
 #'
-#' pooled_data = read_xcsv(
-#'  verbose = FALSE,
-#'  file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+#' pooled_data = pooled_gt_data
 #'
 #'
 #' model_table = build_model_table('christmas')
@@ -372,9 +368,9 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #'     order = 1:4
 #' )
 #'
-#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-#' dv = 'ecommerce'
-#' ivs = c('christmas','black.friday')
+#' data = linea::sales_ts
+#' dv = 'sales'
+#' ivs = c('dec','mar')
 #'
 #' run_model(data = data,
 #'           dv = dv,
@@ -398,9 +394,9 @@ run_model = function(data = NULL,
                      categories = NULL) {
   # test    ####
 
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  # dv = 'ecommerce'
-  # ivs = c('christmas')
+  # data = linea::sales_ts
+  # dv = 'sales'
+  # ivs = c('dec')
   # pool_var = NULL
   # trans_df = NULL
   # id_var = NULL
@@ -428,9 +424,9 @@ run_model = function(data = NULL,
   # decompose = TRUE
   # categories = NULL
   
-  # data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  # dv = 'ecommerce'
-  # ivs = c('christmas','black.friday')
+  # data = linea::sales_ts
+  # dv = 'sales'
+  # ivs = c('dec','mar')
   # verbose = T
   # tail_window = NULL
   # normalise_by_pool = FALSE
@@ -452,16 +448,15 @@ run_model = function(data = NULL,
   #   ),
   #   order = 1:4
   # ) %>%
-  #   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+  #   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'hill',
   #                                                '(1,50),(1),(1,100)',
   #                                                '')) %>%
-  #   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+  #   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
   #                                               '.1,.7 ',
-  #                                               offline_media)) %>%
-  #   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+  #                                               display_spend)) %>%
+  #   dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'decay',
   #                                               '.1,.7 ',
-  #                                               '')) %>%
-  #   dplyr::mutate(promo = '')
+  #                                               '')) 
   
   # checks  ####
 

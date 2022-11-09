@@ -30,9 +30,7 @@ Normalise data based on pool mean
 Normalise data by dividing all values in each pool by that pool's mean
 }
 \examples{
-pooled_data = read_xcsv(
- verbose = FALSE,
- file = "https://raw.githubusercontent.com/paladinic/data/main/pooled\%20data.csv")
+pooled_data = pooled_gt_data
 
 norm_data = apply_normalisation(
  raw_data = pooled_data,

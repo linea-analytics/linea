@@ -43,9 +43,9 @@ Then, for each model run, return that model's fit and the variables' statistics.
 \examples{
 
 # using a model object
-data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-dv = 'ecommerce'
-ivs = c('christmas','black.friday')
+data = linea::sales_ts
+dv = 'sales'
+ivs = c('relative_price','dec')
 
 
 trans_df = data.frame(
@@ -59,13 +59,12 @@ trans_df = data.frame(
   ),
   order = 1:4
 ) \%>\%
-  dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+  dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'hill',
                                                '(1,50),(1),(1,100)',
                                                '')) \%>\%
-  dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+  dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
                                               '.1,.7 ',
-                                              offline_media)) \%>\%
-  dplyr::mutate(promo = '')
+                                              display_spend))
 
 model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 

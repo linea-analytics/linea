@@ -11,8 +11,6 @@
 #' @export
 #' @importFrom readxl read_excel
 #' @importFrom readr read_csv
-#' @examples 
-#' read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")  
 read_xcsv = function(file, sheet = NULL, verbose = FALSE) {
   if(!is.logical(verbose)){
     message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")

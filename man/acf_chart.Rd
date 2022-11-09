@@ -25,6 +25,14 @@ acf_chart(
 
 \item{color}{string specifying bar color}
 
+\item{plot_bgcolor}{string representing chart color of plot_bgcolor}
+
+\item{paper_bgcolor}{string representing chart color of paper_bgcolor}
+
+\item{font_color}{string representing chart color of font}
+
+\item{zero_line_color}{string representing chart color zerolinecolor}
+
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{

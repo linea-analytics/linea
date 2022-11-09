@@ -603,9 +603,9 @@ what_trans = function(model = NULL,
 #' @examples
 #'
 #' # using a model object
-#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-#' dv = 'ecommerce'
-#' ivs = c('christmas','black.friday')
+#' data = linea::sales_ts
+#' dv = 'sales'
+#' ivs = c("relative_price","vod_spend", "dec", "mar")
 #'
 #'
 #' trans_df = data.frame(
@@ -619,13 +619,12 @@ what_trans = function(model = NULL,
 #'   ),
 #'   order = 1:4
 #' ) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+#'   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'hill',
 #'                                                '(1,50),(1),(1,100)',
 #'                                                '')) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+#'   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
 #'                                               '.1,.7 ',
-#'                                               offline_media)) %>%
-#'   dplyr::mutate(promo = '')
+#'                                               display_spend))
 #'
 #' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 #'
@@ -638,8 +637,8 @@ combo_number = function(model = NULL,
                       verbose = FALSE) {
   # test    ####
   
-  # raw_data = read_xcsv(verbose = FALSE,
-  #                         file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+  # raw_data = pooled_gt_data
+  # 
   # dv = "amazon"
   # ivs = c("rakhi", "diwali")
   # id_var = "Week"
@@ -839,9 +838,9 @@ combo_number = function(model = NULL,
 #' @examples
 #'
 #' # using a model object
-#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-#' dv = 'ecommerce'
-#' ivs = c('christmas','black.friday')
+#' data = linea::sales_ts
+#' dv = 'sales'
+#' ivs = c('relative_price','dec')
 #'
 #'
 #' trans_df = data.frame(
@@ -855,13 +854,12 @@ combo_number = function(model = NULL,
 #'   ),
 #'   order = 1:4
 #' ) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+#'   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'hill',
 #'                                                '(1,50),(1),(1,100)',
 #'                                                '')) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+#'   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
 #'                                               '.1,.7 ',
-#'                                               offline_media)) %>%
-#'   dplyr::mutate(promo = '')
+#'                                               display_spend))
 #'
 #' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 #'
@@ -884,8 +882,7 @@ what_combo = function(model = NULL,
   
   # test    ####
   
-  # raw_data = read_xcsv(verbose = FALSE,
-  #                         file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")
+  # raw_data = pooled_gt_data
   # dv = "amazon"
   # ivs = c("rakhi", "diwali")
   # id_var = "Week"
@@ -1300,9 +1297,9 @@ what_combo = function(model = NULL,
 #' @examples
 #'
 #' # using a model object
-#' data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-#' dv = 'ecommerce'
-#' ivs = c('christmas','black.friday')
+#' data = linea::sales_ts
+#' dv = 'sales'
+#' ivs = c('dec','mar')
 #'
 #'
 #' trans_df = data.frame(
@@ -1316,16 +1313,15 @@ what_combo = function(model = NULL,
 #'   ),
 #'   order = 1:4
 #' ) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+#'   dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'hill',
 #'                                                '(1,50),(1),(1,100)',
 #'                                                '')) %>%
-#'   dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'decay',
+#'   dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'decay',
 #'                                               '.1,.7 ',
-#'                                               offline_media)) %>%
-#'   dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+#'                                               vod_spend)) %>%
+#'   dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
 #'                                               '.1,.7 ',
-#'                                               '')) %>%
-#'   dplyr::mutate(promo = '')
+#'                                               '')) 
 #'
 #' model = run_model(data = data,dv = dv,ivs = ivs, trans_df = trans_df)
 #'

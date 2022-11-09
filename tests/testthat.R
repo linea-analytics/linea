@@ -10,36 +10,35 @@ library(tidyr)
 ### NOT POOLED  ----
 
 # import data
-data = read_xcsv(verbose = FALSE,
-                 file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") %>%
-  check_ts(verbose = FALSE,
+data = linea::sales_ts %>% 
+  check_ts(verbose = TRUE,
           allow_non_num = TRUE,
-          date_col = "date") %>%
+          date_col = "week") %>%
   get_seasonality(verbose = FALSE,
-                  date_col_name = "date",
+                  date_col_name = "week",
                   date_type = "weekly starting")
 
 
 # vars
-dv = "ecommerce"
-ivs = c("black.friday", "christmas", "covid")
-id_var = "date"
+dv = "sales"
+ivs = c("relative_price","vod_spend", "dec", "mar")
+id_var = "week"
 
 # model table
 model_table = build_model_table(ivs)
-model_table$decay[1] = '0.5'
+model_table$decay[2] = '0.5'
 model_table = model_table %>% get_variable_t()
 
 # category
 category = tibble(
-  variable = c("christmas" , "christmas"),
-  category = c("a", "a"),
-  calc = c("", "")
+  variable = ivs[-1],
+  category = c("media", "seasonality","seasonality"),
+  calc = c("","","")
 )
 
 # run model
 model = run_model(
-  verbose = FALSE,
+  verbose = TRUE,
   data = data,
   dv = dv,
   model_table = model_table,
@@ -52,8 +51,7 @@ model = run_model(
 ### POOLED      ----
 
 # import data
-pooled_data = read_xcsv(verbose = FALSE,
-                        file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv") %>%
+pooled_data = pooled_gt_data %>%
   check_ts(verbose = FALSE,
           allow_non_num = TRUE,
           date_col = "Week") %>%
@@ -94,42 +92,41 @@ pooled_model = run_model(
 # tests  ####
 ### read data   ####
 
-test_that('read data',{
+# ADD "LOCAL"CSV FILES TO R-PACKAGE: https://r-pkgs.org/data.html
+# test_that('read data',{
+# 
+#   data = read_xcsv(verbose = FALSE,
+#                    file = "extdata/sales_ts.csv")%>%
+#     is.data.frame() %>%
+#     expect_equal(TRUE)
+# 
+# })
+# test_that('read data - pooled',{
 
+#   pooled_data = read_xcsv(verbose = FALSE,
+#                           file = "extdata/pooled_gt_data.csv")%>%
+#     is.data.frame() %>%
+#     expect_equal(TRUE)
 
-  data = read_xcsv(verbose = FALSE,
-                   file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")%>%
-    is.data.frame() %>%
-    expect_equal(TRUE)
+# })
+# test_that('read data - pooled ts',{
 
-})
-test_that('read data - pooled',{
+#   pooled_data = read_xcsv(verbose = FALSE,
+#                           file = "extdata/pooled_gt_data.csv")%>%
+#     check_ts(date_col = 'Week') %>%
+#     is.data.frame() %>%
+#     expect_equal(TRUE)
 
-  pooled_data = read_xcsv(verbose = FALSE,
-                          file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
-    is.data.frame() %>%
-    expect_equal(TRUE)
-
-})
-test_that('read data - pooled ts',{
-
-  pooled_data = read_xcsv(verbose = FALSE,
-                          file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
-    check_ts(date_col = 'Week') %>%
-    is.data.frame() %>%
-    expect_equal(TRUE)
-
-})
+# })
 
 
 ### seasonality ####
 
 test_that('seasonality',{
 
-  pooled_data = read_xcsv(verbose = FALSE,
-                          file = "https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")%>%
-    check_ts(date_col = 'date') %>%
-    get_seasonality(date_col_name = 'date',
+  pooled_data = pooled_gt_data %>%
+    check_ts(date_col = 'Week') %>%
+    get_seasonality(date_col_name = 'Week',
                     date_type = 'weekly starting') %>%
     is.data.frame() %>%
     expect_equal(TRUE)
@@ -137,8 +134,7 @@ test_that('seasonality',{
 })
 test_that('seasonality - pooled',{
 
-  pooled_data = read_xcsv(verbose = FALSE,
-                          file = "https://raw.githubusercontent.com/paladinic/data/main/pooled%20data.csv")%>%
+  pooled_data = pooled_gt_data %>%
     check_ts(date_col = 'Week') %>%
     get_seasonality(date_col_name = 'Week',
                     pool_var = 'country',
@@ -211,8 +207,8 @@ test_that('decomp - tails',{
 test_that('offset',{
   
   model_table %>%
-    mutate(fixed = if_else(variable == 'covid', '3000', fixed)) %>% 
-    mutate(fixed = if_else(variable == 'black.friday', '3000', fixed)) %>% 
+    mutate(fixed = if_else(variable == 'dec', '3000', fixed)) %>% 
+    mutate(fixed = if_else(variable == 'mar', '3000', fixed)) %>% 
     with(fixed) %>%
     as.numeric() %>% 
     {sum(.,na.rm = TRUE)>0} %>% 
@@ -310,9 +306,9 @@ test_that("what trans - output not all na", {
 })
 
 test_that("what combo - output dataframe", {
-  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  dv = 'ecommerce'
-  ivs = c('christmas','black.friday')
+  data = linea::sales_ts
+  dv = 'sales'
+  ivs = c('dec','mar')
   combo_trans_df = data.frame(
     name = c('diminish', 'decay', 'hill', 'exp'),
     ts = c(FALSE,TRUE,FALSE,FALSE),
@@ -324,28 +320,27 @@ test_that("what combo - output dataframe", {
     ),
     order = 1:4
   ) %>%
-    dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+    dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'hill',
                                                  '(1,5,50),(1,5,50),( 1,5,50)',
                                                  '')) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'diminish',
                                                 '.1,.5, 10 ',
                                                 '')) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
                                                 '.1,.7 ',
-                                                online_media)) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
+                                                display_spend)) %>%
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'exp',
                                                 '.5,2,3',
-                                                online_media)) %>%
-    dplyr::mutate(promo = '') %>%
+                                                display_spend)) %>%
     {what_combo(trans_df = .,dv = dv,data = data)} %>%
     {.[['results']]} %>%
     is.data.frame() %>%
     expect_equal(TRUE)
 })
 test_that("what combo - output not all na", {
-  data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-  dv = 'ecommerce'
-  ivs = c('christmas','black.friday')
+  data = linea::sales_ts
+  dv = 'sales'
+  ivs = c('dec','mar')
   combo_trans_df = data.frame(
     name = c('diminish', 'decay', 'hill', 'exp'),
     ts = c(FALSE,TRUE,FALSE,FALSE),
@@ -357,19 +352,18 @@ test_that("what combo - output not all na", {
     ),
     order = 1:4
   ) %>%
-    dplyr::mutate(offline_media = dplyr::if_else(condition = name == 'hill',
+    dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'hill',
                                                  '(1,5,50),(1,5,50),( 1,5,50)',
                                                  '')) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'diminish',
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'diminish',
                                                 '.1,.5, 10 ',
                                                 '')) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'decay',
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'decay',
                                                 '.1,.7 ',
-                                                online_media)) %>%
-    dplyr::mutate(online_media = dplyr::if_else(condition = name == 'exp',
+                                                display_spend)) %>%
+    dplyr::mutate(display_spend = dplyr::if_else(condition = name == 'exp',
                                                 '.5,2,3',
-                                                online_media)) %>%
-    dplyr::mutate(promo = '') %>%
+                                                display_spend)) %>%
     {what_combo(trans_df = .,dv = dv,data = data)} %>%
     {.[['results']]} %>%
     is.na() %>%

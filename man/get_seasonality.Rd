@@ -36,6 +36,6 @@ generate seasonality variables
 generate seasonality variables from a \code{data.frame} containing a date-type variable.
 }
 \examples{
-read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") \%>\%
+linea::sales_ts \%>\%
    get_seasonality(date_col_name = 'date')
 }

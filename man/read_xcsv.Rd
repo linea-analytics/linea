@@ -22,6 +22,3 @@ Reads flat files: either csv or excel
 \details{
 Reads csv or excel files with the suffixes csv, xls, xlsx, xlsm
 }
-\examples{
-read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")  
-}

@@ -70,9 +70,9 @@ trans_df = data.frame(
     order = 1:4
 )
 
-data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv")
-dv = 'ecommerce'
-ivs = c('christmas','black.friday')
+data = linea::sales_ts
+dv = 'sales'
+ivs = c('dec','mar')
 
 run_model(data = data,
           dv = dv,

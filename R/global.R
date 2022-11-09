@@ -30,5 +30,7 @@ globalVariables(
     'id_var',
     'temp_dv_var',
     'pool',
+    'pooled_gt_data',
+    'sales_ts',
     '.'
   ))

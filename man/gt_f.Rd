@@ -2,7 +2,7 @@
 % Please edit documentation in R/google_trends.R
 \name{gt_f}
 \alias{gt_f}
-\title{apply_normalisation}
+\title{gt_f}
 \usage{
 gt_f(
   data,
@@ -36,14 +36,14 @@ gt_f(
 \code{data.frame} of the original data with the added google trend column
 }
 \description{
-Normalise data based on pool mean
+Google Trends function
 }
 \details{
-Normalise data by dividing all values in each pool by that pool's mean
+Google Trends data based on input data, for dates, and keyword
 }
 \examples{
-data = read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") \%>\% 
-  gt_f(kw = 'covid') \%>\% 
-  gt_f(kw = 'bitcoin')
+data = linea::sales_ts \%>\% 
+  gt_f(kw = 'covid',date_col = 'week') \%>\% 
+  gt_f(kw = 'bitcoin',date_col = 'week')
 
 }

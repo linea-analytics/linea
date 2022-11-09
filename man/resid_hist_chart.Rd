@@ -31,6 +31,8 @@ resid_hist_chart(
 
 \item{font_color}{string representing chart color of font}
 
+\item{zero_line_color}{string representing chart color zerolinecolor}
+
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{

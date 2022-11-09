@@ -149,7 +149,7 @@ check_ts = function(data,
 #' @importFrom tis isEaster isGoodFriday
 #' @import tidyverse
 #' @examples
-#' read_xcsv("https://raw.githubusercontent.com/paladinic/data/main/ecomm_data.csv") %>%
+#' linea::sales_ts %>%
 #'    get_seasonality(date_col_name = 'date')
 get_seasonality = function(data,
                            date_col_name,
