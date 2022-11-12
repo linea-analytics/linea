@@ -13,7 +13,7 @@ response_curves(
   interval = NULL,
   pool = NULL,
   trans_only = FALSE,
-  colors = color_palette(),
+  colors = color_palette() \%>\% unlist() \%>\% as.character(),
   plot_bgcolor = "rgba(0, 0, 0, 0)",
   paper_bgcolor = "rgba(0, 0, 0, 0)",
   font_color = "#1c0022",

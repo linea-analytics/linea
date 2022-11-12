@@ -8,7 +8,7 @@ total_decomp_chart(
   model = NULL,
   decomp_list = NULL,
   pool = NULL,
-  colors = color_palette(),
+  colors = color_palette() \%>\% unlist() \%>\% as.character(),
   variable_decomp = FALSE,
   verbose = FALSE,
   plot_bgcolor = "rgba(0, 0, 0, 0)",
