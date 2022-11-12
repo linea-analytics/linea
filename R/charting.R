@@ -1398,7 +1398,9 @@ acf_chart = function(model = NULL,
       title = 'Autocorrelation Function',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
+      yaxis = list(title = 'correlation'),
       xaxis = list(
+        title = 'lags',
         showgrid = FALSE,
         zerolinecolor = zero_line_color)
     )
