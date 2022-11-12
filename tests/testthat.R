@@ -176,7 +176,6 @@ test_that('decomp',{
 
 })
 
-
 test_that('decomp - pooled',{
   
   pooled_model %>% 
@@ -198,6 +197,23 @@ test_that('decomp - tails',{
     decomp_chart(decomp_list = ., pool = 'India') %>% 
     class() %>%
     {.[1]} %>%
+    expect_equal('plotly')
+  
+})
+
+test_that('decomp - colors',{
+  
+  model %>% 
+    decomp_chart(
+      actual_line_color = 'blue',
+      resid_line_color = '#f00',
+      plot_bgcolor = "rgba(255,255,255,0.2)", 
+      paper_bgcolor = "black",
+      font_color = 'white',
+      zero_line_color = 'black'
+    ) %>%
+    class() %>%
+    {.[1]} %>% 
     expect_equal('plotly')
   
 })

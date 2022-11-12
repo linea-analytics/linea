@@ -8,19 +8,27 @@
 #' @return character vector of colors in hexadecimal notation
 color_palette = function(){
   return(
-    c(
-      "#636363",
-      "#143fba",
-      "#006a53",
-      "#209162",
-      "#33eea0",
-      "#8f9d35",
-      "#fff200",
-      "#ff5c00",
-      "#6a000d",
-      "#ff006e",
-      "#b400da",
-      "#280030"
+    list(
+      decomp_color_1 = "#636363",
+      decomp_color_2 = "#143fba",
+      decomp_color_3 = "#006a53",
+      decomp_color_4 = "#209162",
+      decomp_color_5 = "#33eea0",
+      decomp_color_6 = "#8f9d35",
+      decomp_color_7 = "#00cf74",
+      decomp_color_8 = "#b400da",
+      decomp_color_9 = "#fff200",
+      decomp_color_10 = "#ff5c00",
+      decomp_color_11 = "#6a000d",
+      decomp_color_12 = "#ff006e",
+      charts_font_color = '#1c0022',
+      charts_background_color = "#FFFFFF",
+      charts_zero_line_color = '#1c0022',
+      resid_line_color = "#C90F3A",
+      actual_line_color = '#1c0022',
+      predicted_line_color = "#00cf74",
+      resid_bar_color = "#151c1f",
+      acf_bar_color = "#151c1f" 
     )
   )
 }
@@ -537,7 +545,9 @@ decomping = function(model = NULL,
 decomp_chart = function(model = NULL,
                         decomp_list = NULL,
                         pool = NULL,
-                        colors = color_palette(),
+                        colors = color_palette() %>% 
+                          unlist() %>% 
+                          as.character(),
                         variable_decomp = FALSE,
                         verbose = FALSE,
                         actual_line_color = 'black',
@@ -667,6 +677,7 @@ decomp_chart = function(model = NULL,
            plot_bgcolor  = plot_bgcolor,
            paper_bgcolor = paper_bgcolor,
            title = title,
+           margin = '10px',
            font = list(color = font_color),
            xaxis = list(title = id_var,
                         showgrid = FALSE,
@@ -697,7 +708,9 @@ decomp_chart = function(model = NULL,
 total_decomp_chart = function(model = NULL,
                         decomp_list = NULL,
                         pool = NULL,
-                        colors = color_palette(),
+                        colors = color_palette() %>% 
+                          unlist() %>% 
+                          as.character(),
                         variable_decomp = FALSE,
                         verbose = FALSE,
                         plot_bgcolor = "rgba(0, 0, 0, 0)",
@@ -789,6 +802,7 @@ total_decomp_chart = function(model = NULL,
     y = "total"
   ) %>%
     layout(
+      margin = '10px',
       barmode = "relative",
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
@@ -927,6 +941,7 @@ fit_chart = function(model = NULL,
       color =  ~ variable
     ) %>%
     layout(
+      margin = '10px',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
       title = 'Fit Chart',
@@ -1169,6 +1184,7 @@ resid_hist_chart = function(model = NULL,
                                 line = list(color = "white",
                                             width = .5))) %>%
     layout(font = list(color = font_color),
+           margin = '10px',
            title = 'Residual Distribution',
            plot_bgcolor  = plot_bgcolor,
            paper_bgcolor = paper_bgcolor)
@@ -1253,6 +1269,7 @@ heteroskedasticity_chart = function(model = NULL,
     ) %>%
     layout(
       font = list(color = font_color),
+      margin = '10px',
       title = 'Heteroskedasticity',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
@@ -1377,6 +1394,7 @@ acf_chart = function(model = NULL,
     ) %>%
     layout(
       font = list(color = font_color),
+      margin = '10px',
       title = 'Autocorrelation Function',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
@@ -1446,7 +1464,9 @@ response_curves = function(
     interval = NULL,
     pool = NULL,
     trans_only = FALSE,
-    colors = color_palette(),
+    colors = color_palette() %>% 
+      unlist() %>% 
+      as.character(),
     plot_bgcolor = "rgba(0, 0, 0, 0)",
     paper_bgcolor = "rgba(0, 0, 0, 0)",
     font_color =  '#1c0022',
@@ -1599,6 +1619,7 @@ response_curves = function(
                         color = ~variable, mode = "lines", type = "scatter",
                         colors = colors) %>%
       layout(plot_bgcolor = plot_bgcolor,
+             margin = '10px',
              paper_bgcolor = paper_bgcolor,
              font = list(color = font_color),
              xaxis = list(showgrid = FALSE,
@@ -1656,7 +1677,9 @@ response_curves = function(
     
     p = ggplot(data = curves_df, aes(x = x, y = value, col = variable)) +
       geom_line() +
-      scale_color_manual(values = color_palette()) +
+      scale_color_manual(values = color_palette() %>% 
+                           unlist() %>% 
+                           as.character()) +
       theme(
         panel.background = element_rect(fill = "white",
                                         colour = "white")) +
