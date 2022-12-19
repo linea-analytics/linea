@@ -13,6 +13,7 @@ resid_hist_chart(
   paper_bgcolor = "rgba(0, 0, 0, 0)",
   font_color = "#1c0022",
   zero_line_color = "#1c0022",
+  grid_line_color = "#1c0022",
   verbose = FALSE
 )
 }
@@ -32,6 +33,8 @@ resid_hist_chart(
 \item{font_color}{string representing chart color of font}
 
 \item{zero_line_color}{string representing chart color zerolinecolor}
+
+\item{grid_line_color}{string representing chart color of gridcolor}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }

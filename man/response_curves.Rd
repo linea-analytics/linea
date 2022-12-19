@@ -18,6 +18,7 @@ response_curves(
   paper_bgcolor = "rgba(0, 0, 0, 0)",
   font_color = "#1c0022",
   zero_line_color = "#1c0022",
+  grid_line_color = "#1c0022",
   plotly = TRUE,
   verbose = FALSE,
   table = FALSE,
@@ -51,6 +52,8 @@ response_curves(
 \item{font_color}{string representing chart color of font}
 
 \item{zero_line_color}{string representing chart color zerolinecolor}
+
+\item{grid_line_color}{string representing chart color of gridcolor}
 
 \item{plotly}{A boolean to specify whether to include use ggplot over plotly}
 
