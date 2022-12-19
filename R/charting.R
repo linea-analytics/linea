@@ -537,6 +537,7 @@ decomping = function(model = NULL,
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @import plotly
 #' @import tidyverse
@@ -555,7 +556,8 @@ decomp_chart = function(model = NULL,
                         plot_bgcolor = "rgba(0, 0, 0, 0)",
                         paper_bgcolor = "rgba(0, 0, 0, 0)",
                         font_color =  '#1c0022',
-                        zero_line_color = '#1c0022') {
+                        zero_line_color = '#1c0022',
+                        grid_line_color = '#1c0022') {
   
   # checks    ####
   
@@ -679,6 +681,7 @@ decomp_chart = function(model = NULL,
            title = title,
            margin = '10px',
            font = list(color = font_color),
+           yaxis = list(gridcolor = grid_line_color),
            xaxis = list(title = id_var,
                         showgrid = FALSE,
                         zerolinecolor = zero_line_color))
@@ -831,6 +834,7 @@ total_decomp_chart = function(model = NULL,
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @param verbose A boolean to specify whether to print warnings
 #' @import plotly
@@ -850,7 +854,8 @@ fit_chart = function(model = NULL,
                      plot_bgcolor = "rgba(0, 0, 0, 0)",
                      paper_bgcolor = "rgba(0, 0, 0, 0)",
                      font_color =  '#1c0022',
-                     zero_line_color = '#1c0022') {
+                     zero_line_color = '#1c0022',
+                     grid_line_color = '#1c0022') {
   # test    ####
   
   # data = sales_ts
@@ -946,6 +951,7 @@ fit_chart = function(model = NULL,
       paper_bgcolor = paper_bgcolor,
       title = 'Fit Chart',
       font = list(color = font_color),
+      yaxis = list(gridcolor = grid_line_color),
       xaxis = list(
         showgrid = FALSE,
         zerolinecolor = zero_line_color,
@@ -1127,6 +1133,7 @@ filter_decomp_pool = function(decomp,pool,verbose = TRUE){
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @param verbose A boolean to specify whether to print warnings
 #' @import plotly
@@ -1141,6 +1148,7 @@ resid_hist_chart = function(model = NULL,
                             paper_bgcolor = "rgba(0, 0, 0, 0)",
                             font_color =  '#1c0022',
                             zero_line_color = '#1c0022',
+                            grid_line_color = '#1c0022',
                             verbose = FALSE){
   # Check verbose
   if(!is.logical(verbose)){
@@ -1186,6 +1194,7 @@ resid_hist_chart = function(model = NULL,
     layout(font = list(color = font_color),
            margin = '10px',
            title = 'Residual Distribution',
+           yaxis = list(gridcolor = grid_line_color),
            plot_bgcolor  = plot_bgcolor,
            paper_bgcolor = paper_bgcolor)
 
@@ -1205,6 +1214,7 @@ resid_hist_chart = function(model = NULL,
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @param verbose A boolean to specify whether to print warnings
 #' @import plotly
@@ -1220,6 +1230,7 @@ heteroskedasticity_chart = function(model = NULL,
                                     paper_bgcolor = "rgba(0, 0, 0, 0)",
                                     font_color =  '#1c0022',
                                     zero_line_color = '#1c0022',
+                                    grid_line_color = '#1c0022',
                                     verbose = FALSE){
 
   # Check verbose
@@ -1273,6 +1284,7 @@ heteroskedasticity_chart = function(model = NULL,
       title = 'Heteroskedasticity',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
+      yaxis = list(gridcolor = grid_line_color),
       xaxis = list(showgrid = FALSE,
                    zerolinecolor = zero_line_color)
     )
@@ -1293,6 +1305,7 @@ heteroskedasticity_chart = function(model = NULL,
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @param verbose A boolean to specify whether to print warnings
 #' @import plotly
@@ -1307,6 +1320,7 @@ acf_chart = function(model = NULL,
                      paper_bgcolor = "rgba(0, 0, 0, 0)",
                      font_color =  '#1c0022',
                      zero_line_color = '#1c0022',
+                     grid_line_color = '#1c0022',
                      verbose = FALSE){
 
   # Check verbose
@@ -1398,7 +1412,8 @@ acf_chart = function(model = NULL,
       title = 'Autocorrelation Function',
       plot_bgcolor  = plot_bgcolor,
       paper_bgcolor = paper_bgcolor,
-      yaxis = list(title = 'correlation'),
+      yaxis = list(gridcolor = grid_line_color,
+                   title = 'correlation'),
       xaxis = list(
         title = 'lags',
         showgrid = FALSE,
@@ -1425,6 +1440,7 @@ acf_chart = function(model = NULL,
 #' @param plot_bgcolor string representing chart color of plot_bgcolor
 #' @param paper_bgcolor string representing chart color of paper_bgcolor
 #' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
 #' @param zero_line_color string representing chart color zerolinecolor
 #' @param verbose A boolean to specify whether to print warnings
 #' @param table A boolean to specify whether to return a \code{data.frame} of the response curves
@@ -1473,6 +1489,7 @@ response_curves = function(
     paper_bgcolor = "rgba(0, 0, 0, 0)",
     font_color =  '#1c0022',
     zero_line_color = '#1c0022',
+    grid_line_color = '#1c0022',
     plotly = TRUE,
     verbose = FALSE,
     table = FALSE,
@@ -1626,7 +1643,8 @@ response_curves = function(
              font = list(color = font_color),
              xaxis = list(showgrid = FALSE,
                           zerolinecolor = zero_line_color),
-             yaxis = list(title = model$dv),
+             yaxis = list(gridcolor = grid_line_color,
+                          title = model$dv),
              title = "Response Curves")
 
     if(points) {
