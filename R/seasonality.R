@@ -321,8 +321,17 @@ get_seasonality = function(data,
       mutate(weekday = weekdays(day)) %>% 
       to_dummy(weekday,suffix = 'label') %>%
       mutate(day = date_values) %>% 
-      mutate(weekend = if_else(weekday_Saturday == 1,1,0)) %>% 
-      mutate(weekend = if_else(weekday_Sunday == 1,1,weekend))
+      mutate(weekend = 0)
+    
+    if("weekday_Saturday" %in% colnames(weekdays_weekends)){
+      weekdays_weekends = weekdays_weekends %>% 
+        mutate(weekend = if_else(weekday_Saturday == 1,1,weekend))
+    }
+    
+    if("weekday_Sunday" %in% colnames(weekdays_weekends)){
+      weekdays_weekends = weekdays_weekends %>% 
+        mutate(weekend = if_else(weekday_Sunday == 1,1,weekend))
+    }
     
     df = data.frame(day = date_values) %>%
       left_join(events_df, by = "day") %>% 
