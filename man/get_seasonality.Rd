@@ -8,6 +8,7 @@ get_seasonality(
   data,
   date_col_name,
   date_type = "weekly starting",
+  date_format = "\%d/\%m/\%Y",
   verbose = FALSE,
   keep_dup = FALSE,
   pool_var = NULL
@@ -19,6 +20,8 @@ get_seasonality(
 \item{date_col_name}{The date column name as a string}
 
 \item{date_type}{The date column type as either of the following strings:'weekly starting','weekly ending','daily'}
+
+\item{date_format}{The format of th date column as a string (e.g. "\%d/\%m/\%Y")}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 

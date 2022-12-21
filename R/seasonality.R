@@ -140,6 +140,7 @@ check_ts = function(data,
 #' @param data \code{data.frame} containing data for analysis
 #' @param date_col_name The date column name as a string
 #' @param date_type The date column type as either of the following strings:'weekly starting','weekly ending','daily'
+#' @param date_format The format of th date column as a string (e.g. "%d/%m/%Y")
 #' @param verbose A boolean to specify whether to print warnings
 #' @param keep_dup A boolean to specify whether to keep duplicate columns between seasonal and data
 #' @param pool_var The pool (group) column name as a string (e.g. 'country')
@@ -147,6 +148,7 @@ check_ts = function(data,
 #' @export
 #' @importFrom sjmisc to_dummy
 #' @importFrom tis isEaster isGoodFriday
+#' @importFrom lubridate is.Date
 #' @import tidyverse
 #' @examples
 #' linea::sales_ts %>%
@@ -154,14 +156,16 @@ check_ts = function(data,
 get_seasonality = function(data,
                            date_col_name,
                            date_type = 'weekly starting',
+                           date_format = '%d/%m/%Y',
                            verbose = FALSE,
                            keep_dup = FALSE,
                            pool_var = NULL){
   # test    ####
   
   # data = linea::sales_ts
-  # date_col_name = 'weekly starting'
-  # date_type = 'daily'
+  # date_col_name = 'week'
+  # date_type = 'weekly starting'
+  # date_format = '%d/%m/%Y'
   # verbose = TRUE
   # keep_dup = FALSE
   # pool_var = NULL
@@ -186,15 +190,29 @@ get_seasonality = function(data,
   # check pool
   if(!is.null(pool_var)){
     if(!(pool_var %in% colnames(data))){
-      if(verbose)print('data must contain pool_var. Setting pool_var to NULL.')
+      if(verbose)message('data must contain pool_var. Setting pool_var to NULL.')
       pool_var = NULL
     }
   }
   # check date_type
   if(!(date_type %in% c('weekly starting', "weekly ending", "daily"))){
-    if(verbose)print('date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
+    if(verbose)message('date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
     date_type = "weekly starting"
   }
+  
+  date_col = pull(data,date_col_name) 
+  
+  if(!lubridate::is.Date(date_col)){
+    date_col = as.Date(x = date_col,format = date_format)
+    if(any(is.na(date_col))){
+      message("Error: could not convert date column to date type. 
+            Check the `data` and `date_format` provided. Returning NULL.")
+      return(NULL)
+    }
+    
+    data[date_col_name] = date_col
+    
+  } 
   
   # process ####
   
@@ -258,7 +276,7 @@ get_seasonality = function(data,
     mutate(new_years_day = if_else(strftime(day,format = "%d-%m") == "01-01",1,0)) %>%
     mutate(new_years_eve = if_else(strftime(day,format = "%d-%m") == "31-12",1,0)) %>%
     mutate(easter = as.integer(isEaster(day))) %>%
-    mutate(good_friday = as.integer(isGoodFriday(day)))
+    mutate(good_friday = as.integer(isGoodFriday(as.Date(as.character(day),format="%Y%m%d"))))
   
   
   # join dataframes
@@ -301,12 +319,15 @@ get_seasonality = function(data,
     
     weekdays_weekends = tibble(day = date_values) %>% 
       mutate(weekday = weekdays(day)) %>% 
-      to_dummy(weekday,suffix = 'label') %>% 
-      mutate(weekend = ifelse(weekdays %in% c("weekday_Saturday","weekday_Sunday"),1,0))
+      to_dummy(weekday,suffix = 'label') %>%
+      mutate(day = date_values) %>% 
+      mutate(weekend = if_else(weekday_Saturday == 1,1,0)) %>% 
+      mutate(weekend = if_else(weekday_Sunday == 1,1,weekend))
     
     df = data.frame(day = date_values) %>%
       left_join(events_df, by = "day") %>% 
-      left_join(weekdays_weekends, by = "day")
+      left_join(weekdays_weekends, by = "day") %>% 
+      mutate(weekday = weekdays(day))
     
     colnames(df)[colnames(df) == 'day'] = date_col_name
     
