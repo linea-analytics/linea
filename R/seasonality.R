@@ -150,13 +150,23 @@ check_ts = function(data,
 #' @import tidyverse
 #' @examples
 #' linea::sales_ts %>%
-#'    get_seasonality(date_col_name = 'date')
+#'    get_seasonality(date_col_name = 'week')
 get_seasonality = function(data,
                            date_col_name,
                            date_type = 'weekly starting',
                            verbose = FALSE,
                            keep_dup = FALSE,
                            pool_var = NULL){
+  # test    ####
+  
+  # data = linea::sales_ts
+  # date_col_name = 'weekly starting'
+  # date_type = 'daily'
+  # verbose = TRUE
+  # keep_dup = FALSE
+  # pool_var = NULL
+  
+  
   # checks  ####
   # check verbose
   if(!is.logical(verbose)){
@@ -187,12 +197,12 @@ get_seasonality = function(data,
   }
   
   # process ####
-
+  
   # get dates column
   date_values = data %>%
     pull(!!sym(date_col_name)) %>%
     unique()
-
+  
   # define start and end date
   if(date_type == "daily"){
     first_date = date_values[1]
@@ -201,19 +211,19 @@ get_seasonality = function(data,
   if(date_type == "weekly starting"){
     first_date = date_values[1]
     last_date = date_values[length(date_values)]+6
-
+    
     # build date vector
     date_values = seq(first_date,last_date,by = 1)
   }
   if(date_type == "weekly ending"){
     first_date = date_values[1]-6
     last_date = date_values[length(date_values)]
-
+    
     # build date vector
     date_values = seq(first_date,last_date,by = 1)
   }
-
-
+  
+  
   # build dataframe of weeks 1 to 52
   week_df = tibble(day = date_values) %>%
     mutate(week = strftime(day, format = "%V")) %>%
@@ -222,7 +232,7 @@ get_seasonality = function(data,
     data.frame() %>%
     tibble() %>%
     relocate(day)
-
+  
   # build dataframe of months 1 to 12
   month_df = tibble(day = date_values) %>%
     mutate(month = strftime(day, format = "%b")) %>%
@@ -231,7 +241,7 @@ get_seasonality = function(data,
     data.frame() %>%
     tibble() %>%
     relocate(day)
-
+  
   # build dataframe of years in data
   year_df = tibble(day = date_values) %>%
     mutate(year = strftime(day, format = "%Y")) %>%
@@ -240,7 +250,7 @@ get_seasonality = function(data,
     data.frame() %>%
     tibble() %>%
     relocate(day)
-
+  
   # build dataframe of events e.g. xmas
   events_df = tibble(day = date_values) %>%
     mutate(christmas_day = if_else(strftime(day,format = "%d-%m") == "25-12",1,0)) %>%
@@ -249,52 +259,59 @@ get_seasonality = function(data,
     mutate(new_years_eve = if_else(strftime(day,format = "%d-%m") == "31-12",1,0)) %>%
     mutate(easter = as.integer(isEaster(day))) %>%
     mutate(good_friday = as.integer(isGoodFriday(day)))
-
-
+  
+  
   # join dataframes
   events_df = events_df %>%
     left_join(week_df,by="day") %>%
     left_join(month_df,by="day") %>%
     left_join(year_df,by="day")
-
-
+  
+  
   if(date_type %in% c("weekly starting", "weekly ending")){
-
+    
     # get week dates
     week_dates = data %>%
       pull(!!sym(date_col_name)) %>%
       unique()
-
+    
     # recreate week dates using first and last to avoid missing weeks
-
+    
     first_date = week_dates[1]
     last_date = week_dates[length(week_dates)]
     week_dates = seq(first_date,last_date,by = 7) %>%
       rep(each=7)
-
+    
     # aggregation (daily to weekly)
     df = data.frame(day = date_values,
                     week = week_dates) %>%
       left_join(events_df, by = "day")
-
-
+    
+    
     df = df %>%
       group_by(week) %>%
       summarise_all(mean)
-
+    
     df$day = NULL
-
+    
     colnames(df)[colnames(df) == 'week'] = date_col_name
-
-  }else{
-
-    df = data.frame(day = date_values) %>%
-      left_join(events_df, by = "day")
-
-    colnames(df)[colnames(df) == 'day'] = date_col_name
-
+    
   }
-
+  if(date_type == 'daily'){
+    
+    weekdays_weekends = tibble(day = date_values) %>% 
+      mutate(weekday = weekdays(day)) %>% 
+      to_dummy(weekday,suffix = 'label') %>% 
+      mutate(weekend = ifelse(weekdays %in% c("weekday_Saturday","weekday_Sunday"),1,0))
+    
+    df = data.frame(day = date_values) %>%
+      left_join(events_df, by = "day") %>% 
+      left_join(weekdays_weekends, by = "day")
+    
+    colnames(df)[colnames(df) == 'day'] = date_col_name
+    
+  }
+  
   if (!is.null(pool_var)) {
     data = data %>%
       mutate(number = 1) %>%
@@ -319,11 +336,16 @@ get_seasonality = function(data,
   if(!keep_dup){
     df[,dup_columns] = NULL
   }
-
+  
   data = data %>%
     left_join(df,
               by = date_col_name,
               suffix = c("", ".x"))
-
+  
   return(data)
 }
+
+
+
+
+

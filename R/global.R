@@ -12,6 +12,7 @@ globalVariables(
     'data',
     'dv',
     'week',
+    'weekday',
     'month',
     'year',
     'number',

@@ -37,5 +37,5 @@ generate seasonality variables from a \code{data.frame} containing a date-type v
 }
 \examples{
 linea::sales_ts \%>\%
-   get_seasonality(date_col_name = 'date')
+   get_seasonality(date_col_name = 'week')
 }

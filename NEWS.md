@@ -11,7 +11,8 @@ In version 0.1.3 new functions, functions' arguments, and other adjustments have
   * The `run_combo_model()` function no longer requires a model object to be provided, as it is returned by `what_combo()`'s output directly.
   * The `run_model()` function now produces also a vif column in the `model_output_table`.
   * `charting.R`, as well as `google_trends.R`, functions allow for controlling chart, background, zero-line, and font colors. 
+  * The `get_seasonality()` function now calculates dummy variables for weekdays and weekends
   
 * Other amends:
-  * Error and warnings messages have been amended to be printed appropriately.
+  * Error and warnings messages have been amended to be printed using the appropriate functions.
   * Example data has been added to the package in the `/data` folder: `sales_ts.rda`,`pooled_gt_data.rda`.
