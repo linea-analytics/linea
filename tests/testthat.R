@@ -145,6 +145,29 @@ test_that('seasonality - pooled',{
 })
 
 
+### economy     ####
+
+test_that('economy',{
+  
+  data = sales_ts %>%
+    check_ts(date_col = 'week') %>%
+    get_economy(date_col_name = 'week',country_code = 'US') %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+
+test_that('economy - pool_var',{
+  
+  data = pooled_gt_data %>%
+    check_ts(date_col = 'Week') %>%
+    mutate(country = if_else(country == 'UK','GB',country)) %>%
+    get_economy(date_col_name = 'Week',pool_var = 'country') %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+
 ### run model   ####
 
 test_that('run_model ivs, dv',{

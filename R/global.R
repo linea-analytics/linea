@@ -36,5 +36,10 @@ globalVariables(
     'pool',
     'pooled_gt_data',
     'sales_ts',
-    '.'
+    '.',
+    'country', 
+    'gather', 
+    'iso2c', 
+    'iso3c', 
+    'temp_year_var_for_join'
   ))
