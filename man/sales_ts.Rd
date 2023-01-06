@@ -3,7 +3,7 @@
 \docType{data}
 \name{sales_ts}
 \alias{sales_ts}
-\title{example dataset}
+\title{sales_ts}
 \format{
 A tibble representing sales and other variables over time.
 }

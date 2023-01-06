@@ -45,6 +45,12 @@ get_economy = function(data,
   
   # checks  -----------------------------------------------------------------
   
+  # check verbose
+  if(!is.logical(verbose)){
+    message("verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
+  }
+  
   # if both pool_var and country_code are NULL
   if(is.null(pool_var) & is.null(country_code)){
     message('Warning: Either `pool_var` and `country_code`. Returning `data`.')
@@ -107,8 +113,8 @@ get_economy = function(data,
       indicator = indicators, 
       start_date = start, 
       end_date = end) %>% 
-      select(-iso3c,-country,-iso2c) #%>% 
-      # TRY()
+      select(-iso3c,-country,-iso2c) %>%
+      TRY(verbose = T)
     
     # check if API failed
     if(is.null(world_bank_data)){

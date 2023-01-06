@@ -3,9 +3,12 @@
 \docType{data}
 \name{pooled_gt_data}
 \alias{pooled_gt_data}
-\title{example pooled dataset}
+\title{pooled_gt_data}
 \format{
 A tibble representing google trends variables over time.
+}
+\source{
+Google Trends (https://trends.google.com/)
 }
 \usage{
 pooled_gt_data

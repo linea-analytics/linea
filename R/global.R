@@ -36,6 +36,7 @@ globalVariables(
     'pool',
     'pooled_gt_data',
     'sales_ts',
+    'countries',
     '.',
     'country', 
     'gather', 

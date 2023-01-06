@@ -33,7 +33,7 @@ Generate economy variables
 Generate economy variables from a \code{data.frame} containing a date-type variable.
 The function will collect data from the world bank based on the country_code input.
 If the country_code isn't provided, the pool variable will be used, if it contains usable country codes and/or names.
-Appropriate country codes and/or names can be viewed using the function \code{available_countries()}.
+Appropriate country codes and/or names can be viewed using the tibble \code{linea::countries}.
 }
 \examples{
 linea::sales_ts \%>\%
