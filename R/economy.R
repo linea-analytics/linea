@@ -1,22 +1,3 @@
-#' available_countries
-#'
-#' Available countries for the economy variables
-#'
-#' The \code{get_economy} function accepts country codes and/or names.
-#' These are passed to that function as country_code or in the pool_var.
-#' \code{available_countries} shows which country codes and/or names are accepted.
-#' 
-#' @return \code{data.frame} of country codes and names
-#' @export
-#' @importFrom wbstats wb_countries
-#' @import tidyverse
-available_countries = function(){
-  df = wb_countries() %>% 
-    select(iso3c, iso2c, country)
-  
-  return(df)
-}
-
 #' get_economy
 #'
 #' Generate economy variables
@@ -24,7 +5,7 @@ available_countries = function(){
 #' Generate economy variables from a \code{data.frame} containing a date-type variable.
 #' The function will collect data from the world bank based on the country_code input.
 #' If the country_code isn't provided, the pool variable will be used, if it contains usable country codes and/or names.
-#' Appropriate country codes and/or names can be viewed using the function \code{available_countries()}.
+#' Appropriate country codes and/or names can be viewed using the tibble \code{linea::countries}.
 #'
 #' @param data \code{data.frame} containing data for analysis
 #' @param pool_var The pool (group) column name as a string (e.g. 'country')
@@ -89,13 +70,13 @@ get_economy = function(data,
   # if country_code in world_bank_countries
   if(!is.null(country_code)){
     
-    world_bank_countries = available_countries() %>% 
+    world_bank_countries = linea::countries %>% 
       gather() %>% 
       pull(value)
     
     if(!country_code %in% world_bank_countries){
       message('Error: `country_code` not found. 
-              Use the function `available_countries()` to validate your `country_code` input. 
+              Use the function `linea::countries` to validate your `country_code` input. 
               Returning `data`.')
       return(data)
     }
