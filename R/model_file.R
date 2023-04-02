@@ -81,6 +81,7 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
 #' @param path File path to the model file as string
 #' @param verbose Boolean to specify whether to return the checked file
 #' @import dplyr
+#' @import zoo
 #' @return model object
 #' @export
 import_model = function(path, verbose = FALSE){

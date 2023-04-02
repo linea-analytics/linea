@@ -690,7 +690,7 @@ run_model = function(data = NULL,
                               variable_t,
                               variable)) %>%
     # replace na with 0
-    na.fill('') %>%
+    zoo::na.fill('') %>%
     data.frame() %>%
     # tibble() %>%
     mutate(
@@ -700,7 +700,7 @@ run_model = function(data = NULL,
       p_value = as.numeric(p_value),
       category = as.character(category)
     ) %>%
-    na.fill("") %>%
+    zoo::na.fill("") %>%
     data.frame() %>%
     tibble() %>%
     mutate(

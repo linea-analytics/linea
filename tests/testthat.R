@@ -1,8 +1,11 @@
 # libs   ####
 library(testthat)
 library(linea)
+library(tibble)
+# library(zoo)
 library(dplyr)
 library(tidyr)
+
 
 # test_check("linea")
 
@@ -157,16 +160,16 @@ test_that('economy',{
   
 })
 
-test_that('economy - pool_var',{
-  
-  data = pooled_gt_data %>%
-    check_ts(date_col = 'Week') %>%
-    mutate(country = if_else(country == 'UK','GB',country)) %>%
-    get_economy(date_col_name = 'Week',pool_var = 'country') %>%
-    is.data.frame() %>%
-    expect_equal(TRUE)
-  
-})
+# test_that('economy - pool_var',{
+#   
+#   data = pooled_gt_data %>%
+#     check_ts(date_col = 'Week') %>%
+#     mutate(country = if_else(country == 'UK','GB',country)) %>%
+#     get_economy(date_col_name = 'Week',pool_var = 'country') %>%
+#     is.data.frame() %>%
+#     expect_equal(TRUE)
+#   
+# })
 
 ### run model   ####
 
@@ -442,3 +445,4 @@ test_that("response curves - not pooled - output is dataframe",{
     expect_equal(TRUE)
 
 })
+

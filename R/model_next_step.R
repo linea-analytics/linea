@@ -202,6 +202,7 @@ what_next = function(model = NULL,
 #' @param zero a boolean defining whether the output vector must contain a zero
 #' @importFrom magrittr '%>%'
 #' @import stringr
+#' @import zoo
 #' @export
 #' @return numeric vector from the string
 #' @examples
@@ -241,6 +242,7 @@ get_vector_from_str = function(string, sep = ',', zero = TRUE) {
 #' @importFrom methods is
 #' @importFrom stats lm
 #' @import dplyr
+#' @import zoo
 #' @export
 #' @return \code{data.frame} mapping variables' transformations to the respective model's statistics.
 #' @examples
