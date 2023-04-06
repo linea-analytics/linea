@@ -99,7 +99,7 @@ import_model = function(path, verbose = FALSE){
   categories = model_list$categories
   dv = model_list$dv$variable
   normalise_by_pool = model_list$normalise_by_pool$variable
-  pool_var = model_list$pool_var
+  pool_var = model_list$pool_var$variable
   id_var = model_list$id_var$variable
   data = model_list$data
   trans_df = model_list$trans_df
