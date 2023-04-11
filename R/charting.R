@@ -139,9 +139,10 @@ decomping = function(model = NULL,
   # if raw_data is found, check for and drop NAs
   if(any(!complete.cases(raw_data))) {
     if (verbose) {
-      message("Warning: NA's found in raw data will be dropped.")
+      message("Warning: NA's found in raw data will be replaced with zeros.")
     }
-    raw_data = raw_data[complete.cases(raw_data),]
+    # raw_data = raw_data[complete.cases(raw_data),]
+    raw_data[raw_data %>% is.na()] = 0
   }
   
   # get the dependent variable from the data object
