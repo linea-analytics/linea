@@ -133,26 +133,54 @@ import_model = function(path, verbose = FALSE){
 #' @param overwrite Boolean to specify whether to overwrite the file in the specified path
 #' @importFrom openxlsx write.xlsx
 #' @export
-export_model = function(model,path = NULL,overwrite = FALSE){
+export_model = function(model,path = NULL,overwrite = FALSE,decomp = TRUE){
   
   if(is.null(path)){
     path = paste0(model$dv,"_",Sys.Date(),".xlsx")
   }
   
-  model_list = list(
-    data = model$raw_data,
-    model_table = model$output_model_table,
-    dv = data.frame(variable = model$dv),
-    categories = model$categories,
-    id_var = data.frame(variable = model$id_var),
-    id_format = data.frame(variable = model$id_format),
-    id_date_format = data.frame(variable = model$id_date_format),
-    normalise_by_pool = data.frame(variable = model$normalise_by_pool),
-    pool_var = data.frame(variable = model$pool_var),
-    pool_switch = data.frame(variable = model$pool_switch),
-    colors = model$colors,
-    trans_df = model$trans_df
-  )
+  if(decomp){
+    # check if model contains decomp
+    if("decomp_list" %in% names(model)){
+      
+      model_list = list(
+        data = model$raw_data,
+        model_table = model$output_model_table,
+        dv = data.frame(variable = model$dv),
+        categories = model$categories,
+        variable_decomposition = model$decomp_list$variable_decomp,
+        category_decomposition = model$decomp_list$category_decomp,
+        fitted_values = model$decomp_list$fitted_values,
+        id_var = data.frame(variable = model$id_var),
+        id_format = data.frame(variable = model$id_format),
+        id_date_format = data.frame(variable = model$id_date_format),
+        normalise_by_pool = data.frame(variable = model$normalise_by_pool),
+        pool_var = data.frame(variable = model$pool_var),
+        pool_switch = data.frame(variable = model$pool_switch),
+        colors = model$colors,
+        trans_df = model$trans_df
+      )
+    }else{
+      message("Warning: `decomp` input set to TRUE but no `decomp_list` found in `model`. 
+              Exporting model without decomposition.")
+      
+      model_list = list(
+        data = model$raw_data,
+        model_table = model$output_model_table,
+        dv = data.frame(variable = model$dv),
+        categories = model$categories,
+        id_var = data.frame(variable = model$id_var),
+        id_format = data.frame(variable = model$id_format),
+        id_date_format = data.frame(variable = model$id_date_format),
+        normalise_by_pool = data.frame(variable = model$normalise_by_pool),
+        pool_var = data.frame(variable = model$pool_var),
+        pool_switch = data.frame(variable = model$pool_switch),
+        colors = model$colors,
+        trans_df = model$trans_df
+      )
+    }
+  }
+  
 
   openxlsx::write.xlsx(model_list, file = path, overwrite = overwrite)
 
