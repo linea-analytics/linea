@@ -1,4 +1,4 @@
-# libs   ####
+# libs   ####devtools::install_github("linea-analytics/linea")
 library(testthat)
 library(linea)
 library(tibble)
