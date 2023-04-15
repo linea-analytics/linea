@@ -553,7 +553,7 @@ run_model = function(data = NULL,
     }
   }
 
-  # if model_table and ivs not provided
+  # if model_table and ivs NOT provided
   if (is.null(model_table) & is.null(ivs)) {
     message(
       "Error: No independent variable, 'ivs' nor 'model_table', provided. Returning NULL."
@@ -594,7 +594,7 @@ run_model = function(data = NULL,
 
 
   # check categories in model_table
-  if (!('category' %in% colnames(model_table))) {
+  if(!'category' %in% colnames(model_table)) {
     model_table$category = ""
   }
 
@@ -648,7 +648,7 @@ run_model = function(data = NULL,
 
   # vif
   vif_df = car::vif(model) %>%
-    TRY()
+    TRY(verbose)
   
   # TODO: change to check number of vars
   # - vif useless with 1 var
@@ -732,7 +732,7 @@ run_model = function(data = NULL,
       de_normalise = normalise_by_pool,
       categories = categories,
       verbose = verbose
-    ) %>% TRY()
+    ) %>% TRY(verbose)
 
     if (is.null(decomp_list)) {
       if (verbose) {
