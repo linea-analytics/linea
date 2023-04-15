@@ -57,6 +57,7 @@ TRY = function(x,verbose = FALSE){
     x,
     error = function(e){
       if(verbose){
+        message("Warning: caught error below...")
         message(e)
       }
       return(NULL)
