@@ -96,8 +96,8 @@ decomping = function(model = NULL,
   
   # check verbose
   if(!is.logical(verbose)){
-    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to False.")
-    verbose = FALSE
+    message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
   }
   
   
@@ -124,10 +124,10 @@ decomping = function(model = NULL,
   
   
   # TODO: function for checking model object to use in all functions
-  if(!("model_table" %in% names(model))){
-    model_table = build_model_table(ivs = ivs,trans_df = model$trans_df) %>% 
-      get_variable_t()
-  }
+  # if(!("model_table" %in% names(model))){
+  #   model_table = build_model_table(ivs = ivs,trans_df = model$trans_df) %>% 
+  #     get_variable_t()
+  # }
   
   # extract dependent variable name
   dv = model$dv
@@ -266,7 +266,7 @@ decomping = function(model = NULL,
     pool_ext = independendent_variables %>% 
       pull(pool)
     independendent_variables = independendent_variables %>% 
-      select(names(coef))
+      select(all_of(names(coef)))
     
     
     if (length(coef) == 1) {
@@ -382,13 +382,13 @@ decomping = function(model = NULL,
       category_decomp = variable_decomp
     }else{
       # create category from model table categories
-      categories = model_table %>%
+      categories = model$model_table %>%
         select(variable,category) %>%
         mutate(category = if_else(category == '','Other',category)) %>%
         mutate(calc = 'none')
     }
   } else if(!is.data.frame(categories)){
-    if(all(model_table$category == "")){
+    if(all(model$model_table$category == "")){
       if(verbose){
         message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
@@ -399,7 +399,7 @@ decomping = function(model = NULL,
         message("Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
-      categories = model_table %>%
+      categories = model$model_table %>%
         select(variable,category) %>%
         mutate(category = if_else(category == '','Other',category)) %>%
         mutate(calc = 'none')
@@ -408,7 +408,7 @@ decomping = function(model = NULL,
     if(verbose){
       message("Warning: categories provided must contain atleast columns 'variable' and 'category'.")
     }
-    if(all(model_table$category == "")){
+    if(all(model$model_table$category == "")){
       if(verbose){
         message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
@@ -419,7 +419,7 @@ decomping = function(model = NULL,
         message("Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
-      categories = model_table %>%
+      categories = model$model_table %>%
         select(variable,category) %>%
         mutate(category = if_else(category == '','Other',category)) %>%
         mutate(calc = 'none')
@@ -1568,7 +1568,7 @@ response_curves = function(
     ]
   }
   output_model_table = output_model_table %>% filter(variable != "(Intercept)") %>% 
-    select(c("variable", "variable_t", trans_df$name, "coef")) %>%
+    select(all_of(c("variable", "variable_t", trans_df$name, "coef"))) %>%
     na.omit()
   
   if (nrow(output_model_table) == 0) {
