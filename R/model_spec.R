@@ -112,10 +112,76 @@ build_model_table = function(ivs,trans_df = NULL,ts = TRUE){
   colnames(model_table) = cols
   model_table$variable = ivs
   model_table$fixed = ''
+  model_table$category = ''
 
   return(model_table)
 
 }
+
+#' check_model_table
+#'
+#' Check `model_table`
+#'
+#' Check the columns of a `model_table` and generate any missing ones where possible.
+#'
+#' @export
+#' @import tibble
+#' @import dplyr
+#' @param model_table \code{tibble}/ \code{data.frame} as created in the \code{build_model_table} function
+#' @param trans_df \code{data.frame} defining the non-linear transformations to apply
+#' @param verbose A boolean to specify whether to print warnings
+#' @return \code{tibble} of model table
+check_model_table = function(model_table,verbose = FALSE,trans_df = NULL){
+  
+  if(!is.logical()){
+    message("Warning: `verbose` must be logical. Seeting to TRUE.")
+    verbose = TRUE
+  }
+  
+  if(!is.data.frame(model_table)){
+    message("Error: `mdoel_table` must be a dataframe. returning NULL.")
+    return(NULL)
+  }
+  
+  if(is.null(trans_df)){
+    if(verbose){
+      message("Warning: no trans_df provided. Setting to `default_trans_df`.")
+      trans_df = default_trans_df()
+    }
+  }
+  
+  # ALTER FOR BAYESIAN
+  columns = c(trans_df$name,"fixed","category","variable","variable_t")
+  
+  if(!all(columns %in% colnames(model_table))){
+    
+    missing_cols = columns[!columns %in% colnames(model_table)]
+    if(verbose)message("Warning: column(s) missing from `model_table`:",paste0(missing_cols,collapse = ", "))
+    
+    if(!"variable" %in% colnames(model_table)){
+      message("Error: `variable` column must be present in `model_table`. Returning NULL.")
+      return(NULL)
+    }
+    
+    for(col in c("fixed","category",trans_df$name)){
+      if(!col %in% colnames(model_table)){
+        if(verbose)message("- Adding blank `",col,"` column to `model_table`.")
+        model_table[col] = ""
+      }
+    }
+    
+    if(!"variable_t" %in% colnames(model_table)){
+      if(verbose)message("- Generating `variable_t`.")
+      model_table = model_table %>% 
+        get_variable_t(trans_df = trans_df)
+    }
+    
+  }
+  
+  return(model_table)
+  
+}
+
 
 #' get_variable_t
 #'
