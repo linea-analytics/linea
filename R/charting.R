@@ -100,17 +100,19 @@ decomping = function(model = NULL,
     verbose = TRUE
   }
   
+  if(verbose)message("Generating model decomposition")
+  
   
   # check if model is provided
   if(is.null(model)){
     if(verbose){
-      message("Error: No model provided. Returning NULL.")
+      message("- Error: No model provided. Returning NULL.")
     }
     return(NULL)
   }
   if(!is(model,'lm')){
     if(verbose){
-      message("Error: model must be of type 'lm'. Returning NULL.")
+      message("- Error: model must be of type 'lm'. Returning NULL.")
     }
     return(NULL)
   }
@@ -139,7 +141,7 @@ decomping = function(model = NULL,
   # if raw_data is found, check for and drop NAs
   if(any(!complete.cases(raw_data))) {
     if (verbose) {
-      message("Warning: NA's found in raw data will be replaced with zeros.")
+      message("- Warning: NA's found in raw data will be replaced with zeros.")
     }
     # raw_data = raw_data[complete.cases(raw_data),]
     raw_data[raw_data %>% is.na()] = 0
@@ -151,7 +153,7 @@ decomping = function(model = NULL,
   
   if(!is.logical(de_normalise)){
     if(verbose){
-      message("Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
+      message("- Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
     }
     de_normalise = FALSE
   }
@@ -298,7 +300,7 @@ decomping = function(model = NULL,
     # check raw_data & tail_window
     if(!is.null(tail_window) & is.null(raw_data)){
       
-      if(verbose)message('Warning: No raw_data supplied for tail_window. Ignoring tail window.')
+      if(verbose)message('- Warning: No raw_data supplied for tail_window. Ignoring tail window.')
       
     }
     
@@ -377,7 +379,7 @@ decomping = function(model = NULL,
   if (is.null(categories)) {
     if(all(model$model_table$category == "")){
       if(verbose){
-        message("Warning: No categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.")
+        message("- Warning: No categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
@@ -390,13 +392,13 @@ decomping = function(model = NULL,
   } else if(!is.data.frame(categories)){
     if(all(model$model_table$category == "")){
       if(verbose){
-        message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
+        message("- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
       
       if(verbose){
-        message("Warning: categories provided must be of type data.frame. Using model_table categories.")
+        message("- Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
       categories = model$model_table %>%
@@ -406,17 +408,17 @@ decomping = function(model = NULL,
     }
   }else if(!(all(c('variable','category') %in% colnames(categories)))){
     if(verbose){
-      message("Warning: categories provided must contain atleast columns 'variable' and 'category'.")
+      message("- Warning: categories provided must contain atleast columns 'variable' and 'category'.")
     }
     if(all(model$model_table$category == "")){
       if(verbose){
-        message("Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
+        message("- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
       }
       category_decomp = variable_decomp
     }else{
       
       if(verbose){
-        message("Warning: categories provided must be of type data.frame. Using model_table categories.")
+        message("- Warning: categories provided must be of type data.frame. Using model_table categories.")
       }
       # create category from model table categories
       categories = model$model_table %>%
@@ -430,7 +432,7 @@ decomping = function(model = NULL,
     
     if(!('calc' %in% colnames(categories))){
       if(verbose){
-        message("Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'.")
+        message("- Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'.")
       }
       categories$calc = 'none'
     }
