@@ -5,7 +5,7 @@
 #' Check the model file contains all the needed sheets.
 #'
 #' @param model_file File path to the model file as string
-#' @param verbose Boolean to specify whether to return the checked file
+#' @param verbose A boolean to specify whether to print warnings
 #' @param return_list Boolean to specify whether to print warnings
 #' @import readxl
 #' @return Messages and the checked file
@@ -79,7 +79,7 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
 #' Import and run the excel model file using \code{check_model_file} and \code{run_model} functions
 #'
 #' @param path File path to the model file as string
-#' @param verbose Boolean to specify whether to return the checked file
+#' @param verbose A boolean to specify whether to print warnings
 #' @import dplyr
 #' @import zoo
 #' @return model object
@@ -96,6 +96,7 @@ import_model = function(path, verbose = FALSE){
     zoo::na.fill('') %>%
     as.data.frame() %>% 
     select(-coef,-t_stat,-vif,-p_value,-se)
+  
   categories = model_list$categories
   dv = model_list$dv$variable
   normalise_by_pool = model_list$normalise_by_pool$variable
@@ -131,57 +132,84 @@ import_model = function(path, verbose = FALSE){
 #' @param model Model object
 #' @param path File path to the model file as string
 #' @param overwrite Boolean to specify whether to overwrite the file in the specified path
+#' @param verbose A boolean to specify whether to print warnings
 #' @importFrom openxlsx write.xlsx
 #' @export
-export_model = function(model,path = NULL,overwrite = FALSE,decomp = TRUE){
+export_model = function(model,path = NULL,overwrite = FALSE, verbose=TRUE){
+  
+  if(!is.logical(verbose)){
+    message("Warning: `verbose` must be logical. Seeting to TRUE.")
+    verbose = TRUE
+  }
+  
+  if(verbose)message("Exporting model to file")
+  
+  # model class lm?
   
   if(is.null(path)){
     path = paste0(model$dv,"_",Sys.Date(),".xlsx")
+    if(verbose)message("- No path provided. Setting to '",path,"'.")
   }
   
-  if(decomp){
-    # check if model contains decomp
-    if("decomp_list" %in% names(model)){
-      
-      model_list = list(
-        data = model$raw_data,
-        model_table = model$output_model_table,
-        dv = data.frame(variable = model$dv),
-        categories = model$categories,
-        variable_decomposition = model$decomp_list$variable_decomp,
-        category_decomposition = model$decomp_list$category_decomp,
-        fitted_values = model$decomp_list$fitted_values,
-        id_var = data.frame(variable = model$id_var),
-        id_format = data.frame(variable = model$id_format),
-        id_date_format = data.frame(variable = model$id_date_format),
-        normalise_by_pool = data.frame(variable = model$normalise_by_pool),
-        pool_var = data.frame(variable = model$pool_var),
-        pool_switch = data.frame(variable = model$pool_switch),
-        colors = model$colors,
-        trans_df = model$trans_df
-      )
-    }else{
-      message("Warning: `decomp` input set to TRUE but no `decomp_list` found in `model`. 
-              Exporting model without decomposition.")
-      
-      model_list = list(
-        data = model$raw_data,
-        model_table = model$output_model_table,
-        dv = data.frame(variable = model$dv),
-        categories = model$categories,
-        id_var = data.frame(variable = model$id_var),
-        id_format = data.frame(variable = model$id_format),
-        id_date_format = data.frame(variable = model$id_date_format),
-        normalise_by_pool = data.frame(variable = model$normalise_by_pool),
-        pool_var = data.frame(variable = model$pool_var),
-        pool_switch = data.frame(variable = model$pool_switch),
-        colors = model$colors,
-        trans_df = model$trans_df
-      )
-    }
+  if(!is.logical(overwrite)){
+    message("- Warning: `overwrite` must be logical. Seeting to FALSE")
+    overwrite = FALSE
   }
   
+  
+  # initiate model_list with default fields 
+  
+  model_list = list(
+    data = model$raw_data,
+    model_table = model$output_model_table,
+    dv = data.frame(variable = model$dv),
+    categories = model$categories,
+    id_var = data.frame(variable = model$id_var),
+    id_format = data.frame(variable = model$id_format),
+    id_date_format = data.frame(variable = model$id_date_format),
+    normalise_by_pool = data.frame(variable = model$normalise_by_pool),
+    pool_var = data.frame(variable = model$pool_var),
+    pool_switch = data.frame(variable = model$pool_switch),
+    colors = model$colors,
+    trans_df = model$trans_df
+  )
+  
+  
+  # check for additional model fields
+    
+  if("decomp_list" %in% names(model)){
+    model_list$variable_decomposition = model$decomp_list$variable_decomp
+    model_list$category_decomposition = model$decomp_list$category_decomp
+    model_list$fitted_values = model$decomp_list$fitted_values
+  }
+  
+  if("econ_country" %in% names(model)){
+    model_list$econ_country = model$econ_country
+  }
 
+  if("theme" %in% names(model)){
+    model_list$theme = model$theme
+  }
+  if("dark_mode" %in% names(model)){
+    model_list$dark_mode = model$dark_mode
+  }
+  if("chart_colors" %in% names(model)){
+    model_list$chart_colors = model$chart_colors
+  }
+  
+  # move to LINEAPLUS?
+  if("optim" %in% names(model)){
+    model_list$plan = model$optim$plan
+    model_list$optim_vars_table = model$optim$vars_table
+    model_list$optim_trans_df = model$optim$trans_df
+    model_list$optim_total = model$optim$total
+    model_list$optim_lb = model$optim$lb
+    model_list$optim_ub = model$optim$ub
+    model_list$optim_plan = model$optim$plan
+    model_list$optim_maxexal = model$optim$maxexal
+    model_list$optim_x_tol = model$optim$x_tol
+  }
+  
   openxlsx::write.xlsx(model_list, file = path, overwrite = overwrite)
 
 }
