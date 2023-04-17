@@ -133,7 +133,7 @@ build_model_table = function(ivs,trans_df = NULL,ts = TRUE){
 #' @return \code{tibble} of model table
 check_model_table = function(model_table,verbose = FALSE,trans_df = NULL){
   
-  if(!is.logical()){
+  if(!is.logical(verbose)){
     message("Warning: `verbose` must be logical. Seeting to TRUE.")
     verbose = TRUE
   }
