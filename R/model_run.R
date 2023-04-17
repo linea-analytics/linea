@@ -672,6 +672,10 @@ run_model = function(data = NULL,
   model$normalise_by_pool = normalise_by_pool
   model$pool_switch = pool_switch
   
+  if(!is.null(categories)){
+    model$categories = categories
+  }
+  
   output_model_table = model_table %>%
     filter(variable != "") %>%
     right_join(
