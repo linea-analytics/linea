@@ -135,7 +135,11 @@ import_model = function(path, verbose = FALSE){
 #' @param verbose A boolean to specify whether to print warnings
 #' @importFrom openxlsx write.xlsx
 #' @export
-export_model = function(model,path = NULL,overwrite = FALSE, verbose=TRUE){
+export_model = function(
+    model,
+    path = NULL,
+    overwrite = FALSE,
+    verbose=TRUE){
   
   if(!is.logical(verbose)){
     message("Warning: `verbose` must be logical. Seeting to TRUE.")
@@ -184,17 +188,14 @@ export_model = function(model,path = NULL,overwrite = FALSE, verbose=TRUE){
   }
   
   if("econ_country" %in% names(model)){
-    model_list$econ_country = model$econ_country
+    model_list$econ_country = data.frame(variable = model$econ_country)
   }
 
   if("theme" %in% names(model)){
     model_list$theme = model$theme
   }
   if("dark_mode" %in% names(model)){
-    model_list$dark_mode = model$dark_mode
-  }
-  if("chart_colors" %in% names(model)){
-    model_list$chart_colors = model$chart_colors
+    model_list$dark_mode = data.frame(variable = model$dark_mode)
   }
   
   # move to LINEAPLUS?
