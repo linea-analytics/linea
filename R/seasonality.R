@@ -326,6 +326,7 @@ get_seasonality = function(data,
       summarise_all(first)
     
     df = df %>%
+      select(-week_num,-month,-year) %>% 
       group_by(week) %>%
       summarise_all(mean) %>% 
       left_join(df_cat, by="week")
