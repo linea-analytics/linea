@@ -244,30 +244,41 @@ get_seasonality = function(data,
   
   # build dataframe of weeks 1 to 52
   week_df = tibble(day = date_values) %>%
-    mutate(week = strftime(day, format = "%V")) %>%
-    to_dummy(week) %>%
-    mutate(day = date_values) %>%
-    data.frame() %>%
-    tibble() %>%
-    relocate(day)
+    mutate(week_num = strftime(day, format = "%V"))
+  
+  week_df = week_df %>%
+    left_join(by="day",
+              week_df %>%
+                sjmisc::to_dummy(week_num) %>%
+                mutate(day = date_values) %>%
+                data.frame() %>%
+                tibble()) %>% 
+    mutate(week_num = paste0("w ",week_num))
   
   # build dataframe of months 1 to 12
   month_df = tibble(day = date_values) %>%
-    mutate(month = strftime(day, format = "%b")) %>%
-    to_dummy(month,suffix = "label") %>%
-    mutate(day = date_values) %>%
-    data.frame() %>%
-    tibble() %>%
-    relocate(day)
+    mutate(month = strftime(day, format = "%b")) 
+  
+  month_df = month_df %>%
+    left_join(by="day",
+              month_df %>% 
+                sjmisc::to_dummy(month,suffix = "label") %>%
+                mutate(day = date_values) %>%
+                data.frame() %>%
+                tibble())
   
   # build dataframe of years in data
   year_df = tibble(day = date_values) %>%
-    mutate(year = strftime(day, format = "%Y")) %>%
-    to_dummy(year,suffix = "label") %>%
-    mutate(day = date_values) %>%
-    data.frame() %>%
-    tibble() %>%
-    relocate(day)
+    mutate(year = strftime(day, format = "%Y"))
+  
+  year_df = year_df %>%
+    left_join(by="day",
+              year_df %>% 
+                sjmisc::to_dummy(year,suffix = "label") %>%
+                mutate(day = date_values) %>%
+                data.frame() %>%
+                tibble()) %>% 
+    mutate(year = paste0("y",year))
   
   # build dataframe of events e.g. xmas
   events_df = tibble(day = date_values) %>%
@@ -306,9 +317,18 @@ get_seasonality = function(data,
       left_join(events_df, by = "day")
     
     
+    df_cat = df %>% 
+      select(where(is.character))%>%
+      mutate(week = week_dates)
+    
+    df_cat = df_cat %>% 
+      group_by(week) %>%
+      summarise_all(first)
+    
     df = df %>%
       group_by(week) %>%
-      summarise_all(mean)
+      summarise_all(mean) %>% 
+      left_join(df_cat, by="week")
     
     df$day = NULL
     
@@ -366,6 +386,7 @@ get_seasonality = function(data,
   if(!keep_dup){
     df[,dup_columns] = NULL
   }
+  
   
   data = data %>%
     left_join(df,
