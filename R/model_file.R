@@ -203,12 +203,16 @@ export_model = function(
     model_list$plan = model$optim$plan
     model_list$optim_vars_table = model$optim$vars_table
     model_list$optim_trans_df = model$optim$trans_df
-    model_list$optim_total = model$optim$total
-    model_list$optim_lb = model$optim$lb
-    model_list$optim_ub = model$optim$ub
-    model_list$optim_plan = model$optim$optim_plan
-    model_list$optim_maxexal = model$optim$maxexal
-    model_list$optim_x_tol = model$optim$x_tol
+    
+    if(!is.null(model$optim$total)){
+      model_list$optim_total = data.frame(variable = model$optim$total)  
+    }
+    
+    model_list$optim_lb = data.frame(variable = model$optim$lb)
+    model_list$optim_ub = data.frame(variable = model$optim$ub)
+    # model_list$optim_plan = model$optim$optim_plan
+    model_list$optim_maxexal = data.frame(variable = model$optim$maxexal)
+    model_list$optim_x_tol = data.frame(variable = model$optim$x_tol)
   }
   
   openxlsx::write.xlsx(model_list, file = path, overwrite = overwrite)
