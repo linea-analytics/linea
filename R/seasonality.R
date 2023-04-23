@@ -159,6 +159,7 @@ get_seasonality = function(data,
                            date_format = '%d/%m/%Y',
                            verbose = FALSE,
                            keep_dup = FALSE,
+                           append = TRUE,
                            pool_var = NULL){
   # test    ####
   
@@ -393,6 +394,16 @@ get_seasonality = function(data,
     left_join(df,
               by = date_col_name,
               suffix = c("", ".x"))
+  
+  if(!append){
+    
+    data_cols = data_cols[data_cols != date_col_name & data_cols != "trend"]
+    
+    data = data %>% 
+      select(-all_of(data_cols))
+    
+    print(colnames(data))
+  }
   
   return(data)
 }
