@@ -198,23 +198,6 @@ export_model = function(
     model_list$dark_mode = data.frame(variable = model$dark_mode)
   }
   
-  # move to LINEAPLUS?
-  if("optim" %in% names(model)){
-    model_list$plan = model$optim$plan
-    model_list$optim_vars_table = model$optim$vars_table
-    model_list$optim_trans_df = model$optim$trans_df
-    
-    if(!is.null(model$optim$total)){
-      model_list$optim_total = data.frame(variable = model$optim$total)  
-    }
-    
-    model_list$optim_lb = data.frame(variable = model$optim$lb)
-    model_list$optim_ub = data.frame(variable = model$optim$ub)
-    # model_list$optim_plan = model$optim$optim_plan
-    model_list$optim_maxexal = data.frame(variable = model$optim$maxexal)
-    model_list$optim_x_tol = data.frame(variable = model$optim$x_tol)
-  }
-  
   openxlsx::write.xlsx(model_list, file = path, overwrite = overwrite)
 
 }
