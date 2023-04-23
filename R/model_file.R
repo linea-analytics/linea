@@ -13,17 +13,17 @@
 check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
   # checks   ####
   if (!is.logical(verbose)) {
-    print("verbose must be logical (TRUE or FALSE). Setting to False.")
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   if (!is.character(model_file)) {
     if (verbose)
-      print('model_file must be a character string file path. Returning NULL.')
+      message('- Warning: model_file must be a character string file path. Returning NULL.')
     return(NULL)
   }
   if (!any(endsWith(model_file, suffix = c(".xlsx", ".xls")))) {
     if (verbose)
-      print("model_file must point to an Excel file (i.e. .xlsx or .xls). Returning NULL.")
+      message("- Warning: model_file must point to an Excel file (i.e. .xlsx or .xls). Returning NULL.")
     return(NULL)
   }
 
@@ -48,14 +48,14 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
 
   sheet_check =  needed_sheets %in% sheet_names
   if (!all(sheet_check)) {
-    message("These sheets were not found in model_file:- ")
-    message(paste0(needed_sheets[!sheet_check], collapse = "- "))
+    message("- Warning: These sheets were not found in model_file: ")
+    message(paste0(needed_sheets[!sheet_check], collapse = ", "))
     message("Returning NULL.")
     return(NULL)
   }
 
   if(verbose){
-    message('Info: check_model_file passed.')
+    message('- Info: check_model_file passed.')
   }
 
   if (return_list) {

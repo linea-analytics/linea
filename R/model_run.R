@@ -464,20 +464,24 @@ run_model = function(data = NULL,
     message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
+  
+  if(verbose){
+    message("Running model...")
+  }
 
   # check data is not provided
   if (is.null(data)) {
-    message("Error: No data provided for transformations. Returning NULL.")
+    message("- Error: No data provided for transformations. Returning NULL.")
     return(NULL)
   }
   if (!is.data.frame(data)) {
-    message("Error: data provided must be a data.frame. Returning NULL.")
+    message("- Error: data provided must be a data.frame. Returning NULL.")
     return(NULL)
   }
 
   # check dv is not provided
   if (is.null(dv)) {
-    message("Error: No dependent variable ('dv') provided. Returning NULL.")
+    message("- Error: No dependent variable ('dv') provided. Returning NULL.")
     return(NULL)
   }
 
@@ -485,7 +489,7 @@ run_model = function(data = NULL,
   if(is.null(pool_var)){
 
     if(verbose){
-      message("Warning: No pool_var provided. A new `total_pool` variable will be generated.")
+      message("- Warning: No pool_var provided. A new `total_pool` variable will be generated.")
     }
 
     pool_var = 'total_pool'
@@ -494,7 +498,7 @@ run_model = function(data = NULL,
 
   }else{
     if(!(pool_var %in% colnames(data))){
-      message("Warning: pool variable not found in data. A new `total_pool` variable will be generated.")
+      message("- Warning: pool variable not found in data. A new `total_pool` variable will be generated.")
       pool_var = 'total_pool'
       data[pool_var] = pool_var
       pool_switch = FALSE
@@ -507,7 +511,7 @@ run_model = function(data = NULL,
   # check id_var
   if(is.null(id_var)){
     if(verbose){
-      message('Warning: No id_var supplied. Generating a new `id_var` in data')
+      message('- Warning: No id_var supplied. Generating a new `id_var` in data')
     }
 
     id_var = 'id'
@@ -518,7 +522,7 @@ run_model = function(data = NULL,
       ungroup()
   } else if(!(id_var %in% colnames(data))){
     if(verbose){
-      message('Warning: id_var provided not found in data. Generating a new `id_var` in data')
+      message('- Warning: id_var provided not found in data. Generating a new `id_var` in data')
     }
 
     id_var = 'id'
@@ -532,7 +536,7 @@ run_model = function(data = NULL,
   # check trans_df
   if (is.null(trans_df)) {
     if (verbose) {
-      message("Warning: No trans_df provided. Setting default trans_df.")
+      message("- Warning: No trans_df provided. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   } else{
@@ -541,13 +545,12 @@ run_model = function(data = NULL,
       trans_df = check_trans_df(trans_df)
 
         if (verbose) {
-          message("Warning: missing colums were added to trans_df.")
-          print(trans_df)
+          message("- Warning: missing colums were added to trans_df.")
         }
     } else{
       if (verbose) {
         message(
-          'Warning: trans_df must to of type data.frame. Setting to default trans_df (i.e. default_trans_df()).'
+          '- Warning: trans_df must to of type data.frame. Setting to default trans_df (i.e. default_trans_df()).'
         )
       }
     }
@@ -556,7 +559,7 @@ run_model = function(data = NULL,
   # if model_table and ivs NOT provided
   if (is.null(model_table) & is.null(ivs)) {
     message(
-      "Error: No independent variable, 'ivs' nor 'model_table', provided. Returning NULL."
+      "- Error: No independent variable, 'ivs' nor 'model_table', provided. Returning NULL."
     )
     return(NULL)
   }
@@ -564,14 +567,14 @@ run_model = function(data = NULL,
   if (!is.null(model_table)) {
     if (!is.null(ivs)) {
       if (verbose)
-        message("Info: will use variables from model_table and disregard 'ivs' argument.")
+        message("- Info: will use variables from model_table and disregard 'ivs' argument.")
     }
     if (!is.data.frame(model_table)) {
       if (is.null(ivs)) {
-        message("Error: No 'ivs' nor 'model_table' provided. Returning NULL.")
+        message("- Error: No 'ivs' nor 'model_table' provided. Returning NULL.")
         return(NULL)
       } else{
-        message("Warning: 'model_table' must be a data.frame. Using 'ivs' argument instead.")
+        message("- Warning: 'model_table' must be a data.frame. Using 'ivs' argument instead.")
       }
     } else{
       # use model table variables as ivs
@@ -740,7 +743,7 @@ run_model = function(data = NULL,
 
     if (is.null(decomp_list)) {
       if (verbose) {
-        message('Warning: decomposition failed. decomp_list will be NULL.')
+        message('- Warning: decomposition failed. decomp_list will be NULL.')
       }
     } else{
       model$decomp_list = decomp_list
