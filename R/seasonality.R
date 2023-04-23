@@ -94,13 +94,22 @@ check_ts = function(data,
                     allow_non_num = TRUE,
                     verbose = FALSE){
 
+  if(!is.logical(verbose)){
+    message("verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
+  }
+  
+  if(verbose){
+    message("Checking time-series")
+  }
+  
   ## contains date column
   if(!is.character(date_col)){
-    if(verbose)print("Error: date_col must be of type character.")
+    if(verbose)message("- Error: date_col must be of type character.")
     return(NULL)
   }
   if(!(date_col %in% colnames(data))){
-    if(verbose)print("Error: date_col not found in data.")
+    if(verbose)message("- Error: date_col not found in data.")
     return(NULL)
   }
 
@@ -113,7 +122,7 @@ check_ts = function(data,
       as.Date()
   }
   if(date_type != "Date"){
-    if(verbose)print("Error: date_col provided is not of type date.")
+    if(verbose)message("- Error: date_col provided is not of type date.")
     return(NULL)
   }
 
@@ -122,7 +131,7 @@ check_ts = function(data,
     other_types = sapply(data,function(x)is.numeric(x)|is.POSIXct(x))
 
     if(!all(other_types)){
-      if(verbose)print("Warning: Non-numeric or non-date variables have been dropped.")
+      if(verbose)message("- Warning: Non-numeric or non-date variables have been dropped.")
       return(data[,other_types])
     }
   }
@@ -175,29 +184,34 @@ get_seasonality = function(data,
   # checks  ####
   # check verbose
   if(!is.logical(verbose)){
-    message("verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = FALSE
+    message("verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
   }
+  
+  if(verbose){
+    message("Generating seasonality variables")
+  }
+  
   # check data provided is a data.frame
   if(!is.data.frame(data)){
-    message('data must be a dataframe. Returning NULL.')
+    message('- Error: data must be a dataframe. Returning NULL.')
     return(NULL)
   }
   # check data provided contains date_col
   if(!(date_col_name %in% colnames(data))){
-    message('data must contain date_col_name. Returning NULL.')
+    message('- Error: data must contain date_col_name. Returning NULL.')
     return(NULL)
   }
   # check pool
   if(!is.null(pool_var)){
     if(!(pool_var %in% colnames(data))){
-      if(verbose)message('data must contain pool_var. Setting pool_var to NULL.')
+      if(verbose)message('- Warning: data must contain pool_var. Setting pool_var to NULL.')
       pool_var = NULL
     }
   }
   # check date_type
   if(!(date_type %in% c('weekly starting', "weekly ending", "daily"))){
-    if(verbose)message('date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
+    if(verbose)message('- Warning: date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
     date_type = "weekly starting"
   }
   
@@ -206,7 +220,7 @@ get_seasonality = function(data,
   if(!lubridate::is.Date(date_col)){
     date_col = as.Date(x = date_col,format = date_format)
     if(any(is.na(date_col))){
-      message("Error: could not convert date column to date type. 
+      message("- Error: could not convert date column to date type. 
             Check the `data` and `date_format` provided. Returning NULL.")
       return(NULL)
     }
@@ -402,7 +416,6 @@ get_seasonality = function(data,
     data = data %>% 
       select(-all_of(data_cols))
     
-    print(colnames(data))
   }
   
   return(data)
