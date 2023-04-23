@@ -6,20 +6,20 @@
 \usage{
 get_economy(
   data,
-  pool_var = NULL,
   country_code = NULL,
   date_col_name = NULL,
+  append = TRUE,
   verbose = TRUE
 )
 }
 \arguments{
 \item{data}{\code{data.frame} containing data for analysis}
 
-\item{pool_var}{The pool (group) column name as a string (e.g. 'country')}
-
 \item{country_code}{A string indicating which county's economy data to retrieve.}
 
 \item{date_col_name}{The date column name as a string}
+
+\item{append}{A boolean to specify whether to return only the economy variables or the original input data plus the economy variables}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }
@@ -32,10 +32,9 @@ Generate economy variables
 \details{
 Generate economy variables from a \code{data.frame} containing a date-type variable.
 The function will collect data from the world bank based on the country_code input.
-If the country_code isn't provided, the pool variable will be used, if it contains usable country codes and/or names.
-Appropriate country codes and/or names can be viewed using the tibble \code{linea::countries}.
+Appropriate country codes can be viewed using the tibble \code{linea::countries$iso2c}.
 }
 \examples{
 linea::sales_ts \%>\%
-   get_economy(date_col_name = 'week',country_code = 'US')
+   get_economy(date_col_name = 'week',country_code = 'US',append=FALSE)
 }

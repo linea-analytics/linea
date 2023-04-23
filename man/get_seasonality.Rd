@@ -11,6 +11,7 @@ get_seasonality(
   date_format = "\%d/\%m/\%Y",
   verbose = FALSE,
   keep_dup = FALSE,
+  append = TRUE,
   pool_var = NULL
 )
 }

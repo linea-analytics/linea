@@ -4,7 +4,7 @@
 \alias{export_model}
 \title{export_model}
 \usage{
-export_model(model, path = NULL, overwrite = FALSE)
+export_model(model, path = NULL, overwrite = FALSE, verbose = TRUE)
 }
 \arguments{
 \item{model}{Model object}
@@ -12,6 +12,8 @@ export_model(model, path = NULL, overwrite = FALSE)
 \item{path}{File path to the model file as string}
 
 \item{overwrite}{Boolean to specify whether to overwrite the file in the specified path}
+
+\item{verbose}{A boolean to specify whether to print warnings}
 }
 \description{
 Export model to excel file

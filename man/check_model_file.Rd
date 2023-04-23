@@ -9,7 +9,7 @@ check_model_file(model_file, verbose = FALSE, return_list = TRUE)
 \arguments{
 \item{model_file}{File path to the model file as string}
 
-\item{verbose}{Boolean to specify whether to return the checked file}
+\item{verbose}{A boolean to specify whether to print warnings}
 
 \item{return_list}{Boolean to specify whether to print warnings}
 }
