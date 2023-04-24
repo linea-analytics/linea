@@ -62,12 +62,18 @@ apply_normalisation = function(raw_data = NULL,
   }
 
   # check for NAs
-  if(any(complete.cases(raw_data))) {
-    if(verbose){
-      message("Warning: NA's found in raw_data will be dropped.")
+  if(any(!complete.cases(raw_data))) {
+    if (verbose) {
+      message("- Warning: NA's found in raw data will be replaced with zeros.")
     }
-    raw_data = raw_data[complete.cases(raw_data), ]
+    raw_data[raw_data %>% is.na()] = 0
   }
+  # if(any(complete.cases(raw_data))) {
+  #   if(verbose){
+  #     message("Warning: NA's found in raw_data will be dropped.")
+  #   }
+  #   raw_data = raw_data[complete.cases(raw_data), ]
+  # }
 
   # process ####
   pool_mean = raw_data %>%
@@ -128,17 +134,21 @@ apply_transformation = function(raw_data = NULL,
     message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to FALSE.")
     verbose = FALSE
   }
+  
+  if(verbose){
+    message("Applying transformations...")
+  }
 
   # check model table provided (not NULL)
   if(is.null(raw_data)){
     if(verbose){
-      message("Error: No data provided for transformations. Returning NULL.")
+      message("- Error: No data provided for transformations. Returning NULL.")
     }
     return(NULL)
   }
   if(!is.data.frame(raw_data)){
     if(verbose){
-      message("Error: raw_data provided must be a data.frame. Returning NULL.")
+      message("- Error: raw_data provided must be a data.frame. Returning NULL.")
     }
     return(NULL)
   }
@@ -146,20 +156,20 @@ apply_transformation = function(raw_data = NULL,
   # check model_table provided (not NULL)
   if(is.null(model_table)){
     if(verbose){
-      message("Warning: No model_table provided for transformations. Returning raw_data.")
+      message("- Warning: No model_table provided for transformations. Returning raw_data.")
     }
     return(raw_data)
   }
   if(!is.data.frame(model_table)){
     if(verbose){
-      message("Warning: model_table provided must be a data.frame. Returning raw_data.")
+      message("- Warning: model_table provided must be a data.frame. Returning raw_data.")
     }
     return(raw_data)
   }
   else{
     if(!("variable" %in% colnames(model_table))){
       if(verbose){
-        message("Warning: model_table provided must contain a column called 'variable'. Returning raw_data.")
+        message("- Warning: model_table provided must contain a column called 'variable'. Returning raw_data.")
       }
       return(raw_data)
     }
@@ -168,13 +178,13 @@ apply_transformation = function(raw_data = NULL,
   # check trans_df
   if(is.null(trans_df)){
     if(verbose){
-      message("Warning: No trans_df provided. Setting default trans_df.")
+      message("= Info: No trans_df provided. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   }
   if(!is.data.frame(trans_df)){
     if(verbose){
-      message("Warning: trans_df provided must be a data.frame. Setting default trans_df.")
+      message("- Warning: trans_df provided must be a data.frame. Setting default trans_df.")
     }
     trans_df = default_trans_df()
   }
@@ -183,14 +193,14 @@ apply_transformation = function(raw_data = NULL,
   if(is.null(pool_var)){
 
     if (verbose) {
-      message("Warning: No pool_var provided. A new `total_pool` variable will be generated.")
+      message("- Info: No pool_var provided. A new `total_pool` variable will be generated.")
     }
     pool_var = 'total_pool'
     raw_data[pool_var] = pool_var
 
   }
   if(!(pool_var %in% colnames(raw_data))){
-    message("Warning: pool variable not found in raw_data. A new `total_pool` variable will be generated.")
+    message("- Info: pool variable not found in raw_data. A new `total_pool` variable will be generated.")
     pool_var = 'total_pool'
     raw_data[pool_var] = pool_var
   }
