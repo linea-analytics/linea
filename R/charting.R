@@ -138,7 +138,7 @@ decomping = function(model = NULL,
   data = model$model
   raw_data = model$raw_data
 
-  # if raw_data is found, check for and drop NAs
+  # check raw_data for and drop NAs
   if(any(!complete.cases(raw_data))) {
     if (verbose) {
       message("- Warning: NA's found in raw data will be replaced with zeros.")
@@ -885,12 +885,16 @@ fit_chart = function(model = NULL,
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
+  
+  if(verbose){
+    message("Fit chart...")
+  }
 
 
   # Check decomp_list , model
   if(is.null(model)){
     if(is.null(decomp_list)){
-      message("Error: No decomp_list provided. Returning NULL.")
+      message("- Error: No decomp_list nor model provided. Returning NULL.")
       return(NULL)
     }
   }else{
@@ -905,7 +909,7 @@ fit_chart = function(model = NULL,
   # filter by pool if provided
   if (!is.null(pool)) {
     if(!any(fitted_values$pool == pool)){
-      message("Warning: POOL ",pool," not found. No POOL filtering applied.")
+      message("- Warning: POOL ",pool," not found. No POOL filtering applied.")
     }
     else{
       fitted_values = fitted_values[fitted_values$pool == pool, ]
@@ -914,7 +918,7 @@ fit_chart = function(model = NULL,
 
   if(is.null(pool)){
     if(verbose){
-      message("Warning: No pool provided. Aggregating by id_var.")
+      message("- Warning: No pool provided. Aggregating by id_var.")
     }
     fitted_values = fitted_values %>%
       group_by(variable,!!sym(id_var)) %>%
@@ -925,6 +929,7 @@ fit_chart = function(model = NULL,
   }
 
   # plot    ####
+  
 
   plot_ly(fitted_values) %>%
     add_lines(
