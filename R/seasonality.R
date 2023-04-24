@@ -180,6 +180,14 @@ get_seasonality = function(data,
   # keep_dup = FALSE
   # pool_var = NULL
   
+  # data = linea::pooled_gt_data
+  # date_col_name = 'Week'
+  # date_type = 'weekly starting'
+  # date_format = '%d/%m/%Y'
+  # verbose = TRUE
+  # keep_dup = FALSE
+  # pool_var = "country"
+  
   
   # checks  ####
   # check verbose
@@ -383,7 +391,8 @@ get_seasonality = function(data,
       mutate(number = 1) %>%
       group_by(!!sym(pool_var)) %>%
       mutate(trend = cumsum(number)) %>%
-      select(-number)
+      select(-number) %>% 
+      ungroup() 
   }else{
     data = data %>%
       mutate(number = 1) %>%
