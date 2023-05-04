@@ -100,7 +100,7 @@ decomping = function(model = NULL,
     verbose = TRUE
   }
   
-  if(verbose)message("Generating model decomposition")
+  if(verbose)message("Generating model decomposition...")
   
   
   # check if model is provided
