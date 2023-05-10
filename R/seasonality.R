@@ -242,7 +242,8 @@ get_seasonality = function(data,
   # get dates column
   date_values = data %>%
     pull(!!sym(date_col_name)) %>%
-    unique()
+    unique() %>% 
+    sort()
   
   # define start and end date
   if(date_type == "daily"){
