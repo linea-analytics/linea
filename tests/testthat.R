@@ -92,6 +92,18 @@ pooled_model = run_model(
 ###
 
 
+### DAILY       ####
+
+daily_data = linea::cran_downloads %>% 
+  get_seasonality(date_col_name = "date",
+                  date_type = "daily",
+                  verbose = T) %>% 
+  get_oecd_data(country_code = "GB",
+                date_col_name = "date",
+                verbose = T)
+
+
+
 # tests  ####
 ### read data   ####
 
