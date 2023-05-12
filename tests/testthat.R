@@ -171,6 +171,15 @@ test_that('oecd - weekly',{
   
 })
 
+test_that('oecd - weekly ending',{
+  data = sales_ts %>% 
+     check_ts(date_col = 'week') %>% 
+     get_oecd_data(date_col_name = 'week',country_code = 'US',date_type = "weekly ending") %>% 
+     is.data.frame() %>% 
+     expect_equal(TRUE) 
+    
+ })
+
 test_that('oecd - daily',{
   
   data = cran_downloads %>%
