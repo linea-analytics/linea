@@ -8,7 +8,7 @@
 #' @return boolean to specify whether the time series is uniform
 #' @export
 is_uniform_ts = function(dates){
-  d = diff(dates)
+  d = diff(as.Date(dates))
   return(all(d == mean(d)))
 }
 
@@ -197,7 +197,7 @@ get_seasonality = function(data,
   }
   
   if(verbose){
-    message("Generating seasonality variables")
+    message("Generating seasonality variables...")
   }
   
   # check data provided is a data.frame
@@ -413,7 +413,6 @@ get_seasonality = function(data,
     df[,dup_columns] = NULL
   }
   
-  
   data = data %>%
     left_join(df,
               by = date_col_name,
@@ -426,6 +425,10 @@ get_seasonality = function(data,
     data = data %>% 
       select(-all_of(data_cols))
     
+  }
+  
+  if(verbose){
+    message("Seasonality variables have been generated.")
   }
   
   return(data)
