@@ -103,7 +103,6 @@ daily_data = linea::cran_downloads %>%
                 verbose = T)
 
 
-
 # tests  ####
 ### read data   ####
 
@@ -161,6 +160,29 @@ test_that('seasonality - pooled',{
 
 
 ### economy     ####
+
+test_that('oecd - weekly',{
+  
+  data = sales_ts %>%
+    check_ts(date_col = 'week') %>%
+    get_oecd_data(date_col_name = 'week',country_code = 'US',date_type = "weekly starting") %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+
+test_that('oecd - daily',{
+  
+  data = cran_downloads %>%
+    check_ts(date_col = 'date') %>%
+    get_oecd_data(date_col_name = 'date',country_code = 'US',date_type = "daily") %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+
+
+
 
 test_that('economy',{
   

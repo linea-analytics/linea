@@ -301,8 +301,7 @@ get_economy = function(data,
 #' @param verbose A boolean to specify whether to print warnings 
 #' @return \code{data.frame} with added variables
 #' @export
-#' @importFrom lubridate year
-#' @importFrom tidyr gather fill
+#' @importFrom tidyr fill
 #' @import tidyverse
 #' @examples
 #' linea::sales_ts %>%
@@ -319,17 +318,22 @@ get_oecd_data = function(data,
                          verbose = TRUE) {
   # test    ----
   
-  # data = sales_ts
-  # # data = read_xcsv('/Users/44751/Desktop/sales_2023-04-01 (1).xlsx')
-  # date_col_name = "week"
-  # date_type = "weekly starting"
+  #   data = sales_ts
+  #   date_col_name = "week"
+  #   date_type = "weekly starting"
+  #   pool_var = NULL
+  #   country_code = 'GB'
+  #   verbose = TRUE
+  
+  # DAILY
+  # data = linea::cran_downloads
+  # date_col_name = "date"
+  # date_type = "daily"
   # pool_var = NULL
   # country_code = 'GB'
-  # # country_code = 'AW'
-  # # country_code = 'ZH'
   # verbose = TRUE
   
-  # POOL VAR
+  # POOL
   # data = pooled_gt_data %>%
   #   mutate(country = if_else(country == 'UK','GB',country))
   # date_col_name = "Week"
@@ -449,9 +453,11 @@ get_oecd_data = function(data,
   # process -----------------------------------------------------------------
   
   # define start and end date
+  
   if (date_type == "daily") {
-    first_date = date_values[1]
+    first_date = date_values[1]-100
     last_date = date_values[length(date_values)]
+    date_values = seq(first_date,last_date,by = 1)
   } else if (date_type == "weekly starting") {
     first_date = date_values[1]
     last_date = date_values[length(date_values)] + 6
@@ -465,6 +471,9 @@ get_oecd_data = function(data,
     # build date vector
     date_values = seq(first_date, last_date, by = 1)
   }
+  
+  
+  # gather relevant data
   
   econ_cols = c("gdp_index", "unemp")
   new_cols = paste0(country_code, '_', econ_cols)
@@ -494,7 +503,8 @@ get_oecd_data = function(data,
     }
   }
   
-  # ADD Q<->M<->WEEKLY<->DAILY PROCESS FOR COMPLETE JOIN
+  
+  # format data based on date type
   
   if (date_type == "daily"){
     econ_df = data.frame(day = date_values) %>%
@@ -503,24 +513,18 @@ get_oecd_data = function(data,
       fill(all_of(new_cols)) 
     
     cols = colnames(econ_df)
-    cols[cols=="week"] = date_col_name
+    cols[cols=="day"] = date_col_name
     colnames(econ_df) = cols
-  }
-  else if (date_type %in% c("weekly starting", "weekly ending")) {
-    # get week dates
-    week_dates = data %>%
-      pull(!!sym(date_col_name)) %>%
-      unique()
     
-    # recreate week dates using first and last to avoid missing weeks
-    # first_date = week_dates[1]
-    # last_date = week_dates[length(week_dates)]
+  } else if (date_type %in% c("weekly starting", "weekly ending")) {
+
+    # create week dates 
     week_dates = seq(first_date, last_date, by = 7) %>%
       rep(each = 7)
     
     # aggregation (daily to weekly)
-    econ_df = data.frame(day = date_values,
-                         week = week_dates) %>%
+    econ_df = data.frame(day = date_values ,
+                         week = week_dates ) %>%
       left_join(gdp_data, by = c('day' = 'TIME')) %>%
       left_join(unemp_data, by = c('day' = 'TIME')) %>%
       fill(all_of(new_cols)) %>%
@@ -537,7 +541,7 @@ get_oecd_data = function(data,
     
   }
   
-  econ_df = econ_df 
+  # join varibles to data
   
   data = data %>%
     left_join(econ_df,
@@ -546,41 +550,6 @@ get_oecd_data = function(data,
   
   
   all_cols = colnames(data)
-  
-  # # replace inf with NA i
-  # if (any(is.na(data[new_cols] == Inf | data[new_cols] == -Inf))) {
-  #   if (verbose)
-  #     message("- Warning: Infinite value found in economy data will be turned to NA.")
-  #   data = do.call(tibble, lapply(data, function(x)
-  #     replace(x, is.infinite(x), NA)))
-  # }
-  
-  # # any years missing?
-  # if (any(is.na(data[new_cols]))) {
-  #   for (i in 1:length(new_cols)) {
-  #     new_col = new_cols[i]
-  #     new_col_data = data[new_col]
-  #     
-  #     if (all(is.na(new_col_data))) {
-  #       if (verbose)
-  #         message(
-  #           "- Warning: data missing completely for variable ",
-  #           new_col,
-  #           ". The variable will be dropped."
-  #         )
-  #       data[new_col] = NULL
-  #     } else if (any(is.na(new_col_data))) {
-  #       if (verbose)
-  #         message(
-  #           "- Warning: data missing for variable ",
-  #           new_col,
-  #           ". Missing data filled with latest values."
-  #         )
-  #       data[new_col] = tidyr::fill(new_col_data, .direction = 'down')
-  #     }
-  #   }
-  # }
-  # 
   
   message("Data source:")
   message("- OECD (2023), Quarterly GDP (indicator). doi: 10.1787/b86d1fc8-en (Accessed on 08 May 2023)")
