@@ -8,7 +8,7 @@
 #' @return boolean to specify whether the time series is uniform
 #' @export
 is_uniform_ts = function(dates){
-  d = diff(as.Date(dates))
+  d = diff(dates)
   return(all(d == mean(d)))
 }
 

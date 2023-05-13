@@ -299,7 +299,7 @@ get_economy = function(data,
 #' @param country_code A string indicating which county's economy data to retrieve. 
 #' @param append A boolean to specify whether to return only the economy variables or the original input data plus the economy variables
 #' @param verbose A boolean to specify whether to print warnings 
-#' @return \code{data.frame} with added variables
+#' @return \code{data.frame} containing economy data
 #' @export
 #' @importFrom tidyr fill
 #' @import tidyverse
@@ -318,27 +318,25 @@ get_oecd_data = function(data,
                          verbose = TRUE) {
   # test    ----
   
-  #   data = sales_ts
-  #   date_col_name = "week"
-  #   date_type = "weekly starting"
-  #   pool_var = NULL
-  #   country_code = 'GB'
-  #   verbose = TRUE
+  # data = sales_ts
+  # date_col_name = "week"
+  # date_type = "weekly starting"
+  # date_type = NULL
+  # country_code = 'GB'
+  # verbose = TRUE
   
   # DAILY
-  # data = linea::cran_downloads
+  # data = cran_downloads
   # date_col_name = "date"
   # date_type = "daily"
-  # pool_var = NULL
   # country_code = 'GB'
   # verbose = TRUE
   
   # POOL
-  # data = pooled_gt_data %>%
-  #   mutate(country = if_else(country == 'UK','GB',country))
+  # data = pooled_gt_data
   # date_col_name = "Week"
-  # pool_var = 'country'
-  # country_code = NULL
+  # date_type = "weekly starting"
+  # country_code = "GB"
   # verbose = TRUE
   
   
@@ -362,7 +360,9 @@ get_oecd_data = function(data,
   }
   
   date_values = data %>%
-    pull(date_col_name)
+    pull(date_col_name) %>% 
+    unique() %>% 
+    sort()
   
   if (!linea::is_uniform_ts(date_values)) {
     message(
@@ -379,15 +379,14 @@ get_oecd_data = function(data,
   if (is.null(date_type)) {
     if (verbose) {
       message(
-        '- Warning: `date_type` should be either:"daily","weekly ending", or "weekly starting".
-                A date type will be inferred.'
+        '- Info: No `date_type` (i.e. "daily","weekly ending", or "weekly starting") provided. A date type will be inferred.'
       )
     }
     if (linea::is_weekly(date_values)) {
       if (verbose) {
         message("- `date_type` set to 'weekly starting'")
       }
-      date_type = 'weekly_starting'
+      date_type = 'weekly starting'
     } else if (linea::is_daily(date_values)) {
       if (verbose) {
         message("- `date_type` set to 'daily'")
@@ -414,7 +413,7 @@ get_oecd_data = function(data,
       if (verbose) {
         message("- `date_type` set to 'weekly_starting'")
       }
-      date_type = 'weekly_starting'
+      date_type = 'weekly starting'
     } else if (linea::is_daily(date_values)) {
       if (verbose) {
         message("- `date_type` set to 'daily'")
@@ -453,23 +452,26 @@ get_oecd_data = function(data,
   # process -----------------------------------------------------------------
   
   # define start and end date
+  ## use earlier start so data from previous periods (e.g. Q) is included
   
   if (date_type == "daily") {
+    
     first_date = date_values[1]-100
     last_date = date_values[length(date_values)]
     date_values = seq(first_date,last_date,by = 1)
+    
   } else if (date_type == "weekly starting") {
-    first_date = date_values[1]
+    
+    first_date = date_values[1] - 105
     last_date = date_values[length(date_values)] + 6
-    
-    # build date vector
     date_values = seq(first_date, last_date, by = 1)
+    
   } else if (date_type == "weekly ending") {
-    first_date = date_values[1] - 6
-    last_date = date_values[length(date_values)]
     
-    # build date vector
+    first_date = date_values[1] - 111
+    last_date = date_values[length(date_values)]
     date_values = seq(first_date, last_date, by = 1)
+     
   }
   
   
@@ -548,6 +550,27 @@ get_oecd_data = function(data,
               by = date_col_name,
               suffix = c("", ".x"))
   
+  # check econ_df for NAs
+  
+  nas = data %>% 
+    select(all_of(new_cols)) %>% 
+    is.na %>% 
+    colSums
+  
+  for(col in new_cols){
+    if(nas[col] == nrow(data)){
+      if (verbose){
+        message("- Warning: no values were found for the variable ",col,".")
+      }
+      data[col] = 0
+    }else if(nas[col] > 0){
+      if (verbose){
+        message("- Warning: no data available in older dates for variable ",col,". Filling with oldest values available.")
+      }
+      data = data %>% 
+        fill(.direction = "up",!!sym(col))
+    }
+  }
   
   all_cols = colnames(data)
   

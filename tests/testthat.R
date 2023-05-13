@@ -164,36 +164,126 @@ test_that('seasonality - pooled',{
 test_that('oecd - weekly',{
   
   data = sales_ts %>%
-    check_ts(date_col = 'week') %>%
-    get_oecd_data(date_col_name = 'week',country_code = 'US',date_type = "weekly starting") %>%
+    get_oecd_data(
+      date_col_name = 'week',
+      country_code = 'US',
+      date_type = "weekly starting"
+    ) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
   
 })
-
 test_that('oecd - weekly ending',{
-  data = sales_ts %>% 
-     check_ts(date_col = 'week') %>% 
-     get_oecd_data(date_col_name = 'week',country_code = 'US',date_type = "weekly ending") %>% 
-     is.data.frame() %>% 
-     expect_equal(TRUE) 
-    
- })
-
+  
+  data = sales_ts %>%
+    get_oecd_data(
+      date_col_name = 'week',
+      country_code = 'US',
+      date_type = "weekly ending"
+    ) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
 test_that('oecd - daily',{
   
   data = cran_downloads %>%
-    check_ts(date_col = 'date') %>%
-    get_oecd_data(date_col_name = 'date',country_code = 'US',date_type = "daily") %>%
+    get_oecd_data(
+      date_col_name = 'date',
+      country_code = 'US',
+      date_type = "daily"
+    ) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+})
+test_that('oecd - pooled',{
+  
+  data = pooled_gt_data %>%
+    get_oecd_data(
+      date_col_name = 'Week',
+      country_code = 'GB',
+      date_type = "weekly starting"
+    ) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+})
+
+test_that('oecd - weekly - no `date_type`',{
+  
+  data = sales_ts %>%
+    get_oecd_data(
+      date_col_name = 'week',
+      country_code = 'US',
+    ) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
   
 })
+test_that('oecd - daily - no `date_type`',{
+  
+  data = cran_downloads %>%
+    get_oecd_data(
+      date_col_name = 'date',
+      country_code = 'US',
+    ) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+})
+test_that('oecd - pooled - no `date_type`',{
+  
+  data = pooled_gt_data %>%
+    get_oecd_data(
+      date_col_name = 'Week',
+      country_code = 'GB'
+    ) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+})
 
+test_that('oecd - weekly - zero NAs',{
+  
+  data = sales_ts %>%
+    get_oecd_data(
+      date_col_name = 'week',
+      country_code = 'US',
+      append = F
+    ) %>%
+    is.na() %>% 
+    colSums() %>% 
+    sum() %>% 
+    expect_equal(0)
+  
+})
+test_that('oecd - daily - zero NAs',{
+  
+  data = cran_downloads %>%
+    get_oecd_data(
+      date_col_name = 'date',
+      country_code = 'US',
+      append = F
+    ) %>%
+    is.na() %>% 
+    colSums() %>% 
+    sum() %>% 
+    expect_equal(0)
+  
+})
+test_that('oecd - pooled - zero NAs',{
+  
+  data = pooled_gt_data %>%
+    get_oecd_data(
+      date_col_name = 'Week',
+      country_code = 'US',
+      append = F
+    ) %>%
+    is.na() %>% 
+    colSums() %>% 
+    sum() %>% 
+    expect_equal(0)
+  
+})
 
-
-
-test_that('economy',{
+test_that('world bank - weekly',{
   
   data = sales_ts %>%
     check_ts(date_col = 'week') %>%
