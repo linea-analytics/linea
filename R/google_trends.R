@@ -24,8 +24,8 @@
 #' 
 gt_f = function(data,
                 kw,
-                date_col = "date",
-                date_type = "weekly starting",
+                date_col = NULL,
+                date_type = NULL,
                 geo = "all",
                 verbose = FALSE,
                 graceful = TRUE,
@@ -39,12 +39,53 @@ gt_f = function(data,
   # geo = "all"
   # append = TRUE
   # graceful = TRUE
+  # verbose = TRUE
   
-  # get gtrends data    ####
+  # date_col = "date"
+  # kw = 'bitcoin'
+  # data = linea::cran_downloads
+  # date_type = "daily"
+  # geo = "all"
+  # append = TRUE
+  # verbose = TRUE
+  # graceful = TRUE
+
+  
+  # checks              ####
+  
+  if(!is.logical(verbose)){
+    message("verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
+  }
+  if(verbose){
+    message("Gathering Google-Trends data...")
+  }
+  if(!is.data.frame(data)){
+    message('- Error: data must be a dataframe. Returning NULL.')
+    return(NULL)
+  }
+  if(is.null(date_col)){
+    message('- Error: date_col must be provided. Returning NULL.')
+    return(NULL)
+  }
+  if(is.null(date_type)){
+    message('- Error: date_type must be provided. Returning NULL.')
+    return(NULL)
+  }
+  
+  # check data provided contains date_col
+  if(!(date_col %in% colnames(data))){
+    message('- Error: data must contain date_col_name. Returning NULL.')
+    return(NULL)
+  }
+  
+  # process             ####
   
   # get dates from data
-  dates = data %>% pull(sym(date_col)) %>% as.Date() %>% unique()
-  
+  dates = data %>% 
+    pull(sym(date_col)) %>% 
+    as.Date() %>% 
+    unique()
   
   min_date = min(dates) - 7
   max_date = max(dates)
@@ -61,18 +102,18 @@ gt_f = function(data,
   
   # make gtrends request
   if(geo=="all"){
-    gt = gtrends(
+    gt = gtrendsR::gtrends(
       keyword = kw,
       time = time_str,
       onlyInterest = TRUE
-    ) %>% TRY()
+    ) %>% TRY(verbose = verbose)
   }else{
-    gt = gtrends(
+    gt = gtrendsR::gtrends(
       keyword = kw,
       geo = geo,
       time = time_str,
       onlyInterest = TRUE
-    ) %>% TRY()
+    ) %>% TRY(verbose = verbose)
   }
   
   # check gtrends call
@@ -97,10 +138,11 @@ gt_f = function(data,
   if(is_daily(gt$date))gt_date_type = "daily"
   if(is_weekly(gt$date))gt_date_type = "weekly starting"
   
-  # get daily gtrends   ####
   
   # create daily dates depending on date_type
-  extremes = gt_dates %>% as.Date() %>% first_last_dates(date_type = gt_date_type)
+  extremes = gt_dates %>% 
+    as.Date() %>% 
+    first_last_dates(date_type = gt_date_type)
   gt_first_day = extremes[[1]]
   gt_last_day = extremes[[2]]
   
@@ -121,34 +163,42 @@ gt_f = function(data,
       mutate(hits = as.numeric(hits))
     
   }
-  # get data daily map  ####
   
-  
-  # create daily dates depending on data date_type
-  extremes = dates %>% as.Date() %>% first_last_dates(date_type = date_type)
-  first_day = extremes[[1]]
-  last_day = extremes[[2]]
-  
-  daily_map = tibble(
-    week = rep(dates,each=7),
-    day = seq(first_day,last_day,by = "d")
-  )
-  
-  
-  # get gtrends with correct week
-  
-  df = daily_map %>%
-    left_join(gt_daily,by = "day")%>%
-    group_by(week) %>%
-    summarise(hits = mean(hits,na.rm = TRUE)) %>%
-    ungroup()
-  
+  # create gt df for join depending on data date_type
+  if(date_type == "daily"){
+    
+    df = gt_daily
+    
+  }
+  else if(date_type == "weekly starting" | date_type == "weekly ending"){
+    
+    extremes = dates %>% 
+      as.Date() %>% 
+      first_last_dates(date_type = date_type)
+    first_day = extremes[[1]]
+    last_day = extremes[[2]]
+    
+    daily_map = tibble(
+      week = rep(dates,each=7),
+      day = seq(first_day,last_day,by = "d")
+    )
+    
+    # get gtrends with correct week
+    
+    df = daily_map %>%
+      left_join(gt_daily,by = "day")%>%
+      group_by(week) %>%
+      summarise(hits = mean(hits,na.rm = TRUE)) %>%
+      ungroup()
+    
+  }
   
   colnames(df)[1] = date_col
   colnames(df)[2] = paste0(c(kw,geo,'gt'),collapse = '_')
   
   if(append){
-    df = data %>% left_join(df,by=date_col)
+    df = data %>% 
+      left_join(df,by=date_col)
   }
   message('Data source: Google Trends (https://www.google.com/trends).')
   return(df)
