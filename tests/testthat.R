@@ -94,12 +94,14 @@ pooled_model = run_model(
 
 ### DAILY       ####
 
+daily_id_var = "date"
+
 daily_data = linea::cran_downloads %>% 
-  get_seasonality(date_col_name = "date",
+  get_seasonality(date_col_name = daily_id_var,
                   date_type = "daily",
                   verbose = T) %>% 
   get_oecd_data(country_code = "GB",
-                date_col_name = "date",
+                date_col_name = daily_id_var,
                 verbose = T)
 
 
@@ -551,7 +553,19 @@ test_that("what combo - output not all na", {
 test_that("gtrends_f - pooled - output dataframe",{
   gt_f(data = pooled_data,
        kw = 'bitcoin',
+       date_type = 'weekly starting',
        date_col = pooled_id_var) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+})
+
+
+test_that("gtrends_f - daily - output dataframe",{
+  gt_f(data = daily_data,
+       kw = 'bitcoin',
+       date_type = "daily",
+       date_col = daily_id_var
+       ) %>%
     is.data.frame() %>%
     expect_equal(TRUE)
 })
