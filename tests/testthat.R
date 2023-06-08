@@ -425,6 +425,32 @@ test_that("what next - output not all na - diff FALSE - not pooled", {
     expect_equal(FALSE)
 })
 
+
+test_that("what next - pooled - test output reporducible in model", {
+  
+  # get test outputs
+  output = pooled_model %>%
+    what_next(data = pooled_data)
+  
+  # build new model based on test output
+  new_model_table = pooled_model$model_table %>% 
+    rbind(c(rep("",4),output$variable[1],"","","")) %>% 
+    get_variable_t()
+  
+  new_model = run_model(data = pooled_data,
+                        dv = pooled_dv,
+                        model_table = new_model_table,
+                        pool_var = pool_var,
+                        normalise_by_pool = T)
+  
+  new_coefs = new_model$coefficients %>% 
+    round(4)
+  
+  # check if results match
+  expect_equal(new_coefs[[length(new_coefs)]],
+               round(output$coef[1],4))
+  
+})
 test_that("what next - pooled - output dataframe", {
   pooled_model %>%
     what_next(data = pooled_data) %>%
@@ -481,6 +507,51 @@ test_that("what trans - output not all na", {
     all() %>%
     expect_equal(FALSE)
 })
+test_that("what trans - pooled - test output reporducible in model", {
+  
+  # generate what_trans_df
+  what_trans_df = data.frame(
+    name = c('diminish', 'decay', 'lag', 'ma', 'log', 'hill', 'sin', 'exp'),
+    ts = c(FALSE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE),
+    func = c('linea::diminish(x,a)',
+             'linea::decay(x,a)',
+             'linea::lag(x,a)',
+             'linea::ma(x,a)',
+             'log(x,a)',
+             "linea::hill_function(x,a,b,c)",
+             'sin(x*a)',
+             '(x^a)'),order = 1:8) %>%
+    dplyr::mutate(val = '') %>%
+    dplyr::mutate(val = dplyr::if_else(condition = name == 'hill',
+                                       '(1,5,50),(1 ,5,50),(1,5,50)',
+                                       val)) 
+  
+  # get test outputs
+  output = pooled_model %>%
+    what_trans(data = pooled_data,
+               trans_df = what_trans_df,
+               variable = "trend")
+  
+  # build new model based on test output
+  new_model_table = pooled_model$model_table %>% 
+    rbind(c(paste0(output[1,1:3],collapse = ","),rep("",3),"trend","","","")) %>% 
+    get_variable_t()
+  
+  new_model = run_model(data = pooled_data,
+                        dv = pooled_dv,
+                        model_table = new_model_table,
+                        pool_var = pool_var,
+                        normalise_by_pool = T)
+  
+  new_coefs = new_model$coefficients %>% 
+    round(4)
+  
+  # check if results match
+  expect_equal(new_coefs[[length(new_coefs)]],
+               round(output$coef[1],4))
+  
+})
+
 
 test_that("what combo - output dataframe", {
   data = linea::sales_ts
