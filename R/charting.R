@@ -1501,44 +1501,52 @@ response_curves = function(
     plotly = TRUE,
     verbose = FALSE,
     table = FALSE,
+    histogram = FALSE,
     add_intercept = FALSE,
     points = FALSE){
   # test    #####
   
-  # data = mtcars
+  # data = mtcars %>%
+  #   rownames_to_column('cars')
   # dv = 'mpg'
+  # id_var = 'cars'
   # ivs = c('disp','wt','qsec')
+  # pool_var='cyl'
   # model_table = build_model_table(ivs) %>%
   #   mutate(hill = if_else(variable=='wt','3,5',hill))
-  # pool_var='cyl'
   # 
-  # model = run_model(data = mtcars %>% rownames_to_column('cars'),id_var = 'cars',dv = 'mpg',ivs = c('disp','wt'),pool_var='cyl',normalise_by_pool = T)
-  # model = run_model(data = mtcars %>% rownames_to_column('cars'),
-  #                   id_var = 'cars',
-  #                   dv = 'mpg',
-  #                   model_table = model_table,
-  #                   pool_var='cyl',
-  #                   normalise_by_pool = T)
+  # model = run_model(data = data,
+  #                   id_var = id_var,
+  #                   dv = dv,
+  #                   model_table = model_table
+  #                   # ivs = ivs,
+  #                   # pool_var= pool_var,
+  #                   # normalise_by_pool = T
+  #                   )
   # 
-  # model %>% fit_chart(pool = '2')
-  # model %>% response_curves(x_min = 0,x_max = 30,trans_only = T)
-  # x_min = 0
-  # x_max = 30
-  # # x_min = NULL
-  # # x_max = NULL
-  # y_min = NULL
-  # y_max = NULL
-  # interval = NULL
-  # trans_only = T
-  # colors = color_palette()
-  # plotly = TRUE
-  # verbose = FALSE
-  # table = FALSE
-  # pool = NULL
-  # pool = '6'
-  # add_intercept = FALSE
-  # points = FALSE
-  
+  # model %>% response_curves(x_min = 0,x_max = 30)
+# 
+#   x_min = 0
+#   x_max = 30
+#   y_min = NULL
+#   y_max = NULL
+#   interval = NULL
+#   trans_only = T
+#   colors = color_palette()
+#   plotly = TRUE
+#   verbose = FALSE
+#   table = FALSE
+#   pool = NULL
+#   pool = '6'
+#   add_intercept = FALSE
+#   points = FALSE
+#   histogram = TRUE
+#   plot_bgcolor = "rgba(0, 0, 0, 0)"
+#   paper_bgcolor = "rgba(0, 0, 0, 0)"
+#   font_color =  '#1c0022'
+#   zero_line_color = '#1c0022'
+#   grid_line_color = '#1c0022'
+
   # checks  ####
   
   if (is.null(x_max)) x_max = 1e+05
@@ -1655,50 +1663,75 @@ response_curves = function(
                           title = model$dv),
              title = "Response Curves")
 
-    if(points) {
+    if(points | histogram) {
 
-      raw_data = model$model
-
-      # calculate predicted points through functions
-      curves_df = list()
-      for (i in 1:nrow(output_model_table)) {
-        var = output_model_table$variable_t[i]
-        coef = output_model_table$coef[i]
-        x_raw = raw_data %>% pull(!!sym(var))
-        x = x_raw
-        for (j in 1:nrow(trans_df)) {
-          t_name = trans_df$name[j]
-          t_func = trans_df$func[j]
-          param_vals = model$output_model_table %>% filter(variable_t ==
-                                                             var) %>% pull(!!sym(t_name)) %>% strsplit(split = ",")
-          param_vals = param_vals[[1]] %>% as.numeric()
-          if (length(param_vals) == 0) {
-            next
-          }
-          param_names = letters[1:length(param_vals)]
-          e <- new.env()
-          for (k in 1:length(param_vals)) {
-            p_name = param_names[k]
-            p_val = param_vals[k]
-            assign(p_name, p_val, envir = e)
-          }
-          x = t_func %>% run_text(env = e)
-        }
-        curves_df =  append(curves_df, data.frame(value = x *
-                                                        coef, variable = var, x = x_raw) %>% mutate(value = as.numeric(value)) %>%
-                                  mutate(variable = as.character(variable)) %>% mutate(x = as.numeric(x)))
+      
+      if(histogram){
+        
+        raw_data = model$raw_data %>%
+          select(all_of(c(model$id_var,model$model_table$variable))) 
+        
+        hist_df = lapply(model$model_table$variable, function(var){
+          
+          h = hist(raw_data %>% pull(!!sym(var)), plot=FALSE)
+          
+          h = data.frame(
+            x = linea::ma(h$breaks,2,align = "center")[-length(h$breaks)],
+            y = h$counts,
+            var = var
+            )
+          
+          return(h)
+        }) %>% 
+          Reduce(f = rbind)
+      
+        p = p %>%  add_trace(
+          alpha = 0.6,
+          data = hist_df ,
+          x = ~ x,
+          y = ~ y,
+          type = "bar",
+          yaxis = "y2",
+          color = ~ var,
+          colors = colors
+        ) 
+        
+        p = p %>%
+          layout(yaxis2 = list(
+            barmode = "overlay",
+            overlaying = "y",
+            side = "right",
+            title = "frequency"
+            
+          ))
       }
-      curves_df = curves_df %>%
-        data.frame() #%>%
-      # filter(value >= y_min) %>% filter(value <= y_max)
+      
+      if(points){
+        
+        variable_decomp = model$decomp_list$variable_decomp
+        model_data = model$model %>% 
+          cbind(model$raw_data[id_var]) %>% 
+          reshape2::melt(id.vars = id_var)
+        
+        points_df = variable_decomp %>% 
+          filter(variable != "(Intercept)") %>% 
+          left_join(model_data,by = c("variable",id_var))
+        
+        p = p %>%  
+          add_trace(
+            alpha = 0.7,
+            data = points_df, 
+            x = ~value, 
+            y = ~contrib,
+            color = ~variable, 
+            mode = "markers",
+            type = "scatter",
+            colors = colors)
+      }
 
 
-      # add points to plotly item
-      p = p %>%  add_trace(data = curves_df, x = ~x, y = ~value,
-                           color = ~variable, mode = "markers", type = "scatter",
-                           colors = colors)
     }
-
+    
   }
   # ggplot  ####
   if(!plotly){
