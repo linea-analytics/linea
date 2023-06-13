@@ -1480,7 +1480,7 @@ acf_chart = function(model = NULL,
 #'               data.frame(),
 #'           dv = 'mpg',
 #'           ivs = c('wt','cyl','disp')) %>%
-#'    response_curves()
+#'    response_curves(points = TRUE,x_min = -3,x_max = 3)
 response_curves = function(
     model,
     x_min = NULL,
@@ -1665,11 +1665,12 @@ response_curves = function(
 
     if(points | histogram) {
 
+      id_var = model$id_var
       
       if(histogram){
         
         raw_data = model$raw_data %>%
-          select(all_of(c(model$id_var,model$model_table$variable))) 
+          select(all_of(c(id_var,model$model_table$variable))) 
         
         hist_df = lapply(model$model_table$variable, function(var){
           
@@ -1685,20 +1686,20 @@ response_curves = function(
         }) %>% 
           Reduce(f = rbind)
       
-        p = p %>%  add_trace(
+        p = p %>%  add_bars(
           alpha = 0.6,
           data = hist_df ,
           x = ~ x,
           y = ~ y,
-          type = "bar",
           yaxis = "y2",
           color = ~ var,
           colors = colors
         ) 
         
         p = p %>%
-          layout(yaxis2 = list(
+          layout(
             barmode = "overlay",
+            yaxis2 = list(
             overlaying = "y",
             side = "right",
             title = "frequency"
@@ -1719,7 +1720,7 @@ response_curves = function(
         
         p = p %>%  
           add_trace(
-            alpha = 0.7,
+            alpha = 0.6,
             data = points_df, 
             x = ~value, 
             y = ~contrib,
