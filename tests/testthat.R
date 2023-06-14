@@ -6,7 +6,6 @@ library(tibble)
 library(dplyr)
 library(tidyr)
 
-
 # test_check("linea")
 
 # set up ####
@@ -30,6 +29,7 @@ id_var = "week"
 # model table
 model_table = build_model_table(ivs)
 model_table$decay[2] = '0.5'
+model_table$hill[2] = '20000,5'
 model_table = model_table %>% get_variable_t()
 
 # category
@@ -653,9 +653,38 @@ test_that("response curves - pooled - output is plotly",{
     all() %>%
     expect_equal(TRUE)
 })
+test_that("response curves - pooled, points and histogram - output is plotly",{
+  
+  pooled_model %>%
+    response_curves(points = TRUE, histogram = TRUE) %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+  
+})
 
+test_that("response curves - not pooled - output is plotly",{
 
-test_that("response curves - not pooled - output is dataframe",{
+  model %>%
+    response_curves()  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+
+})
+test_that("response curves - not pooled, points and histogram - output is plotly",{
+
+  model %>%
+    response_curves(points = TRUE,histogram = TRUE)  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+
+})
+test_that("response curves - not pooled, table - output is dataframe",{
 
   model %>%
     response_curves(table = TRUE) %>%

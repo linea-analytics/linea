@@ -1333,8 +1333,8 @@ acf_chart = function(model = NULL,
 
   # Check verbose
   if (!is.logical(verbose)) {
-    message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
-    verbose = FALSE
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
   }
 
 
@@ -1499,21 +1499,25 @@ response_curves = function(
     zero_line_color = '#1c0022',
     grid_line_color = '#1c0022',
     plotly = TRUE,
+    allow_ts_trans = FALSE,
     verbose = FALSE,
     table = FALSE,
     histogram = FALSE,
     add_intercept = FALSE,
     points = FALSE){
+  
   # test    #####
   
+  # # non-ts model
   # data = mtcars %>%
   #   rownames_to_column('cars')
   # dv = 'mpg'
   # id_var = 'cars'
   # ivs = c('disp','wt','qsec')
   # pool_var='cyl'
-  # model_table = build_model_table(ivs) %>%
-  #   mutate(hill = if_else(variable=='wt','3,5',hill))
+  # model_table = build_model_table(ivs)
+  # model_table = model_table %>%
+  #   mutate(hill = if_else(variable=='qsec','20,5',hill))
   # 
   # model = run_model(data = data,
   #                   id_var = id_var,
@@ -1524,70 +1528,117 @@ response_curves = function(
   #                   # normalise_by_pool = T
   #                   )
   # 
-  # model %>% response_curves(x_min = 0,x_max = 30)
-# 
-#   x_min = 0
-#   x_max = 30
-#   y_min = NULL
-#   y_max = NULL
-#   interval = NULL
-#   trans_only = T
-#   colors = color_palette()
-#   plotly = TRUE
-#   verbose = FALSE
-#   table = FALSE
-#   pool = NULL
-#   pool = '6'
-#   add_intercept = FALSE
-#   points = FALSE
-#   histogram = TRUE
-#   plot_bgcolor = "rgba(0, 0, 0, 0)"
-#   paper_bgcolor = "rgba(0, 0, 0, 0)"
-#   font_color =  '#1c0022'
-#   zero_line_color = '#1c0022'
-#   grid_line_color = '#1c0022'
+  # model %>% response_curves(
+  #   points = T,
+  #   trans_only = T,
+  #   x_max = 150,
+  #   x_min = 0,
+  #   histogram = T)
+
+  # x_min = 0
+  # x_max = 30
+  # y_min = NULL
+  # y_max = NULL
+  # interval = NULL
+  # trans_only = T
+  # colors = color_palette()
+  # plotly = TRUE
+  # verbose = TRUE
+  # allow_ts_trans = FALSE
+  # table = FALSE
+  # pool = NULL
+  # pool = '6'
+  # add_intercept = FALSE
+  # points = FALSE
+  # histogram = TRUE
+  # plot_bgcolor = "rgba(0, 0, 0, 0)"
+  # paper_bgcolor = "rgba(0, 0, 0, 0)"
+  # font_color =  '#1c0022'
+  # zero_line_color = '#1c0022'
+  # grid_line_color = '#1c0022'
 
   # checks  ####
   
-  if (is.null(x_max)) x_max = 1e+05
-  if (is.null(x_min)) x_min = -1e+05
+  # Check verbose
+  if (!is.logical(verbose)) {
+    message("Warning: verbose must be logical (TRUE or FALSE). Setting to TRUE.")
+    verbose = TRUE
+  }
+  
+  if(verbose){
+    message("Generating response curves...")
+  }  
+  
+  output_model_table = model$output_model_table
+  
+  
+  if (is.null(x_max)) x_max = 1e5
+  if (is.null(x_min)) x_min = -1e5
+    
+  # if (is.null(x_max)){ 
+  #   
+  #   if(!is.null(model$raw_data)){
+  #     
+  #     x_max = model$raw_data %>%
+  #       select(all_of(output_model_table$variable[output_model_table$variable != "(Intercept)"])) %>% 
+  #       max()
+  #     
+  #   }else{x_max = 1e+05}
+  #   
+  # }
+  # if (is.null(x_min)){ 
+  #   
+  #   if(!is.null(model$raw_data)){
+  #     
+  #     x_min = model$raw_data %>%
+  #       select(all_of(output_model_table$variable[output_model_table$variable != "(Intercept)"])) %>% 
+  #       min()
+  #     
+  #   }else{x_min = -1e+05}
+  #   
+  # }
   if (is.null(interval)) interval = (x_max-x_min)/100
-  if (is.null(y_max)) y_max =  1e+05
-  if (is.null(y_min)) y_min = -1e+05
+  if (is.null(y_max)) y_max = x_max
+  if (is.null(y_min)) y_min = x_min
 
   # process ####
-  output_model_table = model$output_model_table
-
+  
   if(!is.null(pool) & !is.null(model$pool_mean)){
     mean = model$pool_mean$mean[model$pool_mean$pool==pool]
     if(!(pool %in% model$pool_mean$pool)){
-      if(verbose){message('Warning: pool provided not found in model pools.')}
+      if(verbose){message('- Warning: pool provided not found in model pools.')}
     }else{
       output_model_table =  output_model_table %>% 
         mutate(coef = coef * mean)
     }
   }
   if(!is.null(pool) & is.null(model$pool_mean)){
-    if(verbose){message('Info: model normalised by pool but no pool provided.')}
+    if(verbose){message('- Info: model normalised by pool but no pool provided.')}
   }
   if(is.null(pool) & !is.null(model$pool_mean)){
-    if(verbose){message('Warning: pool provided but model is not normalised by pool.')}
+    if(verbose){message('- Warning: pool provided but model is not normalised by pool.')}
   }
 
-  trans_df = model$trans_df %>%
-    filter(ts == FALSE)
+  trans_df = model$trans_df
+  if(!allow_ts_trans){
+    trans_df = trans_df%>%
+      filter(ts == FALSE) 
+  }
 
   if (trans_only) {
-    output_model_table = output_model_table[!(((output_model_table[trans_df$name] ==
-                                    "") %>% data.frame() %>% rowSums()) == nrow(trans_df)),
+    output_model_table = output_model_table[!(((
+      output_model_table[trans_df$name] == "") %>%
+        data.frame() %>% 
+        rowSums()) == nrow(trans_df)),
     ]
   }
-  output_model_table = output_model_table %>% filter(variable != "(Intercept)") %>% 
+  output_model_table = output_model_table %>% 
+    filter(variable != "(Intercept)") %>% 
     select(all_of(c("variable", "variable_t", trans_df$name, "coef"))) %>%
     na.omit()
   
   if (nrow(output_model_table) == 0) {
-    message("Error: Check model and/or model_table.")
+    message("- Error: Check model, model_table, and/or trans_df as well as other input arguments for the `response_curves()` function.")
     return(NULL)
   }
   curves_df = list()
@@ -1643,6 +1694,7 @@ response_curves = function(
 
 
   if (table) {
+    if(verbose)message("Returning response curves table.")
     return(curves_df)
   }
 
@@ -1670,16 +1722,17 @@ response_curves = function(
       if(histogram){
         
         raw_data = model$raw_data %>%
-          select(all_of(c(id_var,model$model_table$variable))) 
+          select(all_of(c(id_var,output_model_table$variable))) 
         
-        hist_df = lapply(model$model_table$variable, function(var){
+        hist_df = lapply(output_model_table$variable, function(var){
           
           h = hist(raw_data %>% pull(!!sym(var)), plot=FALSE)
           
           h = data.frame(
             x = linea::ma(h$breaks,2,align = "center")[-length(h$breaks)],
             y = h$counts,
-            var = var
+            var = var,
+            var_t = output_model_table$variable_t[output_model_table$variable == var]
             )
           
           return(h)
@@ -1692,7 +1745,7 @@ response_curves = function(
           x = ~ x,
           y = ~ y,
           yaxis = "y2",
-          color = ~ var,
+          color = ~ var_t,
           colors = colors
         ) 
         
@@ -1710,22 +1763,28 @@ response_curves = function(
       if(points){
         
         variable_decomp = model$decomp_list$variable_decomp
-        model_data = model$model %>% 
-          cbind(model$raw_data[id_var]) %>% 
-          reshape2::melt(id.vars = id_var)
+        melted_raw_data = raw_data %>% 
+          reshape2::melt(id.vars = id_var) %>% 
+          left_join(
+            output_model_table %>% 
+              select(variable,variable_t),
+            by = "variable"
+          )
+        
         
         points_df = variable_decomp %>% 
           filter(variable != "(Intercept)") %>% 
-          left_join(model_data,by = c("variable",id_var))
+          left_join(melted_raw_data,by = c("variable" = "variable_t",id_var))
         
         p = p %>%  
           add_trace(
-            alpha = 0.6,
+            alpha = 0.4,
             data = points_df, 
             x = ~value, 
             y = ~contrib,
             color = ~variable, 
             mode = "markers",
+            marker = list(size = 7),
             type = "scatter",
             colors = colors)
       }
@@ -1752,5 +1811,7 @@ response_curves = function(
     
   }
 
+  
+  if(verbose)message("Returning response curves plot.")
   return(p)
 }
