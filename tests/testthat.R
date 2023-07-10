@@ -1,12 +1,12 @@
-# libs   ####devtools::install_github("linea-analytics/linea")
+# libs   
 library(testthat)
 library(linea)
 library(tibble)
-# library(zoo)
 library(dplyr)
 library(tidyr)
-
-# test_check("linea")
+# library(zoo)
+## GitHub Install test
+# devtools::install_github("linea-analytics/linea")
 
 # set up ####
 ### NOT POOLED  ----
