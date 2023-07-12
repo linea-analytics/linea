@@ -104,6 +104,16 @@ daily_data = linea::cran_downloads %>%
                 date_col_name = daily_id_var,
                 verbose = T)
 
+daily_categories = data.frame(
+  variable = "GB_unemp",
+  category= "economy",
+  calc = "min"
+)
+
+daily_model = run_model(data = daily_data,
+                        categories = daily_categories,
+                        dv = "count",
+                        ivs = c("weekend","weekday_Friday","trend","GB_unemp"))
 
 # tests  ####
 ### read data   ####
@@ -644,6 +654,64 @@ test_that("gtrends_f - daily - output dataframe",{
 
 ### resp curves ------------------------------------------------------------------
 
+test_that("response curves - weekly - output is plotly",{
+
+  model %>%
+    response_curves()  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+
+})
+test_that("response curves - weekly, points and histogram - output is plotly",{
+
+  model %>%
+    response_curves(points = TRUE,histogram = TRUE)  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+
+})
+test_that("response curves - weekly, table - output is dataframe",{
+
+  model %>%
+    response_curves(table = TRUE) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+
+})
+
+test_that("response curves - daily - output is plotly",{
+  
+  daily_model %>%
+    response_curves()  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+  
+})
+test_that("response curves - daily, points and histogram - output is plotly",{
+  
+  daily_model %>%
+    response_curves(points = TRUE,histogram = TRUE)  %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+  
+})
+test_that("response curves - daily, table - output is dataframe",{
+  
+  daily_model %>%
+    response_curves(table = TRUE) %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+
 test_that("response curves - pooled - output is plotly",{
 
   pooled_model %>%
@@ -663,33 +731,3 @@ test_that("response curves - pooled, points and histogram - output is plotly",{
     expect_equal(TRUE)
   
 })
-
-test_that("response curves - not pooled - output is plotly",{
-
-  model %>%
-    response_curves()  %>%
-    class() %>%
-    is.element(c("plotly","htmlwidget")) %>%
-    all() %>%
-    expect_equal(TRUE)
-
-})
-test_that("response curves - not pooled, points and histogram - output is plotly",{
-
-  model %>%
-    response_curves(points = TRUE,histogram = TRUE)  %>%
-    class() %>%
-    is.element(c("plotly","htmlwidget")) %>%
-    all() %>%
-    expect_equal(TRUE)
-
-})
-test_that("response curves - not pooled, table - output is dataframe",{
-
-  model %>%
-    response_curves(table = TRUE) %>%
-    is.data.frame() %>%
-    expect_equal(TRUE)
-
-})
-
