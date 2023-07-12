@@ -1702,8 +1702,13 @@ response_curves = function(
   if(plotly){
 
     p = plot_ly()
-    p = p %>% add_trace(data = curves_df, x = ~x, y = ~value,
-                        color = ~variable, mode = "lines", type = "scatter",
+    p = p %>% add_trace(data = curves_df, 
+                        x = ~x, 
+                        y = ~value,
+                        color = ~variable, 
+                        legendgroup = ~variable,
+                        mode = "lines", 
+                        type = "scatter",
                         colors = colors) %>%
       layout(plot_bgcolor = plot_bgcolor,
              margin = '10px',
@@ -1746,6 +1751,8 @@ response_curves = function(
           y = ~ y,
           yaxis = "y2",
           color = ~ var_t,
+          legendgroup = ~var_t,
+          showlegend = FALSE,
           colors = colors
         ) 
         
@@ -1783,6 +1790,8 @@ response_curves = function(
             x = ~value, 
             y = ~contrib,
             color = ~variable, 
+            legendgroup = ~variable,
+            showlegend = FALSE,
             mode = "markers",
             marker = list(size = 7),
             type = "scatter",
