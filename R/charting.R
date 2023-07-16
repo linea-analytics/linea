@@ -1439,8 +1439,6 @@ acf_chart = function(model = NULL,
 #' @param model Model object
 #' @param x_min number specifying horizontal axis min
 #' @param x_max number specifying horizontal axis max
-#' @param y_min number specifying vertical axis min
-#' @param y_max number specifying vertical axis max
 #' @param interval number specifying interval between points of the curve
 #' @param pool string specifying a group within the pool column to be filtered
 #' @param trans_only a boolean specifying whether to display non-linear only \code{y = b*dim_rest(x)}
@@ -1485,8 +1483,8 @@ response_curves = function(
     model,
     x_min = NULL,
     x_max = NULL,
-    y_min = NULL,
-    y_max = NULL,
+    # y_min = NULL,
+    # y_max = NULL,
     interval = NULL,
     pool = NULL,
     trans_only = FALSE,
@@ -1535,19 +1533,19 @@ response_curves = function(
   #   x_min = 0,
   #   histogram = T)
 
-  # x_min = 0
-  # x_max = 30
+  # x_min = NULL
+  # x_max = NULL
   # y_min = NULL
   # y_max = NULL
   # interval = NULL
-  # trans_only = T
+  # trans_only = FALSE
   # colors = color_palette()
   # plotly = TRUE
   # verbose = TRUE
   # allow_ts_trans = FALSE
   # table = FALSE
   # pool = NULL
-  # pool = '6'
+  # # pool = '6'
   # add_intercept = FALSE
   # points = FALSE
   # histogram = TRUE
@@ -1598,8 +1596,8 @@ response_curves = function(
   #   
   # }
   if (is.null(interval)) interval = (x_max-x_min)/100
-  if (is.null(y_max)) y_max = x_max
-  if (is.null(y_min)) y_min = x_min
+  # if (is.null(y_max)) y_max = x_max
+  # if (is.null(y_min)) y_min = x_min
 
   # process ####
   
@@ -1649,27 +1647,38 @@ response_curves = function(
     var = output_model_table$variable_t[i]
     coef = coefs[i]
     x = x_raw
-    for (j in 1:nrow(trans_df)) {
-      t_name = trans_df$name[j]
-      t_func = trans_df$func[j]
-      param_vals = model$output_model_table %>%
-        filter(variable_t == var) %>%
-        pull(!!sym(t_name)) %>%
-        strsplit(split = ",")
-
-      param_vals = param_vals[[1]] %>% as.numeric()
-      if (length(param_vals) == 0) {
-        next
+    
+    # check if variable is transformed
+    
+    any_trans_params = any(model$model_table %>% 
+                             filter(variable_t == var) %>% 
+                             select(all_of(trans_df$name))
+                           != "")
+    
+    if(any_trans_params){
+      for (j in 1:nrow(trans_df)) {
+        t_name = trans_df$name[j]
+        t_func = trans_df$func[j]
+        param_vals = model$output_model_table %>%
+          filter(variable_t == var) %>%
+          pull(!!sym(t_name)) %>%
+          strsplit(split = ",")
+        
+        param_vals = param_vals[[1]] %>% as.numeric()
+        if (length(param_vals) == 0) {
+          next
+        }
+        param_names = letters[1:length(param_vals)]
+        e <- new.env()
+        for (k in 1:length(param_vals)) {
+          p_name = param_names[k]
+          p_val = param_vals[k]
+          assign(p_name, p_val, envir = e)
+        }
+        x = t_func %>% run_text(env = e)
       }
-      param_names = letters[1:length(param_vals)]
-      e <- new.env()
-      for (k in 1:length(param_vals)) {
-        p_name = param_names[k]
-        p_val = param_vals[k]
-        assign(p_name, p_val, envir = e)
-      }
-      x = t_func %>% run_text(env = e)
     }
+    
     
     df = data.frame(value = x * coef,
                     variable = var,
@@ -1688,9 +1697,9 @@ response_curves = function(
       mutate(value = value + model$coefficients[1])
   }
 
-  curves_df = curves_df %>%
-    filter(value >= y_min) %>%
-    filter(value <= y_max)
+  # curves_df = curves_df %>%
+  #   filter(value >= y_min) %>%
+  #   filter(value <= y_max)
 
 
   if (table) {
