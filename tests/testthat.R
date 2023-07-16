@@ -9,6 +9,27 @@ library(tidyr)
 # devtools::install_github("linea-analytics/linea")
 
 # set up ####
+
+color_palette = list(
+    decomp_color_1 = "#636363",
+    decomp_color_2 = "#143fba",
+    decomp_color_3 = "#006a53",
+    decomp_color_4 = "#209162",
+    decomp_color_5 = "#33eea0",
+    decomp_color_6 = "#8f9d35",
+    decomp_color_7 = "#00cf74",
+    decomp_color_8 = "#b400da",
+    decomp_color_9 = "#fff200",
+    decomp_color_10 = "#ff5c00",
+    decomp_color_11 = "#6a000d",
+    decomp_color_12 = "#ff006e",
+    charts_font_color = '#1c0022',
+    charts_background_color = "#FFFFFF",
+    charts_grid_line_color = '#1c0022',
+    charts_color_3 = "#C90F3A",
+    charts_color_2 = "#00cf74",
+    charts_color_1 = '#1c0022'
+) %>% unlist() %>% as.character()
 ### NOT POOLED  ----
 
 # import data
@@ -657,7 +678,7 @@ test_that("gtrends_f - daily - output dataframe",{
 test_that("response curves - weekly - output is plotly",{
 
   model %>%
-    response_curves()  %>%
+    response_curves(colors = "viridis",x_min = 0,trans_only = T)  %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
