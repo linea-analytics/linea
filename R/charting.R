@@ -1697,10 +1697,6 @@ response_curves = function(
       mutate(value = value + model$coefficients[1])
   }
 
-  # curves_df = curves_df %>%
-  #   filter(value >= y_min) %>%
-  #   filter(value <= y_max)
-
 
   if (table) {
     if(verbose)message("Returning response curves table.")
