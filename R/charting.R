@@ -1483,8 +1483,6 @@ response_curves = function(
     model,
     x_min = NULL,
     x_max = NULL,
-    # y_min = NULL,
-    # y_max = NULL,
     interval = NULL,
     pool = NULL,
     trans_only = FALSE,
@@ -1533,6 +1531,8 @@ response_curves = function(
   #   x_min = 0,
   #   histogram = T)
 
+  # model = pooled_model
+  # 
   # x_min = NULL
   # x_max = NULL
   # y_min = NULL
@@ -1544,8 +1544,8 @@ response_curves = function(
   # verbose = TRUE
   # allow_ts_trans = FALSE
   # table = FALSE
-  # pool = NULL
-  # # pool = '6'
+  # # pool = NULL
+  # pool = 'India'
   # add_intercept = FALSE
   # points = FALSE
   # histogram = TRUE
@@ -1573,34 +1573,11 @@ response_curves = function(
   if (is.null(x_max)) x_max = 1e5
   if (is.null(x_min)) x_min = -1e5
     
-  # if (is.null(x_max)){ 
-  #   
-  #   if(!is.null(model$raw_data)){
-  #     
-  #     x_max = model$raw_data %>%
-  #       select(all_of(output_model_table$variable[output_model_table$variable != "(Intercept)"])) %>% 
-  #       max()
-  #     
-  #   }else{x_max = 1e+05}
-  #   
-  # }
-  # if (is.null(x_min)){ 
-  #   
-  #   if(!is.null(model$raw_data)){
-  #     
-  #     x_min = model$raw_data %>%
-  #       select(all_of(output_model_table$variable[output_model_table$variable != "(Intercept)"])) %>% 
-  #       min()
-  #     
-  #   }else{x_min = -1e+05}
-  #   
-  # }
   if (is.null(interval)) interval = (x_max-x_min)/100
-  # if (is.null(y_max)) y_max = x_max
-  # if (is.null(y_min)) y_min = x_min
 
   # process ####
   
+  # if pool and pool mean
   if(!is.null(pool) & !is.null(model$pool_mean)){
     mean = model$pool_mean$mean[model$pool_mean$pool==pool]
     if(!(pool %in% model$pool_mean$pool)){
@@ -1610,11 +1587,13 @@ response_curves = function(
         mutate(coef = coef * mean)
     }
   }
+  # if pool but no pool mean
   if(!is.null(pool) & is.null(model$pool_mean)){
-    if(verbose){message('- Info: model normalised by pool but no pool provided.')}
-  }
-  if(is.null(pool) & !is.null(model$pool_mean)){
     if(verbose){message('- Warning: pool provided but model is not normalised by pool.')}
+  }
+  # if no pool but pool mean
+  if(is.null(pool) & !is.null(model$pool_mean)){
+    if(verbose){message('- Info: model normalised by pool but no pool provided.')}
   }
 
   trans_df = model$trans_df
@@ -1696,11 +1675,6 @@ response_curves = function(
     curves_df = curves_df %>%
       mutate(value = value + model$coefficients[1])
   }
-
-  # curves_df = curves_df %>%
-  #   filter(value >= y_min) %>%
-  #   filter(value <= y_max)
-
 
   if (table) {
     if(verbose)message("Returning response curves table.")
