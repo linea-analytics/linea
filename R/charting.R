@@ -1530,30 +1530,30 @@ response_curves = function(
   #   x_max = 150,
   #   x_min = 0,
   #   histogram = T)
-
-  # model = pooled_model
-  # 
-  # x_min = NULL
-  # x_max = NULL
-  # y_min = NULL
-  # y_max = NULL
-  # interval = NULL
-  # trans_only = FALSE
-  # colors = color_palette()
-  # plotly = TRUE
-  # verbose = TRUE
-  # allow_ts_trans = FALSE
-  # table = FALSE
-  # # pool = NULL
-  # pool = 'India'
-  # add_intercept = FALSE
-  # points = FALSE
-  # histogram = TRUE
-  # plot_bgcolor = "rgba(0, 0, 0, 0)"
-  # paper_bgcolor = "rgba(0, 0, 0, 0)"
-  # font_color =  '#1c0022'
-  # zero_line_color = '#1c0022'
-  # grid_line_color = '#1c0022'
+# 
+# model = pooled_model
+# 
+# x_min = NULL
+# x_max = NULL
+# y_min = NULL
+# y_max = NULL
+# interval = NULL
+# trans_only = FALSE
+# colors = color_palette()
+# plotly = TRUE
+# verbose = TRUE
+# allow_ts_trans = FALSE
+# table = FALSE
+# # pool = NULL
+# pool = 'India'
+# add_intercept = FALSE
+# points = FALSE
+# histogram = TRUE
+# plot_bgcolor = "rgba(0, 0, 0, 0)"
+# paper_bgcolor = "rgba(0, 0, 0, 0)"
+# font_color =  '#1c0022'
+# zero_line_color = '#1c0022'
+# grid_line_color = '#1c0022'
 
   # checks  ####
   
@@ -1576,12 +1576,19 @@ response_curves = function(
   if (is.null(interval)) interval = (x_max-x_min)/100
 
   # process ####
-  
+   
   # if pool and pool mean
   if(!is.null(pool) & !is.null(model$pool_mean)){
     mean = model$pool_mean$mean[model$pool_mean$pool==pool]
     if(!(pool %in% model$pool_mean$pool)){
       if(verbose){message('- Warning: pool provided not found in model pools.')}
+      
+      pool = NULL
+      
+      mean = model$pool_mean$mean %>% sum()
+      output_model_table =  output_model_table %>% 
+        mutate(coef = coef * mean)
+      
     }else{
       output_model_table =  output_model_table %>% 
         mutate(coef = coef * mean)
@@ -1589,13 +1596,41 @@ response_curves = function(
   }
   # if pool but no pool mean
   if(!is.null(pool) & is.null(model$pool_mean)){
-    if(verbose){message('- Warning: pool provided but model is not normalised by pool.')}
+    if(model$pool_switch == FALSE){
+      if(verbose){message('- Warning: pool provided but model is not pooled.')}
+    }else{
+      
+      # account for number of pools 
+      n_pools = model$raw_data %>% 
+        pull(!!sym(model$pool_var)) %>% 
+        unique() %>% 
+        length()
+      
+      output_model_table =  output_model_table %>% 
+        mutate(coef = coef * n_pools)
+    }
   }
-  # if no pool but pool mean
+  # if no pool but pool mean - aggregated, de-normalized
   if(is.null(pool) & !is.null(model$pool_mean)){
     if(verbose){message('- Info: model normalised by pool but no pool provided.')}
+    
+    mean = model$pool_mean$mean %>% sum()
+    output_model_table =  output_model_table %>% 
+      mutate(coef = coef * mean)
   }
-
+  # if no pool but model pooled (not normalized though)
+  if(is.null(pool) & model$pool_switch & !model$normalise_by_pool){
+    # account for number of pools 
+    n_pools = model$raw_data %>% 
+      pull(!!sym(model$pool_var)) %>% 
+      unique() %>% 
+      length()
+    
+    output_model_table =  output_model_table %>% 
+      mutate(coef = coef * n_pools)
+  }
+  
+  
   trans_df = model$trans_df
   if(!allow_ts_trans){
     trans_df = trans_df%>%
@@ -1676,10 +1711,6 @@ response_curves = function(
       mutate(value = value + model$coefficients[1])
   }
 
-  # curves_df = curves_df %>%
-  #   filter(value >= y_min) %>%
-  #   filter(value <= y_max)
-
 
   if (table) {
     if(verbose)message("Returning response curves table.")
@@ -1711,12 +1742,24 @@ response_curves = function(
     if(points | histogram) {
 
       id_var = model$id_var
+      raw_data = model$raw_data
+      
+      if(model$pool_switch & !is.null(pool)){
+        raw_data = raw_data[raw_data[model$pool_var]==pool,]
+      }
+      
+      raw_data = raw_data %>%
+        select(all_of(c(id_var,output_model_table$variable)))
+      
+      if(model$pool_switch & is.null(pool)){
+        raw_data = raw_data %>% 
+          group_by(!!sym(id_var)) %>% 
+          summarise_all(sum) %>% 
+          ungroup()
+      }
       
       if(histogram){
-        
-        raw_data = model$raw_data %>%
-          select(all_of(c(id_var,output_model_table$variable))) 
-        
+      
         hist_df = lapply(output_model_table$variable, function(var){
           
           h = hist(raw_data %>% pull(!!sym(var)), plot=FALSE)
@@ -1758,6 +1801,20 @@ response_curves = function(
       if(points){
         
         variable_decomp = model$decomp_list$variable_decomp
+        
+        if(model$pool_switch & !is.null(pool)){
+          variable_decomp = variable_decomp %>% 
+            filter(pool == !!pool) %>% 
+            select(-pool)
+        }
+        if(model$pool_switch & !is.null(pool)){
+          variable_decomp = variable_decomp %>% 
+            select(-pool) %>% 
+            group_by(!!sym(id_var),variable) %>% 
+            summarise_all(sum) %>% 
+            ungroup()
+        }
+        
         melted_raw_data = raw_data %>% 
           reshape2::melt(id.vars = id_var) %>% 
           left_join(
