@@ -1,6 +1,7 @@
 # libs   
 library(testthat)
 library(linea)
+library(plotly)
 library(tibble)
 library(dplyr)
 library(tidyr)
@@ -678,7 +679,7 @@ test_that("gtrends_f - daily - output dataframe",{
 test_that("response curves - weekly - output is plotly",{
 
   model %>%
-    response_curves(colors = "viridis",x_min = 0,trans_only = T)  %>%
+    response_curves(colors = "viridis")  %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
@@ -707,7 +708,7 @@ test_that("response curves - weekly, table - output is dataframe",{
 test_that("response curves - daily - output is plotly",{
   
   daily_model %>%
-    response_curves()  %>%
+    response_curves(colors = "viridis")  %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
@@ -735,6 +736,15 @@ test_that("response curves - daily, table - output is dataframe",{
 
 test_that("response curves - pooled - output is plotly",{
 
+  pooled_model %>%
+    response_curves() %>%
+    class() %>%
+    is.element(c("plotly","htmlwidget")) %>%
+    all() %>%
+    expect_equal(TRUE)
+})
+test_that("response curves - pooled selected - output is plotly",{
+  
   pooled_model %>%
     response_curves() %>%
     class() %>%
