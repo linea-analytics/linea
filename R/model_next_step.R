@@ -11,6 +11,7 @@
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
 #' @importFrom purrr reduce
 #' @importFrom methods is
+#' @importFrom car vif
 #' @import tidyverse
 #' @export
 #' @return \code{data.frame} mapping variables' to the respective model's statistics.
@@ -30,7 +31,7 @@ what_next = function(model = NULL,
   
   # model = run_model(data = mtcars,'mpg',ivs = 'cyl',save_all_raw_data = T)
   # data = NULL
-  # verbose = FALSE
+  # verbose = TRUE
   # r2_diff = TRUE
   # 
   # model %>% what_next()
@@ -125,7 +126,7 @@ what_next = function(model = NULL,
     # if model failed
     if (is.null(model)) {
       # fill row with empty
-      return(c(var, NA, NA, NA))
+      return(c(var, NA, NA, NA, NA))
 
     } else{
       # get model summary
@@ -138,14 +139,15 @@ what_next = function(model = NULL,
       coef = TRY(ms$coefficients[var, "Estimate"])
       if (is.null(coef)) {
         # fill row with empty
-        return(c(var, NA, NA, NA))
+        return(c(var, NA, NA, NA, NA))
 
       }
 
       adj_R2 = ms$adj.r.squared
       t_value = ms$coefficients[var, "t value"]
+      vif = car::vif(model)[var]
 
-      return(c(var, adj_R2, t_value, coef))
+      return(c(var, adj_R2, t_value, coef, vif))
 
 
     }
@@ -167,11 +169,13 @@ what_next = function(model = NULL,
       variable = 1,
       adj_R2 = 2,
       t_stat = 3,
-      coef = 4
+      coef = 4,
+      vif = 5
     ) %>%
     arrange(desc(adj_R2)) %>%
     mutate(adj_R2 = as.numeric(adj_R2)) %>%
     mutate(t_stat = as.numeric(t_stat)) %>%
+    mutate(vif = as.numeric(vif)) %>% 
     mutate(coef = as.numeric(coef))
 
   if (r2_diff) {
