@@ -165,7 +165,8 @@ ma = function(v,width,align="center",zero=TRUE){
     if(zero){
       v = rollmean(v,width,fill = 0,align = align)
     }else{
-      v = rollmean(v,width,fill = mean(v),align = align)
+      v = rollmean(v, width, align = align)
+      v[is.na(v)] = mean(v,na.rm = TRUE)
     }
   }
 
