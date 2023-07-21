@@ -461,7 +461,8 @@ what_trans = function(model = NULL,
   df = cbind(df, tibble(
     adj_R2 = 0,
     t_stat = 0,
-    coef = 0
+    coef = 0,
+    vif = 0
   ))
 
   fs_name = trans_df %>% arrange(order, variable) %>% pull(name) %>% unique()
@@ -549,7 +550,7 @@ what_trans = function(model = NULL,
     # if model failed
     if (is.null(model_temp)) {
       # fill row with empty
-      print(paste0(var_t_name, ' - NOPE'))
+      # print(paste0(var_t_name, ' - NOPE'))
       # output[i, ] = list(iv, "0",0,0,0,0)
 
     } else{
@@ -567,11 +568,13 @@ what_trans = function(model = NULL,
       } else{
         adj_R2 = ms$adj.r.squared
         t_stat = ms$coefficients[var_t_name, "t value"]
+        vif = car::vif(model_temp)[var_t_name]
       }
 
       df$adj_R2[i] = adj_R2
       df$t_stat[i] = t_stat
       df$coef[i] = coef
+      df$vif[i] = vif
 
     }
   }
