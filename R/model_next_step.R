@@ -145,7 +145,8 @@ what_next = function(model = NULL,
 
       adj_R2 = ms$adj.r.squared
       t_value = ms$coefficients[var, "t value"]
-      vif = car::vif(model)[var]
+      vif = car::vif(model)[var] %>% TRY()
+      if(is.null(vif)){vif=NA}
 
       return(c(var, adj_R2, t_value, coef, vif))
 
@@ -568,7 +569,9 @@ what_trans = function(model = NULL,
       } else{
         adj_R2 = ms$adj.r.squared
         t_stat = ms$coefficients[var_t_name, "t value"]
-        vif = car::vif(model_temp)[var_t_name]
+        vif = car::vif(model_temp)[var_t_name] %>% 
+          TRY()
+        if(is.null(vif)){vif=NA}
       }
 
       df$adj_R2[i] = adj_R2
