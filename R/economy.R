@@ -311,7 +311,7 @@ get_economy = function(data,
 #'        append=FALSE,
 #'        date_type="weekly starting")
 get_oecd_data = function(data,
-                         country_code = NULL,
+                         country_code = 'GB',
                          date_col_name = NULL,
                          date_type = NULL,
                          append = TRUE,
@@ -319,8 +319,8 @@ get_oecd_data = function(data,
   # test    ----
   
   # data = sales_ts
-  # date_col_name = "week"
-  # date_type = "weekly starting"
+  # date_col_name = 'week'
+  # date_type = NULL
   # date_type = NULL
   # country_code = 'GB'
   # verbose = TRUE
