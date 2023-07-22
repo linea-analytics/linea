@@ -661,7 +661,7 @@ run_model = function(data = NULL,
 
   # vif
   vif_df = car::vif(model) %>%
-    TRY(verbose)
+    TRY()
   
   # TODO: change to check number of vars
   # - vif useless with 1 var
@@ -749,7 +749,7 @@ run_model = function(data = NULL,
       de_normalise = normalise_by_pool,
       categories = categories,
       verbose = verbose
-    ) %>% TRY(verbose)
+    ) %>% TRY()
 
     if (is.null(decomp_list)) {
       if (verbose) {
