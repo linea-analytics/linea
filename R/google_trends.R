@@ -34,7 +34,7 @@ gt_f = function(data,
   
   # data = linea::sales_ts
   # kw = 'bitcoin'
-  # date_col = "date"
+  # date_col = "week"
   # date_type = "weekly starting"
   # geo = "all"
   # append = TRUE
@@ -48,6 +48,15 @@ gt_f = function(data,
   # geo = "all"
   # append = TRUE
   # verbose = TRUE
+  # graceful = TRUE
+  
+  # data = data.frame(weeks = seq(Sys.Date() - 750, Sys.Date(), by = 7))
+  # kw = 'amazon'
+  # date_col = 'weeks'
+  # date_type = 'weekly starting'
+  # geo = "all"
+  # verbose = TRUE
+  # append = TRUE
   # graceful = TRUE
 
   
@@ -169,8 +178,7 @@ gt_f = function(data,
     
     df = gt_daily
     
-  }
-  else if(date_type == "weekly starting" | date_type == "weekly ending"){
+  } else if(date_type == "weekly starting" | date_type == "weekly ending"){
     
     extremes = dates %>% 
       as.Date() %>% 
@@ -184,7 +192,6 @@ gt_f = function(data,
     )
     
     # get gtrends with correct week
-    
     df = daily_map %>%
       left_join(gt_daily,by = "day")%>%
       group_by(week) %>%
