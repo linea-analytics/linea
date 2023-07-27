@@ -6,7 +6,7 @@
 #'
 #' @export
 #' @return character vector of colors in hexadecimal notation
-color_palette = function(){
+color_palette = function() {
   return(
     list(
       decomp_color_1 = "#636363",
@@ -28,7 +28,7 @@ color_palette = function(){
       actual_line_color = '#1c0022',
       predicted_line_color = "#00cf74",
       resid_bar_color = "#151c1f",
-      acf_bar_color = "#151c1f" 
+      acf_bar_color = "#151c1f"
     )
   )
 }
@@ -59,7 +59,7 @@ decomping = function(model = NULL,
                      de_normalise = TRUE,
                      categories = NULL,
                      tail_window = NULL,
-                     verbose = FALSE){
+                     verbose = FALSE) {
   # test    ####
   
   # raw_data = pooled_gt_data
@@ -67,7 +67,7 @@ decomping = function(model = NULL,
   # ivs = c("rakhi", "christmas", "diwali")
   # id_var = "Week"
   # pool_var = 'country'
-  # 
+  #
   # model_table = build_model_table(c(ivs, "", ""))
   # model = run_model(
   #   id_var = id_var,
@@ -78,40 +78,41 @@ decomping = function(model = NULL,
   #   model_table = model_table,
   #   normalise_by_pool = TRUE
   # )
-  # 
+  #
   # rm(raw_data)
   # rm(model_table)
   # rm(pool_var)
   # rm(ivs)
   # rm(id_var)
   # rm(dv)
-  # 
+  #
   # de_normalise = FALSE
   # de_normalise = TRUE
   # categories = NULL
   # verbose = TRUE
   # tail_window = 10
-
+  
   # checks  ####
   
   # check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose provided mus be logical (TRUE or FALSE). Setting to TRUE.")
     verbose = TRUE
   }
   
-  if(verbose)message("Generating model decomposition...")
+  if (verbose)
+    message("Generating model decomposition...")
   
   
   # check if model is provided
-  if(is.null(model)){
-    if(verbose){
+  if (is.null(model)) {
+    if (verbose) {
       message("- Error: No model provided. Returning NULL.")
     }
     return(NULL)
   }
-  if(!is(model,'lm')){
-    if(verbose){
+  if (!is(model, 'lm')) {
+    if (verbose) {
       message("- Error: model must be of type 'lm'. Returning NULL.")
     }
     return(NULL)
@@ -120,14 +121,14 @@ decomping = function(model = NULL,
   
   # get the coefficients from the model object
   coef = model$coefficients
-  ivs = model$model_table %>% 
-    filter(variable_t != '') %>% 
+  ivs = model$model_table %>%
+    filter(variable_t != '') %>%
     pull(variable_t)
   
   
   # TODO: function for checking model object to use in all functions
   # if(!("model_table" %in% names(model))){
-  #   model_table = build_model_table(ivs = ivs,trans_df = model$trans_df) %>% 
+  #   model_table = build_model_table(ivs = ivs,trans_df = model$trans_df) %>%
   #     get_variable_t()
   # }
   
@@ -137,9 +138,9 @@ decomping = function(model = NULL,
   # get the modeled data from the model object
   data = model$model
   raw_data = model$raw_data
-
+  
   # check raw_data for and drop NAs
-  if(any(!complete.cases(raw_data))) {
+  if (any(!complete.cases(raw_data))) {
     if (verbose) {
       message("- Warning: NA's found in raw data will be replaced with zeros.")
     }
@@ -151,9 +152,11 @@ decomping = function(model = NULL,
   actual = data %>% pull(!!sym(dv))
   raw_actual = raw_data %>% pull(!!sym(dv))
   
-  if(!is.logical(de_normalise)){
-    if(verbose){
-      message("- Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE.")
+  if (!is.logical(de_normalise)) {
+    if (verbose) {
+      message(
+        "- Warning: de_normalise provided must be of type logical. Setting de_normalise to FALSE."
+      )
     }
     de_normalise = FALSE
   }
@@ -166,17 +169,16 @@ decomping = function(model = NULL,
   
   
   # offset
-  if(any(model$model_table$fixed!='')){
-    
-    fixed_vars = model$model_table %>% 
-      filter(fixed != '') %>% 
+  if (any(model$model_table$fixed != '')) {
+    fixed_vars = model$model_table %>%
+      filter(fixed != '') %>%
       pull(variable_t)
     
-    fixed_coefs = rep(1,length(fixed_vars))
+    fixed_coefs = rep(1, length(fixed_vars))
     
     names(fixed_coefs) = fixed_vars
     
-    coef = c(coef,fixed_coefs)
+    coef = c(coef, fixed_coefs)
   }
   
   
@@ -195,18 +197,20 @@ decomping = function(model = NULL,
     actual = c(actual),
     residual = model$residuals,
     predicted = model$fitted.values,
-    id = id_var_values, #%>% factor(),
+    id = id_var_values,
+    #%>% factor(),
     pool = pool_var_values # %>% factor()
-  ) 
+  )
   fitted_values = pivot_longer(
     data = fitted_values,
-    cols = c('actual','residual','predicted'),
+    cols = c('actual', 'residual', 'predicted'),
     values_to = 'value',
-    names_to = "variable") %>% 
-    arrange(variable,id)
+    names_to = "variable"
+  ) %>%
+    arrange(variable, id)
   
   
-  if(!is.null(tail_window) & !is.null(raw_data)){
+  if (!is.null(tail_window) & !is.null(raw_data)) {
     # extend id
     
     ## get id
@@ -263,11 +267,11 @@ decomping = function(model = NULL,
       rename(id = !!sym(id_var),
              pool = !!sym(pool_var)) #%>%
     
-    id_ext = independendent_variables %>% 
+    id_ext = independendent_variables %>%
       pull(id)
-    pool_ext = independendent_variables %>% 
+    pool_ext = independendent_variables %>%
       pull(pool)
-    independendent_variables = independendent_variables %>% 
+    independendent_variables = independendent_variables %>%
       select(all_of(names(coef)))
     
     
@@ -295,12 +299,11 @@ decomping = function(model = NULL,
       pool = pool_ext
     )
     
-  }else{
-    
+  } else{
     # check raw_data & tail_window
-    if(!is.null(tail_window) & is.null(raw_data)){
-      
-      if(verbose)message('- Warning: No raw_data supplied for tail_window. Ignoring tail window.')
+    if (!is.null(tail_window) & is.null(raw_data)) {
+      if (verbose)
+        message('- Warning: No raw_data supplied for tail_window. Ignoring tail window.')
       
     }
     
@@ -333,11 +336,13 @@ decomping = function(model = NULL,
   
   
   # generate tibble df using the variable decomp, intercept and id variable
-  variable_decomp = variable_decomp %>% 
-    pivot_longer(cols = c('(Intercept)',names(coef)),
-                 names_to = 'variable',
-                 values_to = 'value') %>% 
-    arrange(variable,id) %>% 
+  variable_decomp = variable_decomp %>%
+    pivot_longer(
+      cols = c('(Intercept)', names(coef)),
+      names_to = 'variable',
+      values_to = 'value'
+    ) %>%
+    arrange(variable, id) %>%
     rename(contrib = value)
   
   # if an id variable name is provided use it
@@ -355,8 +360,7 @@ decomping = function(model = NULL,
   }
   
   # if a raw actual is provided and de-normalise is TRUE, check if dv is STAed
-  if(de_normalise){
-    
+  if (de_normalise) {
     pool_mean = tibble(raw_actual = raw_actual,
                        pool = pool_var_values) %>%
       group_by(pool) %>%
@@ -377,62 +381,73 @@ decomping = function(model = NULL,
   
   # IMPROVE CATEGORIES CHECK?
   if (is.null(categories)) {
-    if(all(model$model_table$category == "")){
-      if(verbose){
-        message("- Warning: No categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp.")
+    if (all(model$model_table$category == "")) {
+      if (verbose) {
+        message(
+          "- Warning: No categories table provided and no categories found in model_table. Setting category_decomp = variable_decomp."
+        )
       }
       category_decomp = variable_decomp
-    }else{
+    } else{
       # create category from model table categories
       categories = model$model_table %>%
-        select(variable,category) %>%
-        mutate(category = if_else(category == '','Other',category)) %>%
+        select(variable, category) %>%
+        mutate(category = if_else(category == '', 'Other', category)) %>%
         mutate(calc = 'none')
     }
-  } else if(!is.data.frame(categories)){
-    if(all(model$model_table$category == "")){
-      if(verbose){
-        message("- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
+  } else if (!is.data.frame(categories)) {
+    if (all(model$model_table$category == "")) {
+      if (verbose) {
+        message(
+          "- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp."
+        )
       }
       category_decomp = variable_decomp
-    }else{
-      
-      if(verbose){
-        message("- Warning: categories provided must be of type data.frame. Using model_table categories.")
+    } else{
+      if (verbose) {
+        message(
+          "- Warning: categories provided must be of type data.frame. Using model_table categories."
+        )
       }
       # create category from model table categories
       categories = model$model_table %>%
-        select(variable,category) %>%
-        mutate(category = if_else(category == '','Other',category)) %>%
+        select(variable, category) %>%
+        mutate(category = if_else(category == '', 'Other', category)) %>%
         mutate(calc = 'none')
     }
-  }else if(!(all(c('variable','category') %in% colnames(categories)))){
-    if(verbose){
-      message("- Warning: categories provided must contain atleast columns 'variable' and 'category'.")
+  } else if (!(all(c('variable', 'category') %in% colnames(categories)))) {
+    if (verbose) {
+      message(
+        "- Warning: categories provided must contain atleast columns 'variable' and 'category'."
+      )
     }
-    if(all(model$model_table$category == "")){
-      if(verbose){
-        message("- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp.")
+    if (all(model$model_table$category == "")) {
+      if (verbose) {
+        message(
+          "- Warning: categories table provided is not a data.frame and no categories found in model_table. Setting category_decomp = variable_decomp."
+        )
       }
       category_decomp = variable_decomp
-    }else{
-      
-      if(verbose){
-        message("- Warning: categories provided must be of type data.frame. Using model_table categories.")
+    } else{
+      if (verbose) {
+        message(
+          "- Warning: categories provided must be of type data.frame. Using model_table categories."
+        )
       }
       # create category from model table categories
       categories = model$model_table %>%
-        select(variable,category) %>%
-        mutate(category = if_else(category == '','Other',category)) %>%
+        select(variable, category) %>%
+        mutate(category = if_else(category == '', 'Other', category)) %>%
         mutate(calc = 'none')
     }
   }
   
-  if(!exists('category_decomp')){
-    
-    if(!('calc' %in% colnames(categories))){
-      if(verbose){
-        message("- Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'.")
+  if (!exists('category_decomp')) {
+    if (!('calc' %in% colnames(categories))) {
+      if (verbose) {
+        message(
+          "- Warning: categories type data.frame provided does not include a 'calc' column. Setting all categories to 'none'."
+        )
       }
       categories$calc = 'none'
     }
@@ -454,7 +469,7 @@ decomping = function(model = NULL,
                              "none",
                              calc)) %>%
       # group and sum the table by id and category
-      group_by(!!sym(id_var), category,pool) %>%
+      group_by(!!sym(id_var), category, pool) %>%
       summarise(contrib = sum(contrib)) %>%
       rename(variable = category)
     
@@ -549,8 +564,8 @@ decomping = function(model = NULL,
 decomp_chart = function(model = NULL,
                         decomp_list = NULL,
                         pool = NULL,
-                        colors = color_palette() %>% 
-                          unlist() %>% 
+                        colors = color_palette() %>%
+                          unlist() %>%
                           as.character(),
                         variable_decomp = FALSE,
                         verbose = FALSE,
@@ -561,26 +576,25 @@ decomp_chart = function(model = NULL,
                         font_color =  '#1c0022',
                         zero_line_color = '#1c0022',
                         grid_line_color = '#1c0022') {
-  
   # checks    ####
   
   # Check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
-
+  
   # Check decomp_list , model
-  if(is.null(model)){
-    if(is.null(decomp_list)){
+  if (is.null(model)) {
+    if (is.null(decomp_list)) {
       message("Error: No decomp_list provided. Returning NULL. ")
       return(NULL)
     }
-  }else{
+  } else{
     decomp_list = model$decomp_list
   }
-
-
+  
+  
   # get decomp
   if (variable_decomp) {
     # get variable decomp table
@@ -591,77 +605,85 @@ decomp_chart = function(model = NULL,
     decomp = decomp_list$category_decomp
     title = 'Category Decomposition'
   }
-
+  
   # check decomp table
-  if(!is.data.frame(decomp)){
+  if (!is.data.frame(decomp)) {
+    
   }
-  if(!all(c("pool","variable","contrib") %in% colnames(decomp))){
-    message("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. ")
+  if (!all(c("pool", "variable", "contrib") %in% colnames(decomp))) {
+    message(
+      "Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. "
+    )
     return(NULL)
   }
-
+  
   # get actual dependent variable table
   fitted_values = decomp_list$fitted_values
-
+  
   # check fitted_values
-  if(!is.data.frame(fitted_values)){
+  if (!is.data.frame(fitted_values)) {
     ##
   }
-  if(!all(c("pool","variable","value") %in% colnames(fitted_values))){
-    message("Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL.")
+  if (!all(c("pool", "variable", "value") %in% colnames(fitted_values))) {
+    message(
+      "Error: fitted_values table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL."
+    )
     return(NULL)
   }
-
-  fitted_values = fitted_values[fitted_values$variable %in% c("actual","predicted", "residual"), ]
-
+  
+  fitted_values = fitted_values[fitted_values$variable %in% c("actual", "predicted", "residual"),]
+  
   # the id variable name is the first column name
   id_var = colnames(decomp)[1]
-
-
+  
+  
   # filter by pool if provided
   if (!is.null(pool)) {
-
-    if(!any(decomp$pool == pool)){
-      message("Warning: POOL ",pool," not found. No POOL filtering applied.")
+    if (!any(decomp$pool == pool)) {
+      message("Warning: POOL ",
+              pool,
+              " not found. No POOL filtering applied.")
       decomp = decomp %>%
         rename(value = contrib)
     }
     else{
-      decomp = decomp[decomp$pool == pool, ]%>%
+      decomp = decomp[decomp$pool == pool,] %>%
         rename(value = contrib)
-      fitted_values = fitted_values[fitted_values$pool == pool, ]
+      fitted_values = fitted_values[fitted_values$pool == pool,]
     }
   }
-
-  if(is.null(pool)){
-    if(verbose){
+  
+  if (is.null(pool)) {
+    if (verbose) {
       message("Warning: No pool provided. Aggregating by id_var.")
     }
-
+    
     fitted_values = fitted_values %>%
-      group_by(variable,!!sym(id_var)) %>%
+      group_by(variable, !!sym(id_var)) %>%
       summarise(value = sum(value)) %>%
       mutate(pool = "total_pool")
-
+    
     decomp = decomp %>%
-      group_by(variable,!!sym(id_var)) %>%
+      group_by(variable, !!sym(id_var)) %>%
       summarise(contrib = sum(contrib)) %>%
       mutate(pool = "total_pool") %>%
       rename(value = contrib)
-
+    
     pool = "total_pool"
   }
-
+  
   # plot      ####
   
   # plot
   plot_ly(data = decomp,
           x = ~ get(id_var)) %>%
-    add_trace(type = "bar",
-              y = ~ value,
-              color = ~ variable,
-              name = ~ variable,
-              colors = colors) %>%
+    add_trace(
+      type = "bar",
+      y = ~ value,
+      color = ~ variable,
+      name = ~ variable,
+      colors = colors
+    ) %>%
     add_lines(
       data = fitted_values %>%
         filter(variable == "actual"),
@@ -678,17 +700,21 @@ decomp_chart = function(model = NULL,
       line = list(color = c(resid_line_color)),
       name = ~ variable
     ) %>%
-    layout(barmode = "relative",
-           plot_bgcolor  = plot_bgcolor,
-           paper_bgcolor = paper_bgcolor,
-           title = title,
-           margin = '10px',
-           font = list(color = font_color),
-           yaxis = list(gridcolor = grid_line_color),
-           xaxis = list(title = id_var,
-                        showgrid = FALSE,
-                        zerolinecolor = zero_line_color))
-
+    layout(
+      barmode = "relative",
+      plot_bgcolor  = plot_bgcolor,
+      paper_bgcolor = paper_bgcolor,
+      title = title,
+      margin = '10px',
+      font = list(color = font_color),
+      yaxis = list(gridcolor = grid_line_color),
+      xaxis = list(
+        title = id_var,
+        showgrid = FALSE,
+        zerolinecolor = zero_line_color
+      )
+    )
+  
 }
 
 #' total_decomp_chart
@@ -712,33 +738,32 @@ decomp_chart = function(model = NULL,
 #' @export
 #' @return a \code{plotly} stacked bar chart of the model's decomposition
 total_decomp_chart = function(model = NULL,
-                        decomp_list = NULL,
-                        pool = NULL,
-                        colors = color_palette() %>% 
-                          unlist() %>% 
-                          as.character(),
-                        variable_decomp = FALSE,
-                        verbose = FALSE,
-                        plot_bgcolor = "rgba(0, 0, 0, 0)",
-                        paper_bgcolor = "rgba(0, 0, 0, 0)",
-                        font_color =  '#1c0022',
-                        zero_line_color = '#1c0022') {
-  
+                              decomp_list = NULL,
+                              pool = NULL,
+                              colors = color_palette() %>%
+                                unlist() %>%
+                                as.character(),
+                              variable_decomp = FALSE,
+                              verbose = FALSE,
+                              plot_bgcolor = "rgba(0, 0, 0, 0)",
+                              paper_bgcolor = "rgba(0, 0, 0, 0)",
+                              font_color =  '#1c0022',
+                              zero_line_color = '#1c0022') {
   # checks    ####
   
   # Check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   
   # Check decomp_list , model
-  if(is.null(model)){
-    if(is.null(decomp_list)){
+  if (is.null(model)) {
+    if (is.null(decomp_list)) {
       message("Error: No decomp_list provided. Returning NULL. ")
       return(NULL)
     }
-  }else{
+  } else{
     decomp_list = model$decomp_list
   }
   
@@ -755,10 +780,13 @@ total_decomp_chart = function(model = NULL,
   }
   
   # check decomp table
-  if(!is.data.frame(decomp)){
+  if (!is.data.frame(decomp)) {
+    
   }
-  if(!all(c("pool","variable","contrib") %in% colnames(decomp))){
-    message("Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. ")
+  if (!all(c("pool", "variable", "contrib") %in% colnames(decomp))) {
+    message(
+      "Error: decomp table must include 3 columns called 'pool', 'variable' and 'value'. Returning NULL. "
+    )
     return(NULL)
   }
   
@@ -768,25 +796,26 @@ total_decomp_chart = function(model = NULL,
   
   # filter by pool if provided
   if (!is.null(pool)) {
-    
-    if(!any(decomp$pool == pool)){
-      message("Warning: POOL ",pool," not found. No POOL filtering applied.")
+    if (!any(decomp$pool == pool)) {
+      message("Warning: POOL ",
+              pool,
+              " not found. No POOL filtering applied.")
       decomp = decomp %>%
         rename(value = contrib)
     }
     else{
-      decomp = decomp[decomp$pool == pool, ]%>%
+      decomp = decomp[decomp$pool == pool,] %>%
         rename(value = contrib)
     }
   }
   
-  if(is.null(pool)){
-    if(verbose){
+  if (is.null(pool)) {
+    if (verbose) {
       message("Warning: No pool provided. Aggregating by id_var.")
     }
     
     decomp = decomp %>%
-      group_by(variable,!!sym(id_var)) %>%
+      group_by(variable, !!sym(id_var)) %>%
       summarise(contrib = sum(contrib)) %>%
       mutate(pool = "total_pool") %>%
       rename(value = contrib)
@@ -797,16 +826,16 @@ total_decomp_chart = function(model = NULL,
   # plot      ####
   
   # plot
-  plot_ly(data = decomp %>% 
-            group_by(variable) %>% 
-            summarise(value = sum(value))%>%
-            arrange(-value)) %>% 
+  plot_ly(data = decomp %>%
+            group_by(variable) %>%
+            summarise(value = sum(value)) %>%
+            arrange(-value)) %>%
     add_bars(
-    x = ~ value,
-    color = ~ variable,
-    colors = colors,
-    y = "total"
-  ) %>%
+      x = ~ value,
+      color = ~ variable,
+      colors = colors,
+      y = "total"
+    ) %>%
     layout(
       margin = '10px',
       barmode = "relative",
@@ -816,7 +845,7 @@ total_decomp_chart = function(model = NULL,
       xaxis = list(showgrid = F, zerolinecolor = zero_line_color),
       yaxis = list(showgrid = F),
       title = 'Total Decomposition'
-    ) 
+    )
   
 }
 
@@ -871,7 +900,7 @@ fit_chart = function(model = NULL,
   #   dv = dv,
   #   ivs = ivs,
   #   normalise_by_pool = FALSE,
-  #   id_var = id_var 
+  #   id_var = id_var
   # )
   # model %>% fit_chart()
   # verbose = TRUE
@@ -881,60 +910,62 @@ fit_chart = function(model = NULL,
   # checks  #####
   
   # Check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   
-  if(verbose){
+  if (verbose) {
     message("Fit chart...")
   }
-
-
+  
+  
   # Check decomp_list , model
-  if(is.null(model)){
-    if(is.null(decomp_list)){
+  if (is.null(model)) {
+    if (is.null(decomp_list)) {
       message("- Error: No decomp_list nor model provided. Returning NULL.")
       return(NULL)
     }
-  }else{
+  } else{
     decomp_list = model$decomp_list
   }
   # get actual dependent variable table
   fitted_values = decomp_list$fitted_values
-
+  
   # the id variable name is the first column name
   id_var = colnames(fitted_values)[1]
-
+  
   # filter by pool if provided
   if (!is.null(pool)) {
-    if(!any(fitted_values$pool == pool)){
-      message("- Warning: POOL ",pool," not found. No POOL filtering applied.")
+    if (!any(fitted_values$pool == pool)) {
+      message("- Warning: POOL ",
+              pool,
+              " not found. No POOL filtering applied.")
     }
     else{
-      fitted_values = fitted_values[fitted_values$pool == pool, ]
+      fitted_values = fitted_values[fitted_values$pool == pool,]
     }
   }
-
-  if(is.null(pool)){
-    if(verbose){
+  
+  if (is.null(pool)) {
+    if (verbose) {
       message("- Warning: No pool provided. Aggregating by id_var.")
     }
     fitted_values = fitted_values %>%
-      group_by(variable,!!sym(id_var)) %>%
+      group_by(variable, !!sym(id_var)) %>%
       summarise(value = sum(value)) %>%
       mutate(pool = "total_pool")
-
+    
     pool = "total_pool"
   }
-
+  
   # plot    ####
   
-
+  
   plot_ly(fitted_values) %>%
     add_lines(
       data = filter(fitted_values, variable == "residual"),
-      x = ~get(id_var),
+      x = ~ get(id_var),
       y = ~ value,
       line = list(color = resid_line_color),
       color =  ~ variable
@@ -966,7 +997,7 @@ fit_chart = function(model = NULL,
         title = id_var
       )
     )
-
+  
 }
 
 #' add_total_pool
@@ -981,37 +1012,42 @@ fit_chart = function(model = NULL,
 #' @import dplyr
 #' @export
 #' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
-add_total_pool = function(
-    model = NULL,
-    decomp_list = NULL,
-    verbose = FALSE){
+add_total_pool = function(model = NULL,
+                          decomp_list = NULL,
+                          verbose = FALSE) {
   # checks ------------------
   
   # check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
   
   # check inputs
-  if(is.null(model) & is.null(decomp_list)){
+  if (is.null(model) & is.null(decomp_list)) {
     message('Error: Neither "model" nor "decomp_list" were provided. Returning NULL')
     return(NULL)
   }
-  if(!is.null(model)){
-    if(!is.null(decomp_list)){
-      if(verbose)message('Warning: Both "model" and "decomp_list" have been provided. "model" will be used and "decomp_list" will be ignored.')
+  if (!is.null(model)) {
+    if (!is.null(decomp_list)) {
+      if (verbose)
+        message(
+          'Warning: Both "model" and "decomp_list" have been provided. "model" will be used and "decomp_list" will be ignored.'
+        )
     }
     
-    if(is.null(model$decomp_list)){
-      if(!is.null(decomp_list)){
-        if(verbose)message('Warning: "model" does not contain "decomp_list". Using "decomp_list" provided.')
+    if (is.null(model$decomp_list)) {
+      if (!is.null(decomp_list)) {
+        if (verbose)
+          message(
+            'Warning: "model" does not contain "decomp_list". Using "decomp_list" provided.'
+          )
       }
-    }else{
+    } else{
       decomp_list = model$decomp_list
     }
   }
-
+  
   # process -----------------------------------------------------------------
   
   variable_decomp = decomp_list$variable_decomp
@@ -1023,7 +1059,7 @@ add_total_pool = function(
   variable_decomp = variable_decomp %>%
     bind_rows(
       variable_decomp %>%
-        group_by(!!sym(id),variable) %>%
+        group_by(!!sym(id), variable) %>%
         summarise(contrib = sum(contrib)) %>%
         mutate(pool = 'Total')
     )
@@ -1031,7 +1067,7 @@ add_total_pool = function(
   category_decomp = category_decomp %>%
     bind_rows(
       category_decomp %>%
-        group_by(!!sym(id),variable) %>%
+        group_by(!!sym(id), variable) %>%
         summarise(contrib = sum(contrib)) %>%
         mutate(pool = 'Total')
     )
@@ -1039,7 +1075,7 @@ add_total_pool = function(
   fitted_values = fitted_values %>%
     bind_rows(
       fitted_values %>%
-        group_by(!!sym(id),variable) %>%
+        group_by(!!sym(id), variable) %>%
         summarise(value = sum(value)) %>%
         mutate(pool = 'Total')
     )
@@ -1064,8 +1100,7 @@ add_total_pool = function(
 #' @import dplyr
 #' @export
 #' @return a \code{data.frame} with additional observations.
-add_total_pool_to_data = function(data,pool_var,id_var) {
-  
+add_total_pool_to_data = function(data, pool_var, id_var) {
   # calculate the aggregated pools
   totals = data %>%
     group_by(!!sym(id_var)) %>%
@@ -1101,7 +1136,7 @@ add_total_pool_to_data = function(data,pool_var,id_var) {
 #' @import dplyr
 #' @export
 #' @return a \code{list} of 3 \code{data.frame}'s representing the variable and category decomposition, and the fitted values.
-filter_decomp_pool = function(decomp,pool,verbose = TRUE){
+filter_decomp_pool = function(decomp, pool, verbose = TRUE) {
   # if (!(pool %in% colnames(decomp$variable_decomp))) {
   #   if(verbose){
   #     message("Error: pool string provided does not match decomp columns.")
@@ -1111,9 +1146,9 @@ filter_decomp_pool = function(decomp,pool,verbose = TRUE){
   
   variable_decomp = decomp$variable_decomp %>%
     filter(pool == !!pool)
-  category_decomp = decomp$category_decomp%>%
+  category_decomp = decomp$category_decomp %>%
     filter(pool == !!pool)
-  fitted_values = decomp$fitted_values%>%
+  fitted_values = decomp$fitted_values %>%
     filter(pool == !!pool)
   
   decomp$variable_decomp = variable_decomp
@@ -1157,55 +1192,61 @@ resid_hist_chart = function(model = NULL,
                             font_color =  '#1c0022',
                             zero_line_color = '#1c0022',
                             grid_line_color = '#1c0022',
-                            verbose = FALSE){
+                            verbose = FALSE) {
   # Check verbose
-  if(!is.logical(verbose)){
+  if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
-
-
+  
+  
   # Check decomp_list , model
-  if(is.null(model)){
-    if(is.null(decomp_list)){
-      if(verbose){
+  if (is.null(model)) {
+    if (is.null(decomp_list)) {
+      if (verbose) {
         message("Error: No decomp_list provided. Returning NULL.")
       }
       return(NULL)
     }
-  }else{
+  } else{
     decomp_list = model$decomp_list
   }
-
+  
   df = decomp_list$fitted_values %>%
     filter(variable == "residual") %>%
     tibble() %>%
     select(value) %>%
     rename(residual = 1)
-
-  if(!is.null(pool)){
+  
+  if (!is.null(pool)) {
     pool_var = decomp_list$fitted_values %>%
       filter(variable == "residual") %>%
       pull(pool)
-
-    if(pool %in% pool_var){
-      df = df[pool_var==pool,]
+    
+    if (pool %in% pool_var) {
+      df = df[pool_var == pool, ]
     }
   }
-
+  
   plot_ly(data = df) %>%
-    add_histogram(histnorm = "probability",
-                  x = ~residual,
-                  marker = list(color = color,
-                                line = list(color = "white",
-                                            width = .5))) %>%
-    layout(font = list(color = font_color),
-           margin = '10px',
-           title = 'Residual Distribution',
-           yaxis = list(gridcolor = grid_line_color),
-           plot_bgcolor  = plot_bgcolor,
-           paper_bgcolor = paper_bgcolor)
-
+    add_histogram(
+      histnorm = "probability",
+      x = ~ residual,
+      marker = list(color = color,
+                    line = list(
+                      color = "white",
+                      width = .5
+                    ))
+    ) %>%
+    layout(
+      font = list(color = font_color),
+      margin = '10px',
+      title = 'Residual Distribution',
+      yaxis = list(gridcolor = grid_line_color),
+      plot_bgcolor  = plot_bgcolor,
+      paper_bgcolor = paper_bgcolor
+    )
+  
 }
 
 #' heteroscedasticity_chart
@@ -1239,15 +1280,14 @@ heteroskedasticity_chart = function(model = NULL,
                                     font_color =  '#1c0022',
                                     zero_line_color = '#1c0022',
                                     grid_line_color = '#1c0022',
-                                    verbose = FALSE){
-
+                                    verbose = FALSE) {
   # Check verbose
   if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
     verbose = FALSE
   }
-
-
+  
+  
   # Check decomp_list , model
   if (is.null(model)) {
     if (is.null(decomp_list)) {
@@ -1259,23 +1299,23 @@ heteroskedasticity_chart = function(model = NULL,
   } else{
     decomp_list = model$decomp_list
   }
-
-
+  
+  
   df = decomp_list$fitted_values %>%
     filter(variable != 'prediction') %>%
     pivot_wider(names_from  = variable)
-
+  
   if (!is.null(pool)) {
     pool_var = df %>%
       pull(pool)
-
+    
     if (pool %in% pool_var) {
-      df = df[pool_var == pool, ]
+      df = df[pool_var == pool,]
     } else{
       message('Warning: pool not found in data. Using full data.')
     }
   }
-
+  
   plot_ly(data = df) %>%
     add_trace(
       x = ~ residual,
@@ -1283,8 +1323,10 @@ heteroskedasticity_chart = function(model = NULL,
       type = 'scatter',
       mode = 'markers',
       marker = list(color = color,
-                    line = list(color = "white",
-                                width = .5))
+                    line = list(
+                      color = "white",
+                      width = .5
+                    ))
     ) %>%
     layout(
       font = list(color = font_color),
@@ -1296,7 +1338,7 @@ heteroskedasticity_chart = function(model = NULL,
       xaxis = list(showgrid = FALSE,
                    zerolinecolor = zero_line_color)
     )
-
+  
 }
 
 
@@ -1329,15 +1371,14 @@ acf_chart = function(model = NULL,
                      font_color =  '#1c0022',
                      zero_line_color = '#1c0022',
                      grid_line_color = '#1c0022',
-                     verbose = FALSE){
-
+                     verbose = FALSE) {
   # Check verbose
   if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to TRUE.")
     verbose = TRUE
   }
-
-
+  
+  
   # Check decomp_list , model
   if (is.null(model)) {
     if (is.null(decomp_list)) {
@@ -1349,35 +1390,42 @@ acf_chart = function(model = NULL,
   } else{
     decomp_list = model$decomp_list
   }
-
-
-
+  
+  
+  
   df = decomp_list$fitted_values %>%
     filter(variable == "residual") %>%
     tibble() %>%
     select(value) %>%
     rename(residual = 1)
-
-  if(!is.null(pool)){
+  
+  if (!is.null(pool)) {
     pool_var = decomp_list$fitted_values %>%
       filter(variable == "residual") %>%
       pull(pool)
-
-    if(pool %in% pool_var){
-      df = df[pool_var==pool,]
+    
+    if (pool %in% pool_var) {
+      df = df[pool_var == pool, ]
     }
   }
-
+  
   x = acf(df$residual, plot = FALSE)
   x = data.frame(x$acf) %>%
     rownames_to_column("x") %>%
     mutate(x = as.numeric(x))
-
-
+  
+  
   plot_ly() %>%
-    add_trace(y = x$x.acf, x = x$x,marker = list(color = color,
-                                                 line = list(color = "white",
-                                                             width = .5)),type="bar") %>%
+    add_trace(
+      y = x$x.acf,
+      x = x$x,
+      marker = list(color = color,
+                    line = list(
+                      color = "white",
+                      width = .5
+                    )),
+      type = "bar"
+    ) %>%
     add_trace(
       showlegend = FALSE,
       y = rep(0.2, length(x$x)),
@@ -1385,7 +1433,7 @@ acf_chart = function(model = NULL,
       type = 'scatter',
       mode = 'lines',
       hoverinfo = 'skip',
-      line = list(color = "rgba(0, 0, 0, 0.5)",dash = 'dot')
+      line = list(color = "rgba(0, 0, 0, 0.5)", dash = 'dot')
     ) %>%
     add_trace(
       hoverinfo = 'skip',
@@ -1394,7 +1442,7 @@ acf_chart = function(model = NULL,
       x = x$x,
       type = 'scatter',
       mode = 'lines',
-      line = list(color = "rgba(0, 0, 0, 0.5)",dash = 'dot')
+      line = list(color = "rgba(0, 0, 0, 0.5)", dash = 'dot')
     ) %>%
     add_trace(
       hoverinfo = 'skip',
@@ -1403,7 +1451,7 @@ acf_chart = function(model = NULL,
       x = x$x,
       type = 'scatter',
       mode = 'lines',
-      line = list(color = "rgba(0, 0, 0, 0.75)",dash = 'dot')
+      line = list(color = "rgba(0, 0, 0, 0.75)", dash = 'dot')
     ) %>%
     add_trace(
       hoverinfo = 'skip',
@@ -1412,7 +1460,7 @@ acf_chart = function(model = NULL,
       x = x$x,
       type = 'scatter',
       mode = 'lines',
-      line = list(color = "rgba(0, 0, 0, 0.75)",dash = 'dot')
+      line = list(color = "rgba(0, 0, 0, 0.75)", dash = 'dot')
     ) %>%
     layout(
       font = list(color = font_color),
@@ -1425,9 +1473,10 @@ acf_chart = function(model = NULL,
       xaxis = list(
         title = 'lags',
         showgrid = FALSE,
-        zerolinecolor = zero_line_color)
+        zerolinecolor = zero_line_color
+      )
     )
-
+  
 }
 
 #' response_curves
@@ -1469,39 +1518,37 @@ acf_chart = function(model = NULL,
 #'                   normalise_by_pool=TRUE)
 #' model %>%
 #'    response_curves(pool='4')
-#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
-#' 
+#' model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'))
+#'
 #' model %>%
 #'    response_curves()
-#'    
-#' run_model(data = scale(mtcars) %>% 
+#'
+#' run_model(data = scale(mtcars) %>%
 #'               data.frame(),
 #'           dv = 'mpg',
 #'           ivs = c('wt','cyl','disp')) %>%
 #'    response_curves(points = TRUE,x_min = -3,x_max = 3)
-response_curves = function(
-    model,
-    x_min = NULL,
-    x_max = NULL,
-    interval = NULL,
-    pool = NULL,
-    trans_only = FALSE,
-    colors = color_palette() %>% 
-      unlist() %>% 
-      as.character(),
-    plot_bgcolor = "rgba(0, 0, 0, 0)",
-    paper_bgcolor = "rgba(0, 0, 0, 0)",
-    font_color =  '#1c0022',
-    zero_line_color = '#1c0022',
-    grid_line_color = '#1c0022',
-    plotly = TRUE,
-    allow_ts_trans = FALSE,
-    verbose = FALSE,
-    table = FALSE,
-    histogram = FALSE,
-    add_intercept = FALSE,
-    points = FALSE){
-  
+response_curves = function(model,
+                           x_min = NULL,
+                           x_max = NULL,
+                           interval = NULL,
+                           pool = NULL,
+                           trans_only = FALSE,
+                           colors = color_palette() %>%
+                             unlist() %>%
+                             as.character(),
+                           plot_bgcolor = "rgba(0, 0, 0, 0)",
+                           paper_bgcolor = "rgba(0, 0, 0, 0)",
+                           font_color =  '#1c0022',
+                           zero_line_color = '#1c0022',
+                           grid_line_color = '#1c0022',
+                           plotly = TRUE,
+                           allow_ts_trans = FALSE,
+                           verbose = FALSE,
+                           table = FALSE,
+                           histogram = FALSE,
+                           add_intercept = FALSE,
+                           points = FALSE) {
   # test    #####
   
   # # non-ts model
@@ -1514,143 +1561,138 @@ response_curves = function(
   # model_table = build_model_table(ivs)
   # model_table = model_table %>%
   #   mutate(hill = if_else(variable=='qsec','20,5',hill))
+  
+  # # pooled model
+  # model = pooled_model # from tests
   # 
-  # model = run_model(data = data,
-  #                   id_var = id_var,
-  #                   dv = dv,
-  #                   model_table = model_table
-  #                   # ivs = ivs,
-  #                   # pool_var= pool_var,
-  #                   # normalise_by_pool = T
-  #                   )
-  # 
-  # model %>% response_curves(
-  #   points = T,
-  #   trans_only = T,
-  #   x_max = 150,
-  #   x_min = 0,
-  #   histogram = T)
-# 
-# model = pooled_model
-# 
-# x_min = NULL
-# x_max = NULL
-# y_min = NULL
-# y_max = NULL
-# interval = NULL
-# trans_only = FALSE
-# colors = color_palette()
-# plotly = TRUE
-# verbose = TRUE
-# allow_ts_trans = FALSE
-# table = FALSE
-# # pool = NULL
-# pool = 'India'
-# add_intercept = FALSE
-# points = FALSE
-# histogram = TRUE
-# plot_bgcolor = "rgba(0, 0, 0, 0)"
-# paper_bgcolor = "rgba(0, 0, 0, 0)"
-# font_color =  '#1c0022'
-# zero_line_color = '#1c0022'
-# grid_line_color = '#1c0022'
-
+  # x_min = NULL
+  # x_max = NULL
+  # y_min = NULL
+  # y_max = NULL
+  # interval = NULL
+  # trans_only = FALSE
+  # colors = color_palette()
+  # plotly = TRUE
+  # verbose = TRUE
+  # allow_ts_trans = FALSE
+  # table = FALSE
+  # pool = NULL
+  # # pool = 'India'
+  # add_intercept = FALSE
+  # points = FALSE
+  # histogram = TRUE
+  # plot_bgcolor = "rgba(0, 0, 0, 0)"
+  # paper_bgcolor = "rgba(0, 0, 0, 0)"
+  # font_color =  '#1c0022'
+  # zero_line_color = '#1c0022'
+  # grid_line_color = '#1c0022'
+  
   # checks  ####
   
-  # Check verbose
+  # check verbose
   if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to TRUE.")
     verbose = TRUE
   }
   
-  if(verbose){
+  if (verbose) {
     message("Generating response curves...")
-  }  
+  }
   
   output_model_table = model$output_model_table
   
+  # check min and max and interval
+  if (is.null(x_max))
+    x_max = 1e5
+  if (is.null(x_min))
+    x_min = -1e5
   
-  if (is.null(x_max)) x_max = 1e5
-  if (is.null(x_min)) x_min = -1e5
-    
-  if (is.null(interval)) interval = (x_max-x_min)/100
-
+  if (is.null(interval))
+    interval = (x_max - x_min) / 100
+  
   # process ####
-   
+  
   # if pool and pool mean
-  if(!is.null(pool) & !is.null(model$pool_mean)){
-    mean = model$pool_mean$mean[model$pool_mean$pool==pool]
-    if(!(pool %in% model$pool_mean$pool)){
-      if(verbose){message('- Warning: pool provided not found in model pools.')}
+  if (!is.null(pool) & !is.null(model$pool_mean)) {
+    mean = model$pool_mean$mean[model$pool_mean$pool == pool]
+    if (!(pool %in% model$pool_mean$pool)) {
+      if (verbose) {
+        message('- Warning: pool provided not found in model pools.')
+      }
       
       pool = NULL
       
       mean = model$pool_mean$mean %>% sum()
-      output_model_table =  output_model_table %>% 
+      output_model_table =  output_model_table %>%
         mutate(coef = coef * mean)
       
-    }else{
-      output_model_table =  output_model_table %>% 
+    } else{
+      output_model_table =  output_model_table %>%
         mutate(coef = coef * mean)
     }
   }
   # if pool but no pool mean
-  if(!is.null(pool) & is.null(model$pool_mean)){
-    if(model$pool_switch == FALSE){
-      if(verbose){message('- Warning: pool provided but model is not pooled.')}
-    }else{
-      
-      # account for number of pools 
-      n_pools = model$raw_data %>% 
-        pull(!!sym(model$pool_var)) %>% 
-        unique() %>% 
+  if (!is.null(pool) & is.null(model$pool_mean)) {
+    if (model$pool_switch == FALSE) {
+      if (verbose) {
+        message('- Warning: pool provided but model is not pooled.')
+      }
+    } else{
+      # account for number of pools
+      n_pools = model$raw_data %>%
+        pull(!!sym(model$pool_var)) %>%
+        unique() %>%
         length()
       
-      output_model_table =  output_model_table %>% 
+      output_model_table =  output_model_table %>%
         mutate(coef = coef * n_pools)
     }
   }
   # if no pool but pool mean - aggregated, de-normalized
-  if(is.null(pool) & !is.null(model$pool_mean)){
-    if(verbose){message('- Info: model normalised by pool but no pool provided.')}
+  if (is.null(pool) & !is.null(model$pool_mean)) {
+    if (verbose) {
+      message('- Info: model normalised by pool but no pool provided.')
+    }
     
     mean = model$pool_mean$mean %>% sum()
-    output_model_table =  output_model_table %>% 
+    output_model_table =  output_model_table %>%
       mutate(coef = coef * mean)
   }
   # if no pool but model pooled (not normalized though)
-  if(is.null(pool) & model$pool_switch & !model$normalise_by_pool){
-    # account for number of pools 
-    n_pools = model$raw_data %>% 
-      pull(!!sym(model$pool_var)) %>% 
-      unique() %>% 
+  if (is.null(pool) & model$pool_switch & !model$normalise_by_pool) {
+    # account for number of pools
+    n_pools = model$raw_data %>%
+      pull(!!sym(model$pool_var)) %>%
+      unique() %>%
       length()
     
-    output_model_table =  output_model_table %>% 
+    output_model_table =  output_model_table %>%
       mutate(coef = coef * n_pools)
   }
   
   
   trans_df = model$trans_df
-  if(!allow_ts_trans){
-    trans_df = trans_df%>%
-      filter(ts == FALSE) 
+  if (!allow_ts_trans) {
+    trans_df = trans_df %>%
+      filter(ts == FALSE)
   }
-
+  
   if (trans_only) {
-    output_model_table = output_model_table[!(((
-      output_model_table[trans_df$name] == "") %>%
-        data.frame() %>% 
-        rowSums()) == nrow(trans_df)),
-    ]
+    output_model_table = output_model_table[!(((output_model_table[trans_df$name] == "") %>%
+                                                 data.frame() %>%
+                                                 rowSums()) == nrow(trans_df)),]
   }
-  output_model_table = output_model_table %>% 
-    filter(variable != "(Intercept)") %>% 
-    select(all_of(c("variable", "variable_t", trans_df$name, "coef"))) %>%
+  output_model_table = output_model_table %>%
+    filter(variable != "(Intercept)") %>%
+    select(all_of(c(
+      "variable", "variable_t", trans_df$name, "coef"
+    ))) %>%
     na.omit()
   
   if (nrow(output_model_table) == 0) {
-    message("- Error: Check model, model_table, and/or trans_df as well as other input arguments for the `response_curves()` function.")
+    message(
+      "- Error: Check model, model_table, and/or trans_df as well as other input arguments for the `response_curves()` function."
+    )
     return(NULL)
   }
   curves_df = list()
@@ -1664,12 +1706,12 @@ response_curves = function(
     
     # check if variable is transformed
     
-    any_trans_params = any(model$model_table %>% 
-                             filter(variable_t == var) %>% 
+    any_trans_params = any(model$model_table %>%
+                             filter(variable_t == var) %>%
                              select(all_of(trans_df$name))
                            != "")
     
-    if(any_trans_params){
+    if (any_trans_params) {
       for (j in 1:nrow(trans_df)) {
         t_name = trans_df$name[j]
         t_func = trans_df$func[j]
@@ -1705,76 +1747,84 @@ response_curves = function(
   }
   curves_df = curves_df %>%
     Reduce(f = rbind)
-
-  if(add_intercept){
+  
+  if (add_intercept) {
     curves_df = curves_df %>%
       mutate(value = value + model$coefficients[1])
   }
-
-
+  
+  
   if (table) {
-    if(verbose)message("Returning response curves table.")
+    if (verbose)
+      message("Returning response curves table.")
     return(curves_df)
   }
-
+  
   # plotly  ####
-  if(plotly){
-
+  if (plotly) {
     p = plot_ly()
-    p = p %>% add_trace(data = curves_df, 
-                        x = ~x, 
-                        y = ~value,
-                        color = ~variable, 
-                        legendgroup = ~variable,
-                        mode = "lines", 
-                        type = "scatter",
-                        colors = colors) %>%
-      layout(plot_bgcolor = plot_bgcolor,
-             margin = '10px',
-             paper_bgcolor = paper_bgcolor,
-             font = list(color = font_color),
-             xaxis = list(showgrid = FALSE,
-                          zerolinecolor = zero_line_color),
-             yaxis = list(gridcolor = grid_line_color,
-                          title = model$dv),
-             title = "Response Curves")
-
-    if(points | histogram) {
-
+    p = p %>% add_trace(
+      data = curves_df,
+      x = ~ x,
+      y = ~ value,
+      color = ~ variable,
+      legendgroup = ~ variable,
+      mode = "lines",
+      type = "scatter",
+      colors = colors
+    ) %>%
+      layout(
+        plot_bgcolor = plot_bgcolor,
+        margin = '10px',
+        paper_bgcolor = paper_bgcolor,
+        font = list(color = font_color),
+        xaxis = list(showgrid = FALSE,
+                     zerolinecolor = zero_line_color),
+        yaxis = list(gridcolor = grid_line_color,
+                     title = model$dv),
+        title = "Response Curves"
+      )
+    
+    if (points | histogram) {
+      
+      # get model data for histogram and/or points
       id_var = model$id_var
       raw_data = model$raw_data
       
-      if(model$pool_switch & !is.null(pool)){
-        raw_data = raw_data[raw_data[model$pool_var]==pool,]
+      # if model is pooled and a pool is provided, filter relevant rows
+      if (model$pool_switch & !is.null(pool)) {
+        raw_data = raw_data[raw_data[model$pool_var] == pool, ]
       }
       
+      # select relevant columns
       raw_data = raw_data %>%
-        select(all_of(c(id_var,output_model_table$variable)))
+        select(all_of(c(
+          id_var, output_model_table$variable
+        )))
       
-      if(model$pool_switch & is.null(pool)){
-        raw_data = raw_data %>% 
-          group_by(!!sym(id_var)) %>% 
-          summarise_all(sum) %>% 
+      # if model is pooled but no pool is provided, sum data by id
+      if (model$pool_switch & is.null(pool)) {
+        raw_data = raw_data %>%
+          group_by(!!sym(id_var)) %>%
+          summarise_all(sum) %>%
           ungroup()
       }
       
-      if(histogram){
-      
-        hist_df = lapply(output_model_table$variable, function(var){
-          
-          h = hist(raw_data %>% pull(!!sym(var)), plot=FALSE)
+      if (histogram) {
+        hist_df = lapply(output_model_table$variable, function(var) {
+          h = hist(raw_data %>% pull(!!sym(var)), plot = FALSE)
           
           h = data.frame(
-            x = linea::ma(h$breaks,2,align = "center")[-length(h$breaks)],
+            x = linea::ma(h$breaks, 2, align = "center")[-length(h$breaks)],
             y = h$counts,
             var = var,
             var_t = output_model_table$variable_t[output_model_table$variable == var]
-            )
+          )
           
           return(h)
-        }) %>% 
+        }) %>%
           Reduce(f = rbind)
-      
+        
         p = p %>%  add_bars(
           alpha = 0.6,
           data = hist_df ,
@@ -1782,90 +1832,94 @@ response_curves = function(
           y = ~ y,
           yaxis = "y2",
           color = ~ var_t,
-          legendgroup = ~var_t,
+          legendgroup = ~ var_t,
           showlegend = FALSE,
           colors = colors
-        ) 
+        )
         
         p = p %>%
           layout(
             barmode = "overlay",
             yaxis2 = list(
-            overlaying = "y",
-            side = "right",
-            title = "frequency"
-            
-          ))
+              overlaying = "y",
+              side = "right",
+              title = "frequency"
+              
+            )
+          )
       }
       
-      if(points){
+      if (points) {
         
+        # get variable decomp to compute y-hat 
         variable_decomp = model$decomp_list$variable_decomp
         
-        if(model$pool_switch & !is.null(pool)){
-          variable_decomp = variable_decomp %>% 
-            filter(pool == !!pool) %>% 
+        # if model is pooled and pool is provided, select only relevant rows
+        if (model$pool_switch & !is.null(pool)) {
+          variable_decomp = variable_decomp %>%
+            filter(pool == !!pool) %>%
             select(-pool)
         }
-        if(model$pool_switch & !is.null(pool)){
-          variable_decomp = variable_decomp %>% 
-            select(-pool) %>% 
-            group_by(!!sym(id_var),variable) %>% 
-            summarise_all(sum) %>% 
+        
+        # if model is pooled and pool is not provided sum contrib by id
+        if (model$pool_switch & is.null(pool)) {
+          variable_decomp = variable_decomp %>%
+            select(-pool) %>%
+            group_by(!!sym(id_var), variable) %>%
+            summarise_all(sum) %>%
             ungroup()
         }
         
-        melted_raw_data = raw_data %>% 
-          reshape2::melt(id.vars = id_var) %>% 
-          left_join(
-            output_model_table %>% 
-              select(variable,variable_t),
-            by = "variable"
-          )
+        melted_raw_data = raw_data %>%
+          reshape2::melt(id.vars = id_var) %>%
+          left_join(output_model_table %>%
+                      select(variable, variable_t),
+                    by = "variable")
         
         
-        points_df = variable_decomp %>% 
-          filter(variable != "(Intercept)") %>% 
-          left_join(melted_raw_data,by = c("variable" = "variable_t",id_var))
+        points_df = variable_decomp %>%
+          filter(variable != "(Intercept)") %>%
+          left_join(melted_raw_data,
+                    by = c("variable" = "variable_t", id_var))
         
-        p = p %>%  
+        p = p %>%
           add_trace(
             alpha = 0.4,
-            data = points_df, 
-            x = ~value, 
-            y = ~contrib,
-            color = ~variable, 
-            legendgroup = ~variable,
+            data = points_df,
+            x = ~ value,
+            y = ~ contrib,
+            color = ~ variable,
+            legendgroup = ~ variable,
             showlegend = FALSE,
             mode = "markers",
             marker = list(size = 7),
             type = "scatter",
-            colors = colors)
+            colors = colors
+          )
       }
-
-
+      
+      
     }
     
   }
   # ggplot  ####
-  if(!plotly){
-    
+  if (!plotly) {
     p = ggplot(data = curves_df, aes(x = x, y = value, col = variable)) +
       geom_line() +
-      scale_color_manual(values = color_palette() %>% 
-                           unlist() %>% 
+      scale_color_manual(values = color_palette() %>%
+                           unlist() %>%
                            as.character()) +
-      theme(
-        panel.background = element_rect(fill = "white",
-                                        colour = "white")) +
+      theme(panel.background = element_rect(fill = "white",
+                                            colour = "white")) +
       ggtitle("Response Curves") +
       ylab(model$dv) +
       geom_vline(xintercept = 0) +
       geom_hline(yintercept = 0)
     
   }
-
   
-  if(verbose)message("Returning response curves plot.")
+  
+  if (verbose)
+    message("Returning response curves plot.")
   return(p)
 }
