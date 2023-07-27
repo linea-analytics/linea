@@ -1605,7 +1605,7 @@ response_curves = function(model,
   if (is.null(x_max))
     x_max = 1e5
   if (is.null(x_min))
-    x_min = -1e5
+    x_min = 0
   
   if (is.null(interval))
     interval = (x_max - x_min) / 100
