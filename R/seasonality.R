@@ -164,7 +164,7 @@ check_ts = function(data,
 #'    get_seasonality(date_col_name = 'week')
 get_seasonality = function(data,
                            date_col_name,
-                           date_type = 'weekly starting',
+                           date_type = NULL,
                            date_format = '%d/%m/%Y',
                            verbose = FALSE,
                            keep_dup = FALSE,
@@ -175,7 +175,7 @@ get_seasonality = function(data,
   # data = linea::sales_ts
   # date_col_name = 'week'
   # date_type = 'weekly starting'
-  # date_format = '%d/%m/%Y'
+  # date_format = NULL
   # verbose = TRUE
   # keep_dup = FALSE
   # pool_var = NULL
@@ -187,6 +187,14 @@ get_seasonality = function(data,
   # verbose = TRUE
   # keep_dup = FALSE
   # pool_var = "country"
+  
+  # data = linea::cran_downloads
+  # date_col_name = 'date'
+  # date_type = NULL
+  # date_format = NULL
+  # verbose = TRUE
+  # keep_dup = FALSE
+  # pool_var = NULL
   
   
   # checks  ####
@@ -205,11 +213,12 @@ get_seasonality = function(data,
     message('- Error: data must be a dataframe. Returning NULL.')
     return(NULL)
   }
-  # check data provided contains date_col
+  # check data provided contains date_col_name
   if(!(date_col_name %in% colnames(data))){
     message('- Error: data must contain date_col_name. Returning NULL.')
     return(NULL)
   }
+  date_col = pull(data,date_col_name) 
   # check pool
   if(!is.null(pool_var)){
     if(!(pool_var %in% colnames(data))){
@@ -218,12 +227,25 @@ get_seasonality = function(data,
     }
   }
   # check date_type
+  if(is.null(date_type)){
+    if(is_weekly(dates = date_col)){
+      date_type = 'weekly startning'
+      if(verbose){message('- Info: data_type inferred as weekly (starting).')}
+    }else if(is_daily(dates = date_col)){
+      date_type = 'daily'
+      if(verbose){message('- Info: data_type inferred as daily.')}
+    }
+    else{
+      message('- Error: data_type not provided and could not be inferred. Returning NULL.')
+      return(NULL)
+    }
+  }
+  
   if(!(date_type %in% c('weekly starting', "weekly ending", "daily"))){
     if(verbose)message('- Warning: date_type must be either "weekly starting", "weekly ending", "daily". Setting date_type to "weekly starting".')
     date_type = "weekly starting"
   }
   
-  date_col = pull(data,date_col_name) 
   
   if(!lubridate::is.Date(date_col)){
     date_col = as.Date(x = date_col,format = date_format)
@@ -311,7 +333,7 @@ get_seasonality = function(data,
     mutate(new_years_day = if_else(strftime(day,format = "%d-%m") == "01-01",1,0)) %>%
     mutate(new_years_eve = if_else(strftime(day,format = "%d-%m") == "31-12",1,0)) %>%
     mutate(easter = as.integer(isEaster(day))) %>%
-    mutate(good_friday = as.integer(isGoodFriday(as.Date(as.character(day),format="%Y%m%d"))))
+    mutate(good_friday = as.integer(isGoodFriday(day)))
   
   
   # join dataframes
