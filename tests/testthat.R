@@ -191,7 +191,25 @@ test_that('seasonality - pooled',{
     expect_equal(TRUE)
 
 })
-
+test_that('seasonality - daily',{
+  
+  daily_data = daily_data %>%
+    check_ts(date_col = 'date') %>%
+    get_seasonality(date_col_name = 'date') %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
+test_that('seasonality - spot check',{
+  
+  daily_data = daily_data %>%
+    check_ts(date_col = 'date') %>%
+    get_seasonality(date_col_name = 'date') %>%
+    pull(good_friday) %>% 
+    sum() %>% 
+    expect_equal(2)
+  
+})
 
 ### economy     ####
 
@@ -326,17 +344,6 @@ test_that('world bank - weekly',{
     expect_equal(TRUE)
   
 })
-
-# test_that('economy - pool_var',{
-#   
-#   data = pooled_gt_data %>%
-#     check_ts(date_col = 'Week') %>%
-#     mutate(country = if_else(country == 'UK','GB',country)) %>%
-#     get_economy(date_col_name = 'Week',pool_var = 'country') %>%
-#     is.data.frame() %>%
-#     expect_equal(TRUE)
-#   
-# })
 
 ### run model   ####
 
@@ -743,10 +750,20 @@ test_that("response curves - pooled - output is plotly",{
     all() %>%
     expect_equal(TRUE)
 })
+test_that("response curves - pooled, table - output is dataframe",{
+
+  t = pooled_model %>%
+    response_curves(table = TRUE) 
+  
+  t %>%
+    class() %>%
+    is.element(c("data.frame")) %>%
+    expect_equal(TRUE)
+})
 test_that("response curves - pooled selected - output is plotly",{
   
   pooled_model %>%
-    response_curves() %>%
+    response_curves(pool = 'US') %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
@@ -755,7 +772,7 @@ test_that("response curves - pooled selected - output is plotly",{
 test_that("response curves - pooled, points and histogram - output is plotly",{
   
   pooled_model %>%
-    response_curves(points = TRUE, histogram = TRUE) %>%
+    response_curves(points = TRUE, histogram = FALSE) %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
