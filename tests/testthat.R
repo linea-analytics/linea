@@ -1,4 +1,4 @@
-# libs   
+# libs   ----
 library(testthat)
 library(linea)
 library(plotly)
@@ -375,6 +375,31 @@ test_that('decomp',{
     expect_equal('plotly')
 
 })
+test_that('decomp - math',{
+  
+  temp_var_decomp = model$decomp_list$variable_decomp
+  temp_coef = model$output_model_table %>% 
+    select(variable,variable_t,coef) %>% 
+    filter(variable == 'vod_spend') %>% 
+    pull(coef)
+  
+  temp_v = linea::sales_ts$vod_spend
+  temp_trans_df = default_trans_df()
+  temp_trans_df$params = c('2e4,5','.5','0','0')
+  
+  temp_manual_decomp_val = vapply_transformation(v,trans_df) %>% 
+    {. * temp_coef} %>% 
+    sum()
+  
+  temp_decomp_val = temp_var_decomp %>% 
+    filter(variable == 'vod_spend_hill_20000,5_decay_0.5') %>% 
+    pull(contrib) %>% 
+    sum()
+  
+  expect_equal(object = temp_decomp_val,
+               expected = temp_manual_decomp_val)
+  
+})
 
 test_that('decomp - pooled',{
   
@@ -384,6 +409,32 @@ test_that('decomp - pooled',{
     {.[1]} %>% 
     expect_equal('plotly')
   
+  
+})
+test_that('decomp - pooled - math',{
+  
+  # decomp to test
+  temp_test_val = pooled_model$decomp_list$variable_decomp %>% 
+    filter(variable == 'christmas') %>% 
+    pull(contrib) %>% 
+    sum() %>% 
+    round(2)
+  
+  # manual decomp
+  temp_coef = pooled_model$output_model_table %>% 
+    select(variable,variable_t,coef) %>% 
+    filter(variable == 'christmas') %>% 
+    pull(coef)
+  
+  temp_manual_val = linea::pooled_gt_data %>% 
+    left_join(y = model$pool_mean,by = c('country'='pool')) %>% 
+    mutate(christmas = christmas * mean * !!temp_coef) %>% 
+    pull(christmas) %>% 
+    sum() %>% 
+    round(2)
+    
+  expect_equal(object = temp_test_val,
+               expected = temp_manual_val)
   
 })
 
@@ -400,7 +451,6 @@ test_that('decomp - tails',{
     expect_equal('plotly')
   
 })
-
 test_that('decomp - colors',{
   
   model %>% 
@@ -772,7 +822,7 @@ test_that("response curves - pooled selected - output is plotly",{
 test_that("response curves - pooled, points and histogram - output is plotly",{
   
   pooled_model %>%
-    response_curves(points = TRUE, histogram = FALSE) %>%
+    response_curves(points = TRUE, histogram = FALSE,x_max = 50,x_min = 0) %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
