@@ -288,6 +288,14 @@ apply_transformation = function(raw_data = NULL,
 #' @param verbose A boolean to specify whether to print warnings
 #' @return Transformed numeric vector
 vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
+  
+  # tests   ----
+  
+  # v = linea::sales_ts$vod_spend
+  # trans_df = default_trans_df()
+  # trans_df$params = c('2e4,5','.5','0','0')
+  # verbose = TRUE
+  
   # checks  ####
 
   # check verbose
