@@ -1603,7 +1603,7 @@ response_curves = function(model,
   
   # check min and max and interval
   if (is.null(x_max))
-    x_max = 1e5
+    x_max = 100
   if (is.null(x_min))
     x_min = 0
   
