@@ -287,12 +287,17 @@ apply_transformation = function(raw_data = NULL,
 #' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @param verbose A boolean to specify whether to print warnings
 #' @return Transformed numeric vector
+#' @example 
+#' v = linea::sales_ts$vod_spend
+#' trans_df = linea::default_trans_df()
+#' trans_df$params = c('2e4,5','.5','0','0')
+#' linea::vapply_transformation(v,trans_df)
+#' 
 vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
-  
   # tests   ----
   
   # v = linea::sales_ts$vod_spend
-  # trans_df = default_trans_df()
+  # trans_df = linea::default_trans_df()
   # trans_df$params = c('2e4,5','.5','0','0')
   # verbose = TRUE
   
