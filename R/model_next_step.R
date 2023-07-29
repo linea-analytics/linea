@@ -75,7 +75,7 @@ what_next = function(model = NULL,
   test_ivs = test_ivs[!(test_ivs %in% c(ivs, dv, id_var, pool_var))]
   
   if(length(test_ivs)==0){
-    message('Error: No new columns found in data. Returning NULL.')
+    message('- Warning: No new columns found in data. Returning NULL.')
     return(NULL)
   }
   
