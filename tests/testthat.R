@@ -191,6 +191,15 @@ test_that('seasonality - pooled',{
     expect_equal(TRUE)
 
 })
+test_that('seasonality - pooled - no pool var',{
+
+  pooled_data = pooled_gt_data %>%
+    check_ts(date_col = 'Week') %>%
+    get_seasonality(date_col_name = 'Week') %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+
+})
 test_that('seasonality - daily',{
   
   daily_data = daily_data %>%
@@ -387,7 +396,9 @@ test_that('decomp - math',{
   temp_trans_df = default_trans_df()
   temp_trans_df$params = c('2e4,5','.5','0','0')
   
-  temp_manual_decomp_val = vapply_transformation(v,trans_df) %>% 
+  temp_manual_decomp_val = vapply_transformation(
+    temp_v,
+    temp_trans_df) %>% 
     {. * temp_coef} %>% 
     sum()
   
@@ -427,7 +438,7 @@ test_that('decomp - pooled - math',{
     pull(coef)
   
   temp_manual_val = linea::pooled_gt_data %>% 
-    left_join(y = model$pool_mean,by = c('country'='pool')) %>% 
+    left_join(y = pooled_model$pool_mean,by = c('country'='pool')) %>% 
     mutate(christmas = christmas * mean * !!temp_coef) %>% 
     pull(christmas) %>% 
     sum() %>% 
@@ -736,7 +747,7 @@ test_that("gtrends_f - daily - output dataframe",{
 test_that("response curves - weekly - output is plotly",{
 
   model %>%
-    response_curves(colors = "viridis")  %>%
+    response_curves(colors = "viridis",trans_only = TRUE,x_max = 1e3)  %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
@@ -761,6 +772,28 @@ test_that("response curves - weekly, table - output is dataframe",{
     expect_equal(TRUE)
 
 })
+test_that("response curves - weekly, table - math",{
+
+  x_min = 0
+  x_max = 1000
+  interval = 10
+  
+  temp_test_val = model %>%
+    response_curves(allow_ts_trans = FALSE,table = TRUE,x_min = x_min,x_max = x_max,interval = interval) %>% 
+    filter(variable == 'vod_spend_hill_20000,5_decay_0.5') %>% 
+    pull(value) 
+  
+  temp_manual_val = seq(x_min, x_max, interval) %>%
+    vapply_transformation(
+      trans_df = linea::default_trans_df() %>% 
+        mutate(params = c('2e4,5', '0', '0', '0'))
+      ) %>% 
+    {. * model$output_model_table %>% filter(variable == 'vod_spend') %>% 
+        pull(coef)}
+  
+  expect_equal(temp_test_val,temp_manual_val)
+
+})
 
 test_that("response curves - daily - output is plotly",{
   
@@ -772,10 +805,10 @@ test_that("response curves - daily - output is plotly",{
     expect_equal(TRUE)
   
 })
-test_that("response curves - daily, points and histogram - output is plotly",{
+test_that("response curves - daily, points - output is plotly",{
   
   daily_model %>%
-    response_curves(points = TRUE,histogram = TRUE)  %>%
+    response_curves(histogram = TRUE)  %>%
     class() %>%
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
@@ -800,6 +833,35 @@ test_that("response curves - pooled - output is plotly",{
     all() %>%
     expect_equal(TRUE)
 })
+test_that("response curves - pooled, table - math",{
+
+  x_min = 0
+  x_max = 1000
+  interval = 10
+  
+  temp_test_val = pooled_model %>%
+    response_curves(
+      allow_ts_trans = FALSE,
+      table = TRUE,
+      x_min = x_min,
+      x_max = x_max,
+      interval = interval) %>% 
+    filter(variable == 'christmas') %>% 
+    pull(value) %>% 
+    sum()
+  
+  temp_manual_val = seq(x_min, x_max, interval) %>%
+    expand.grid(pooled_model$pool_mean$mean) %>% 
+    mutate(value = Var1 * Var2) %>% 
+    pull(value) %>% 
+    {. * pooled_model$output_model_table %>% 
+        filter(variable == 'christmas') %>% 
+        pull(coef)} %>% 
+    sum()
+  
+  expect_equal(temp_test_val,temp_manual_val)
+  
+})
 test_that("response curves - pooled, table - output is dataframe",{
 
   t = pooled_model %>%
@@ -818,14 +880,4 @@ test_that("response curves - pooled selected - output is plotly",{
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
     expect_equal(TRUE)
-})
-test_that("response curves - pooled, points and histogram - output is plotly",{
-  
-  pooled_model %>%
-    response_curves(points = TRUE, histogram = FALSE,x_max = 50,x_min = 0) %>%
-    class() %>%
-    is.element(c("plotly","htmlwidget")) %>%
-    all() %>%
-    expect_equal(TRUE)
-  
 })
