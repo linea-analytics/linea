@@ -530,6 +530,10 @@ run_model = function(data = NULL,
     }
   }
   
+  # check normalise_by_pool
+  if(is.null(normalise_by_pool)){
+    normalise_by_pool = FALSE
+  }
 
   # check id_var
   if(is.null(id_var)){
@@ -812,10 +816,24 @@ re_run_model = function(model,
                         id_var = NULL,
                         pool_var = NULL,
                         model_table = NULL,
-                        normalise_by_pool = FALSE,
+                        normalise_by_pool = NULL,
                         verbose = FALSE,
                         decompose = TRUE){
 
+  # test    ----
+  
+  # model = pooled_model # from test file
+  # data = NULL
+  # dv = NULL
+  # ivs = NULL
+  # trans_df = NULL
+  # id_var = NULL
+  # pool_var = NULL
+  # model_table = NULL
+  # normalise_by_pool = NULL
+  # verbose = TRUE
+  # decompose = TRUE
+   
   # checks  ####
 
   # check verbose
@@ -823,16 +841,20 @@ re_run_model = function(model,
     message("Warning: verbose provided must be logical (TRUE or FALSE). Setting to FALSE.")
     verbose = FALSE
   }
+  
+  if(verbose){
+    message('Re-running model...')
+  }
 
   # check decompose
   if(is.null(decompose)){
-    if(verbose)message("Warning: decompose provided must be logical (TRUE or FALSE). Setting to TRUE.")
+    if(verbose)message("- Warning: decompose provided must be logical (TRUE or FALSE). Setting to TRUE.")
     decompose = TRUE
   }
 
   # check model
   if (!is(model,class2 = 'lm')) {
-    message("Error: model must be of type 'lm'. Returning NULL.")
+    message("- Error: model must be of type 'lm'. Returning NULL.")
     return(NULL)
   }
 
@@ -848,16 +870,14 @@ re_run_model = function(model,
     model_table = model$model_table
 
     ivs = model$ivs
-  }
-  else if(!is.null(model_table)){
+  }else if(!is.null(model_table)){
     if(!is.null(ivs)){
       if(verbose){
-        message('Warning: both model_table and ivs have been supplied. model_table will be used.')
+        message('- Warning: both model_table and ivs have been supplied. model_table will be used.')
       }
     }
     ivs = NULL
-  }
-  else if(!is.null(ivs)){
+  }else if(!is.null(ivs)){
     model_table = NULL
   }
 
@@ -874,14 +894,23 @@ re_run_model = function(model,
     normalise_by_pool = model$normalise_by_pool
   }
 
+  
   # process ####
-  run_model(data = data,
+  model = run_model(data = data,
             dv = dv,
             ivs = ivs,
             trans_df = trans_df,
             id_var = id_var,
             model_table = model_table,
+            pool_var = pool_var,
             normalise_by_pool = normalise_by_pool,
             verbose = verbose,
             decompose = decompose)
+  
+  
+  if(verbose){
+    message('Model has been re-run.')
+  }
+  
+  return(model)
 }
