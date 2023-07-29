@@ -353,6 +353,15 @@ test_that('world bank - weekly',{
     expect_equal(TRUE)
   
 })
+test_that('world bank - daily',{
+  
+  daily_data %>%
+    check_ts(date_col = daily_id_var) %>%
+    get_economy(date_col_name = daily_id_var,country_code = 'US') %>%
+    is.data.frame() %>%
+    expect_equal(TRUE)
+  
+})
 
 ### run model   ####
 
