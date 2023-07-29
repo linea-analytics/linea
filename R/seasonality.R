@@ -22,7 +22,10 @@ is_uniform_ts = function(dates){
 #' @return boolean to specify whether the time series has a daily frequency
 #' @export
 is_daily = function(dates){
-
+  
+  # unique dates for pooled
+  dates = unique(dates)
+  
   mean_diff = mean(dates[-1] - dates[1:(length(dates)-1)])
 
   if(mean_diff == 1){TRUE}
@@ -41,6 +44,9 @@ is_daily = function(dates){
 #' @export
 is_weekly = function(dates){
 
+  # unique dates for pooled
+  dates = unique(dates)
+  
   mean_diff = mean(dates[-1] - dates[1:(length(dates)-1)])
   if(mean_diff == 7){TRUE}
   else{FALSE}
@@ -182,11 +188,14 @@ get_seasonality = function(data,
   
   # data = linea::pooled_gt_data
   # date_col_name = 'Week'
-  # date_type = 'weekly starting'
-  # date_format = '%d/%m/%Y'
+  # # date_type = 'weekly starting'
+  # date_type = NULL
+  # # date_format = '%d/%m/%Y'
+  # date_format = NULL
   # verbose = TRUE
   # keep_dup = FALSE
-  # pool_var = "country"
+  # pool_var = NULL
+  # # pool_var = "country"
   
   # data = linea::cran_downloads
   # date_col_name = 'date'
@@ -455,8 +464,4 @@ get_seasonality = function(data,
   
   return(data)
 }
-
-
-
-
 
