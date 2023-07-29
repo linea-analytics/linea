@@ -631,7 +631,7 @@ decomp_chart = function(model = NULL,
     return(NULL)
   }
   
-  fitted_values = fitted_values[fitted_values$variable %in% c("actual", "predicted", "residual"),]
+  fitted_values = fitted_values[fitted_values$variable %in% c("actual", "predicted", "residual"), ]
   
   # the id variable name is the first column name
   id_var = colnames(decomp)[1]
@@ -647,9 +647,9 @@ decomp_chart = function(model = NULL,
         rename(value = contrib)
     }
     else{
-      decomp = decomp[decomp$pool == pool,] %>%
+      decomp = decomp[decomp$pool == pool, ] %>%
         rename(value = contrib)
-      fitted_values = fitted_values[fitted_values$pool == pool,]
+      fitted_values = fitted_values[fitted_values$pool == pool, ]
     }
   }
   
@@ -659,12 +659,12 @@ decomp_chart = function(model = NULL,
     }
     
     fitted_values = fitted_values %>%
-      group_by(variable, !!sym(id_var)) %>%
+      group_by(variable,!!sym(id_var)) %>%
       summarise(value = sum(value)) %>%
       mutate(pool = "total_pool")
     
     decomp = decomp %>%
-      group_by(variable, !!sym(id_var)) %>%
+      group_by(variable,!!sym(id_var)) %>%
       summarise(contrib = sum(contrib)) %>%
       mutate(pool = "total_pool") %>%
       rename(value = contrib)
@@ -804,7 +804,7 @@ total_decomp_chart = function(model = NULL,
         rename(value = contrib)
     }
     else{
-      decomp = decomp[decomp$pool == pool,] %>%
+      decomp = decomp[decomp$pool == pool, ] %>%
         rename(value = contrib)
     }
   }
@@ -815,7 +815,7 @@ total_decomp_chart = function(model = NULL,
     }
     
     decomp = decomp %>%
-      group_by(variable, !!sym(id_var)) %>%
+      group_by(variable,!!sym(id_var)) %>%
       summarise(contrib = sum(contrib)) %>%
       mutate(pool = "total_pool") %>%
       rename(value = contrib)
@@ -943,7 +943,7 @@ fit_chart = function(model = NULL,
               " not found. No POOL filtering applied.")
     }
     else{
-      fitted_values = fitted_values[fitted_values$pool == pool,]
+      fitted_values = fitted_values[fitted_values$pool == pool, ]
     }
   }
   
@@ -952,7 +952,7 @@ fit_chart = function(model = NULL,
       message("- Warning: No pool provided. Aggregating by id_var.")
     }
     fitted_values = fitted_values %>%
-      group_by(variable, !!sym(id_var)) %>%
+      group_by(variable,!!sym(id_var)) %>%
       summarise(value = sum(value)) %>%
       mutate(pool = "total_pool")
     
@@ -1224,7 +1224,7 @@ resid_hist_chart = function(model = NULL,
       pull(pool)
     
     if (pool %in% pool_var) {
-      df = df[pool_var == pool, ]
+      df = df[pool_var == pool,]
     }
   }
   
@@ -1310,7 +1310,7 @@ heteroskedasticity_chart = function(model = NULL,
       pull(pool)
     
     if (pool %in% pool_var) {
-      df = df[pool_var == pool,]
+      df = df[pool_var == pool, ]
     } else{
       message('Warning: pool not found in data. Using full data.')
     }
@@ -1405,7 +1405,7 @@ acf_chart = function(model = NULL,
       pull(pool)
     
     if (pool %in% pool_var) {
-      df = df[pool_var == pool, ]
+      df = df[pool_var == pool,]
     }
   }
   
@@ -1564,7 +1564,7 @@ response_curves = function(model,
   
   # # pooled model
   # model = pooled_model # from tests
-  # 
+  #
   # x_min = NULL
   # x_max = NULL
   # y_min = NULL
@@ -1614,7 +1614,7 @@ response_curves = function(model,
   
   # if pool and pool mean
   if (!is.null(pool) & !is.null(model$pool_mean)) {
-    mean = model$pool_mean$mean[model$pool_mean$pool == pool]
+    pool_mean = model$pool_mean$mean[model$pool_mean$pool == pool]
     if (!(pool %in% model$pool_mean$pool)) {
       if (verbose) {
         message('- Warning: pool provided not found in model pools.')
@@ -1622,13 +1622,13 @@ response_curves = function(model,
       
       pool = NULL
       
-      mean = model$pool_mean$mean %>% sum()
+      pool_mean = model$pool_mean$mean %>% sum()
       output_model_table =  output_model_table %>%
-        mutate(coef = coef * mean)
+        mutate(coef = coef * pool_mean)
       
     } else{
       output_model_table =  output_model_table %>%
-        mutate(coef = coef * mean)
+        mutate(coef = coef * pool_mean)
     }
   }
   # if pool but no pool mean
@@ -1654,12 +1654,13 @@ response_curves = function(model,
       message('- Info: model normalised by pool but no pool provided.')
     }
     
-    mean = model$pool_mean$mean %>% sum()
+    pool_mean = model$pool_mean$mean %>% sum()
     output_model_table =  output_model_table %>%
-      mutate(coef = coef * mean)
+      mutate(coef = coef * pool_mean)
   }
   # if no pool but model pooled (not normalized though)
-  if (is.null(pool) & model$pool_switch & !model$normalise_by_pool) {
+  if (is.null(pool) &
+      model$pool_switch & !model$normalise_by_pool) {
     # account for number of pools
     n_pools = model$raw_data %>%
       pull(!!sym(model$pool_var)) %>%
@@ -1680,7 +1681,7 @@ response_curves = function(model,
   if (trans_only) {
     output_model_table = output_model_table[!(((output_model_table[trans_df$name] == "") %>%
                                                  data.frame() %>%
-                                                 rowSums()) == nrow(trans_df)),]
+                                                 rowSums()) == nrow(trans_df)), ]
   }
   output_model_table = output_model_table %>%
     filter(variable != "(Intercept)") %>%
@@ -1786,116 +1787,112 @@ response_curves = function(model,
       )
     
     if (points | histogram) {
-      
-      # get model data for histogram and/or points
-      id_var = model$id_var
-      raw_data = model$raw_data
-      
-      # if model is pooled and a pool is provided, filter relevant rows
-      if (model$pool_switch & !is.null(pool)) {
-        raw_data = raw_data[raw_data[model$pool_var] == pool, ]
-      }
-      
-      # select relevant columns
-      raw_data = raw_data %>%
-        select(all_of(c(
-          id_var, output_model_table$variable
-        )))
-      
-      # if model is pooled but no pool is provided, sum data by id
+      # if model is pooled but no pool is provided, no points/hist possible
       if (model$pool_switch & is.null(pool)) {
-        raw_data = raw_data %>%
-          group_by(!!sym(id_var)) %>%
-          summarise_all(sum) %>%
-          ungroup()
-      }
-      
-      if (histogram) {
-        hist_df = lapply(output_model_table$variable, function(var) {
-          h = hist(raw_data %>% pull(!!sym(var)), plot = FALSE)
-          
-          h = data.frame(
-            x = linea::ma(h$breaks, 2, align = "center")[-length(h$breaks)],
-            y = h$counts,
-            var = var,
-            var_t = output_model_table$variable_t[output_model_table$variable == var]
-          )
-          
-          return(h)
-        }) %>%
-          Reduce(f = rbind)
+        message('- Warning: points or histogram cannot be aggregated for pooled response curve. Select a pool to view points.')
+      } else{
+        # get model data for histogram and/or points
+        id_var = model$id_var
+        raw_data = model$raw_data
         
-        p = p %>%  add_bars(
-          alpha = 0.6,
-          data = hist_df ,
-          x = ~ x,
-          y = ~ y,
-          yaxis = "y2",
-          color = ~ var_t,
-          legendgroup = ~ var_t,
-          showlegend = FALSE,
-          colors = colors
-        )
-        
-        p = p %>%
-          layout(
-            barmode = "overlay",
-            yaxis2 = list(
-              overlaying = "y",
-              side = "right",
-              title = "frequency"
-              
-            )
-          )
-      }
-      
-      if (points) {
-        
-        # get variable decomp to compute y-hat 
-        variable_decomp = model$decomp_list$variable_decomp
-        
-        # if model is pooled and pool is provided, select only relevant rows
+        # if model is pooled and a pool is provided, filter relevant rows
         if (model$pool_switch & !is.null(pool)) {
-          variable_decomp = variable_decomp %>%
-            filter(pool == !!pool) %>%
-            select(-pool)
+          raw_data = raw_data[raw_data[model$pool_var] == pool,]
         }
         
-        # if model is pooled and pool is not provided sum contrib by id
-        if (model$pool_switch & is.null(pool)) {
-          variable_decomp = variable_decomp %>%
-            select(-pool) %>%
-            group_by(!!sym(id_var), variable) %>%
-            summarise_all(sum) %>%
-            ungroup()
-        }
+        # select relevant columns
+        raw_data = raw_data %>%
+          select(all_of(c(
+            id_var, output_model_table$variable
+          )))
         
-        melted_raw_data = raw_data %>%
-          reshape2::melt(id.vars = id_var) %>%
-          left_join(output_model_table %>%
-                      select(variable, variable_t),
-                    by = "variable")
-        
-        
-        points_df = variable_decomp %>%
-          filter(variable != "(Intercept)") %>%
-          left_join(melted_raw_data,
-                    by = c("variable" = "variable_t", id_var))
-        
-        p = p %>%
-          add_trace(
-            alpha = 0.4,
-            data = points_df,
-            x = ~ value,
-            y = ~ contrib,
-            color = ~ variable,
-            legendgroup = ~ variable,
+        if (histogram) {
+          hist_df = lapply(output_model_table$variable, function(var) {
+            h = hist(raw_data %>% pull(!!sym(var)), plot = FALSE)
+            
+            h = data.frame(
+              x = linea::ma(h$breaks, 2, align = "center")[-length(h$breaks)],
+              y = h$counts,
+              var = var,
+              var_t = output_model_table$variable_t[output_model_table$variable == var]
+            )
+            
+            return(h)
+          }) %>%
+            Reduce(f = rbind)
+          
+          p = p %>%  add_bars(
+            alpha = 0.6,
+            data = hist_df ,
+            x = ~ x,
+            y = ~ y,
+            yaxis = "y2",
+            color = ~ var_t,
+            legendgroup = ~ var_t,
             showlegend = FALSE,
-            mode = "markers",
-            marker = list(size = 7),
-            type = "scatter",
             colors = colors
           )
+          
+          p = p %>%
+            layout(
+              barmode = "overlay",
+              yaxis2 = list(
+                overlaying = "y",
+                side = "right",
+                title = "frequency"
+                
+              )
+            )
+        }
+        
+        if (points) {
+          # get variable decomp to compute y-hat
+          variable_decomp = model$decomp_list$variable_decomp %>%
+            filter(variable != '(Intercept)')
+          
+          # if model is pooled and pool is provided, select only relevant rows
+          if (model$pool_switch & !is.null(pool)) {
+            variable_decomp = variable_decomp %>%
+              filter(pool == !!pool) %>%
+              select(-pool)
+          }
+          
+          # if model is pooled and pool is not provided sum contrib by id
+          if (model$pool_switch & is.null(pool)) {
+            variable_decomp = variable_decomp %>%
+              select(-pool) %>%
+              group_by(!!sym(id_var), variable) %>%
+              summarise_all(sum) %>%
+              ungroup()
+          }
+          
+          melted_raw_data = raw_data %>%
+            reshape2::melt(id.vars = id_var) %>%
+            left_join(output_model_table %>% # adding variable_t
+                        select(variable, variable_t),
+                      by = "variable") %>%
+            select(-variable)
+          
+          points_df = variable_decomp %>%
+            left_join(melted_raw_data,
+                      by = c("variable" = "variable_t", id_var))
+          
+          p = p %>%
+            add_trace(
+              alpha = 0.4,
+              data = points_df,
+              x = ~ value,
+              y = ~ contrib,
+              color = ~ variable,
+              legendgroup = ~ variable,
+              showlegend = FALSE,
+              mode = "markers",
+              marker = list(size = 7),
+              type = "scatter",
+              colors = colors
+            )
+        }
+        
       }
       
       
