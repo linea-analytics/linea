@@ -11,6 +11,12 @@
 #' @return Messages and the checked file
 #' @export
 check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
+  
+  # test     ----
+  # model_file = 'Desktop/model.xlsx'
+  # verbose = FALSE
+  # return_list = TRUE
+  
   # checks   ####
   if (!is.logical(verbose)) {
     message("Warning: verbose must be logical (TRUE or FALSE). Setting to False.")
@@ -102,6 +108,7 @@ import_model = function(path, verbose = FALSE){
   normalise_by_pool = model_list$normalise_by_pool$variable
   pool_var = model_list$pool_var$variable
   id_var = model_list$id_var$variable
+  id_format = model_list$id_format$variable
   data = model_list$data
   trans_df = model_list$trans_df
 
@@ -112,6 +119,7 @@ import_model = function(path, verbose = FALSE){
     trans_df = trans_df,
     pool_var = pool_var,
     id_var = id_var,
+    id_format = id_format,
     verbose = verbose,
     normalise_by_pool = normalise_by_pool,
     categories = categories,

@@ -363,7 +363,8 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #' @param dv string of the dependent variable name
 #' @param ivs character vector of the independent variables names
 #' @param trans_df \code{data.frame} defining the non-linear transformations to apply
-#' @param id_var string of id variable name (e.g. date)
+#' @param id_var string of id variable name (e.g. "date")
+#' @param id_var_type string of id variable type (e.g. "weekly starting")
 #' @param model_table \code{data.frame} as created in the \code{build_model_table} function
 #' @param verbose A boolean to specify whether to print warnings
 #' @param normalise_by_pool A boolean to specify whether to apply the normalisation
@@ -407,6 +408,7 @@ run_model = function(data = NULL,
                      ivs = NULL,
                      trans_df = NULL,
                      id_var = NULL,
+                     id_format = NULL,
                      pool_var = NULL,
                      model_table = NULL,
                      verbose = FALSE,
@@ -542,6 +544,7 @@ run_model = function(data = NULL,
     }
 
     id_var = 'id'
+    id_format = 'id'
 
     data = data %>%
       group_by(!!sym(pool_var)) %>%
@@ -553,13 +556,17 @@ run_model = function(data = NULL,
     }
 
     id_var = 'id'
-
+    id_format = 'id'
+    
     data = data %>%
       group_by(!!sym(pool_var)) %>%
       mutate(id = row_number()) %>%
       ungroup()
   }
-
+  if(is.null(id_format)){
+    id_format = 'id'
+  }
+  
   # check trans_df
   if (is.null(trans_df)) {
     if (verbose) {
@@ -694,6 +701,7 @@ run_model = function(data = NULL,
   }
   
   model$id_var = id_var
+  model$id_format = id_format
   model$tail_window = tail_window
   model$pool_var = pool_var
   model$dv = dv
@@ -794,7 +802,8 @@ run_model = function(data = NULL,
 #' @param dv string of the dependent variable name
 #' @param ivs character vector of the independent variables names
 #' @param trans_df \code{data.frame} defining the non-linear transformations to apply
-#' @param id_var string of id variable name (e.g. date)
+#' @param id_var string of id variable name (e.g. "date")
+#' @param id_format string of id variable type (e.g. "weekly starting")
 #' @param pool_var string of pool variable name (e.g. country)
 #' @param model_table \code{data.frame} as created in the \code{build_model_table} function
 #' @param verbose A boolean to specify whether to print warnings
@@ -814,6 +823,7 @@ re_run_model = function(model,
                         ivs = NULL,
                         trans_df = NULL,
                         id_var = NULL,
+                        id_format = NULL,
                         pool_var = NULL,
                         model_table = NULL,
                         normalise_by_pool = NULL,
@@ -890,6 +900,9 @@ re_run_model = function(model,
   if(is.null(id_var)){
     id_var = model$id_var
   }
+  if(is.null(id_var_type)){
+    id_var_type = model$id_var_type
+  }
   if(is.null(normalise_by_pool)){
     normalise_by_pool = model$normalise_by_pool
   }
@@ -901,6 +914,7 @@ re_run_model = function(model,
             ivs = ivs,
             trans_df = trans_df,
             id_var = id_var,
+            id_format = id_format,
             model_table = model_table,
             pool_var = pool_var,
             normalise_by_pool = normalise_by_pool,
