@@ -1500,6 +1500,8 @@ acf_chart = function(model = NULL,
 #' @param verbose A boolean to specify whether to print warnings
 #' @param table A boolean to specify whether to return a \code{data.frame} of the response curves
 #' @param points A boolean to specify whether to include the points from the data on the curve
+#' @param histogram A boolean to specify whether to include the histograms from the data
+#' @param non_zero_obs A boolean to specify whether to include observations with value zero in the points and histograms
 #' @param plotly A boolean to specify whether to include use ggplot over plotly
 #' @param add_intercept A boolean to specify whether to include the intercept whne calculating the curves
 #' @importFrom ggplot2 ggplot geom_line scale_color_manual theme ggtitle ylab geom_vline geom_hline element_rect aes
@@ -1534,9 +1536,7 @@ response_curves = function(model,
                            interval = NULL,
                            pool = NULL,
                            trans_only = FALSE,
-                           colors = color_palette() %>%
-                             unlist() %>%
-                             as.character(),
+                           colors = 'viridis',
                            plot_bgcolor = "rgba(0, 0, 0, 0)",
                            paper_bgcolor = "rgba(0, 0, 0, 0)",
                            font_color =  '#1c0022',
@@ -1547,8 +1547,9 @@ response_curves = function(model,
                            verbose = FALSE,
                            table = FALSE,
                            histogram = FALSE,
-                           add_intercept = FALSE,
-                           points = FALSE) {
+                           points = FALSE,
+                           non_zero_obs = FALSE,
+                           add_intercept = FALSE) {
   # test    #####
   
   # # non-ts model
@@ -1786,7 +1787,7 @@ response_curves = function(model,
         title = "Response Curves"
       )
     
-    if (points | histogram) {
+    if (points | histogram | non_zero_obs) {
       # if model is pooled but no pool is provided, no points/hist possible
       if (model$pool_switch & is.null(pool)) {
         message('- Warning: points or histogram cannot be aggregated for pooled response curve. Select a pool to view points.')
@@ -1920,3 +1921,224 @@ response_curves = function(model,
     message("Returning response curves plot.")
   return(p)
 }
+
+
+
+#' wtf_chart
+#'
+#' Waterfall chart of categories from a model object
+#'
+#' Waterfall chart of categories from a model object, representing the changes in categories year-on-year
+#'
+#' @param model Model object
+#' @param text_type a character string specifying how text should be displayed. Either "K", "M", or "value".
+#' @param text_rounding a numeric value specifying how many decimals should be included in the text.
+#' @param title a character string specifying the title of the chart
+#' @param start a date object specifying the start of the year-on-year comparison period
+#' @param pool string specifying a group within the pool column to be filtered
+#' @param plot_bgcolor string representing chart color of plot_bgcolor
+#' @param paper_bgcolor string representing chart color of paper_bgcolor
+#' @param font_color string representing chart color of font
+#' @param grid_line_color string representing chart color of gridcolor
+#' @param zero_line_color string representing chart color zerolinecolor
+#' @param verbose A boolean to specify whether to print warnings
+#' @importFrom ggplot2 ggplot geom_line scale_color_manual theme ggtitle ylab geom_vline geom_hline element_rect aes
+#' @import plotly
+#' @import tidyverse
+#' @import tibble
+#' @importFrom RColorBrewer brewer.pal
+#' @importFrom stats na.omit
+#' @export
+#' @return a \code{plotly} line chart of the model's response curves
+wtf_chart = function(model,
+                     start = NULL,
+                     text_type = "value",
+                     text_rounding = 1,
+                     title = 'Waterfall Chart',
+                     colors = 'viridis',
+                     plot_bgcolor = "rgba(0, 0, 0, 0)",
+                     paper_bgcolor = "rgba(0, 0, 0, 0)",
+                     totals_color = '#1c0022',
+                     font_color =  '#1c0022',
+                     zero_line_color = '#1c0022',
+                     grid_line_color = '#1c0022',
+                     verbose = FALSE){
+  # tests   -------------------------------------------------------------------
+  
+  # model = import_model(path = 'Desktop/sales_2023-08-04.xlsx')
+  # model = daily_model
+  # 
+  # start = NULL
+  # text_type = "M"
+  # text_rounding = 2
+  # title = 'Waterfall Chart'
+  # colors = 'viridis'
+  # plot_bgcolor = "rgba(0, 0, 0, 0)"
+  # paper_bgcolor = "rgba(0, 0, 0, 0)"
+  # totals_color = '#1c0022'
+  # font_color =  '#1c0022'
+  # zero_line_color = '#1c0022'
+  # grid_line_color = '#1c0022'
+  # verbose = FALSE
+  
+  # checks  ------------------------------------------------------------------
+  
+  # check verbose
+  if(!is.logical(verbose)){
+    message("- Warning: verbose provided mus be logical (TRUE or FALSE). Setting to FALSE")
+    verbose = FALSE
+  }
+  if(verbose){
+    message('Charting waterfall...')
+  }
+  
+  # check that model is weekly or daily (necessary for waterfall)
+  if(!grepl('week',model$id_format) & !grepl('daily',model$id_format)){
+    message('- Error: id_format of the model must be either, "weekly starting", "weekly ending" or "daily" for waterfall chart. Returning NULL.')
+    return(NULL)
+  }
+  
+  dates = model$raw_data %>% 
+    pull(!!sym(model$id_var)) %>% 
+    unique() %>% 
+    as.Date() %>% 
+    sort()
+  
+  # check periods dates for watefall comparison
+  if(is.null(start)){
+    if(grepl('week',model$id_format)){
+      wtf_dates = dates[(length(dates)-103):length(dates)]
+    }else{
+      wtf_dates = dates[(length(dates)-729):length(dates)]
+    }
+    start = wtf_dates[1]
+  }else{
+    wtf_dates = dates[dates >= start]
+  }
+  
+  # check if there are enough periods
+  if(grepl('week',model$id_format)){
+    if(length(wtf_dates)<104){
+      message('- Error: The modelling period covers less than 104 dates. Weekly models need at least two 52 (104 total) dates for a waterfall chart. Returning NULL.')
+      return(NULL)
+    }
+  }else{
+    if(length(wtf_dates)<730){
+      message('- Error: The modelling period covers less than 730 dates. Daily models need at least two 365 (730 total) dates for a waterfall chart. Returning NULL.')
+      return(NULL)
+    }
+  }
+  
+  # compute other stand and end variables
+  if(grepl('week',model$id_format)){
+    end_period_1 = wtf_dates[52]
+  }else{
+    end_period_1 = wtf_dates[365]
+  }
+  start_period_2 = end_period_1 + 7
+  if(grepl('week',model$id_format)){
+    end_period_2 = start_period_2 + (7*51)
+  }else{
+    end_period_2 = start_period_2 + 364
+  }
+  
+  if(text_type != 'M' & text_type != 'K' & text_type != 'value'){
+    message('- Warning: text_type argument can only be set to "M", "K", or "value". Setting to value.')
+  }
+  
+  # process -----------------------------------------------------------------
+  
+  # identify 2 periods in decomp
+  
+  decomp = model$decomp_list$category_decomp
+  
+  # drop earlier and later dates 
+  decomp = decomp[pull(decomp,!!sym(model$id_var)) >= start,]
+  decomp = decomp[pull(decomp,!!sym(model$id_var)) <= end_period_2,]
+  
+  decomp$wtf_period = ''
+  decomp$wtf_period[pull(decomp,!!sym(model$id_var)) > end_period_1] = 'y2'
+  decomp$wtf_period[pull(decomp,!!sym(model$id_var)) <= end_period_1] = 'y1'
+  
+  
+  # calculate differences in categories across periods
+  totals = decomp %>% 
+    group_by(wtf_period) %>% 
+    summarise(value = sum(contrib),
+              # start = min(!!sym(model$id_var)),
+              end = max(!!sym(model$id_var))
+    ) %>% 
+    rename(variable = wtf_period) %>% 
+    mutate(measure = c('relative','total'))
+  
+  wtf_df = decomp %>% 
+    reshape2::acast(formula = variable ~ wtf_period, value.var = 'contrib', fun.aggregate = sum) %>% 
+    data.frame() %>% 
+    mutate(value = y2 - y1) %>% 
+    mutate(measure = 'relative') %>% 
+    rownames_to_column('variable') %>% 
+    arrange(value) %>%
+    select(-y1,-y2) %>% 
+    filter(value != 0)
+  
+  wtf_df = rbind(
+    totals[1,c('variable','value','measure')],
+    wtf_df,
+    totals[2,c('variable','value','measure')]
+  )
+  
+  if(text_type == 'K'){
+    wtf_df$text = sprintf("%sK", format(round(wtf_df$value/1e3, text_rounding), dec="."))
+  }else if(text_type == 'M'){
+    wtf_df$text = sprintf("%sM", format(round(wtf_df$value/1e6, text_rounding), dec="."))
+  }else{
+    wtf_df$text = wtf_df$value
+  }
+  
+  wtf_df$variable[wtf_df$variable == 'y1'] = paste0('Year ending <br>',min(totals$end))
+  wtf_df$variable[wtf_df$variable == 'y2'] = paste0('Year ending <br>',max(totals$end))
+  
+  wtf_df$variable = factor(wtf_df$variable,levels = wtf_df$variable)
+  
+  # generate waterfall
+  plot_ly(
+    data = wtf_df, 
+    type = "waterfall", 
+    measure = ~measure,
+    hoverinfo='none',
+    textposition = "outside",
+    text = ~text,
+    cliponaxis = TRUE,
+    x = ~variable, 
+    y= ~value ,
+    totals = list(marker = list(color = totals_color, line = list(width = 0)))
+  )  %>%
+    layout(
+      plot_bgcolor = plot_bgcolor,
+      paper_bgcolor = paper_bgcolor,
+      font = list(color = font_color),
+      xaxis = list(showgrid = FALSE,
+                   zerolinecolor = zero_line_color,
+                   title = ''),
+      yaxis = list(gridcolor = grid_line_color,
+                   title = ''),
+      title = title,
+      autosize = TRUE,
+      showlegend = FALSE,
+      shapes = list(
+        list(
+          type = "rect",
+          fillcolor = totals_color,
+          line = list(color = totals_color),
+          opacity = 1,
+          x0 = -0.4,
+          x1 = 0.4,
+          xref = "x",
+          y0 = 0.0,
+          y1 = wtf_df$value[1],
+          yref = "y"
+        )
+      )
+    )
+}
+
