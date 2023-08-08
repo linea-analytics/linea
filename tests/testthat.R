@@ -68,7 +68,8 @@ model = run_model(
   dv = dv,
   model_table = model_table,
   normalise_by_pool = FALSE,
-  id_var = id_var 
+  id_var = id_var ,
+  id_format = "weekly starting"
 )
 
 
@@ -108,7 +109,8 @@ pooled_model = run_model(
   id_var = pooled_id_var,
   pool_var =  pool_var,
   model_table = pooled_model_table,
-  normalise_by_pool = TRUE
+  normalise_by_pool = TRUE,
+  id_format = "weekly starting"
 )
 
 ###
@@ -135,6 +137,7 @@ daily_categories = data.frame(
 daily_model = run_model(data = daily_data,
                         categories = daily_categories,
                         dv = "count",
+                        id_format = "daily",
                         ivs = c("weekend","weekday_Friday","trend","GB_unemp"))
 
 # tests  ####
@@ -889,4 +892,33 @@ test_that("response curves - pooled selected - output is plotly",{
     is.element(c("plotly","htmlwidget")) %>%
     all() %>%
     expect_equal(TRUE)
+})
+
+### wtf chart   ----
+test_that('wtf_chart',{
+  
+  model %>% 
+    wtf_chart() %>% 
+    class() %>% 
+    { "plotly" %in% .} %>% 
+    expect_equal(TRUE)
+  
+})
+test_that('wtf_chart pooled',{
+  
+  pooled_model %>% 
+    wtf_chart(text_type = 'K',text_rounding = 3) %>% 
+    class() %>% 
+    { "plotly" %in% .} %>% 
+    expect_equal(TRUE)
+  
+})
+test_that('wtf_chart daily',{
+  
+  daily_model %>% 
+    wtf_chart() %>% 
+    class() %>% 
+    { "plotly" %in% .} %>% 
+    expect_equal(TRUE)
+  
 })
