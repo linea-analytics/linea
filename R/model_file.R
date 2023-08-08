@@ -91,6 +91,12 @@ check_model_file = function(model_file,verbose = FALSE,return_list = TRUE){
 #' @return model object
 #' @export
 import_model = function(path, verbose = FALSE){
+  # test     -----
+  
+  # path = 'Desktop/sales_2023-08-04.xlsx'
+  
+  # process  -----
+  
   # import checked filed
   model_list = check_model_file(model_file = path, verbose = verbose)
   if (is.null(model_list)) {
@@ -107,11 +113,19 @@ import_model = function(path, verbose = FALSE){
   dv = model_list$dv$variable
   normalise_by_pool = model_list$normalise_by_pool$variable
   pool_var = model_list$pool_var$variable
+  pool_switch = model_list$pool_switch$variable
   id_var = model_list$id_var$variable
   id_format = model_list$id_format$variable
   data = model_list$data
   trans_df = model_list$trans_df
+  colors = model_list$colors
+  dark_mode = model_list$dark_mode$variable
 
+  if(pool_switch){
+    pool_var = NULL
+    normalise_by_pool = FALSE
+  }
+  
   model = run_model(
     data = data,
     dv = dv,
@@ -124,7 +138,9 @@ import_model = function(path, verbose = FALSE){
     normalise_by_pool = normalise_by_pool,
     categories = categories,
     save_all_raw_data = TRUE,
-    decompose = TRUE
+    decompose = TRUE,
+    colors = colors,
+    dark_mode = dark_mode
   )
 
   return(model)
@@ -183,7 +199,8 @@ export_model = function(
     pool_var = data.frame(variable = model$pool_var),
     pool_switch = data.frame(variable = model$pool_switch),
     colors = model$colors,
-    trans_df = model$trans_df
+    trans_df = model$trans_df,
+    dark_mode = model$dark_mode
   )
   
   

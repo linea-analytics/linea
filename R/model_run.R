@@ -373,6 +373,8 @@ vapply_transformation = function(v,trans_df = NULL,verbose = FALSE){
 #' @param decompose A boolean to specify whether to generate the model decomposition
 #' @param tail_window for time series, length of tail in decomposition
 #' @param categories \code{data.frame} mapping variables to groups
+#' @param colors named list of colors
+#' @param dark_mode A boolean to specify charts should be in dark mode
 #' @import tidyverse
 #' @import tibble
 #' @import zoo
@@ -416,7 +418,9 @@ run_model = function(data = NULL,
                      save_all_raw_data = TRUE,
                      decompose = TRUE,
                      tail_window = NULL,
-                     categories = NULL) {
+                     categories = NULL,
+                     colors = NULL,
+                     dark_mode = NULL) {
   # test    ####
 
   # data = linea::sales_ts
@@ -432,6 +436,7 @@ run_model = function(data = NULL,
   # save_all_raw_data = TRUE
   # decompose = TRUE
   # categories = NULL
+  # colors = NULL
 
   # data = mtcars
   # dv = 'mpg'
@@ -448,6 +453,7 @@ run_model = function(data = NULL,
   # save_all_raw_data = TRUE
   # decompose = TRUE
   # categories = NULL
+  # colors = NULL
   
   # data = linea::sales_ts
   # dv = 'sales'
@@ -482,6 +488,7 @@ run_model = function(data = NULL,
   #   dplyr::mutate(vod_spend = dplyr::if_else(condition = name == 'decay',
   #                                               '.1,.7 ',
   #                                               '')) 
+  # colors = NULL
   
   # checks  ####
 
@@ -634,6 +641,18 @@ run_model = function(data = NULL,
   if(!'category' %in% colnames(model_table)) {
     model_table$category = ""
   }
+  
+  # check categories in model_table
+  if(is.null(colors)) {
+    colors = linea::color_palette()
+  }
+  
+  # check dark_mode
+  if(is.null(dark_mode)){
+    dark_mode = FALSE
+  }
+  
+  
 
   # data    ####
 
@@ -709,6 +728,8 @@ run_model = function(data = NULL,
   model$model_table = model_table
   model$normalise_by_pool = normalise_by_pool
   model$pool_switch = pool_switch
+  model$colors = colors
+  model$dark_mode = dark_mode
   
   if(!is.null(categories)){
     model$categories = categories
