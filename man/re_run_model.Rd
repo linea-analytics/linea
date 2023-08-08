@@ -11,9 +11,10 @@ re_run_model(
   ivs = NULL,
   trans_df = NULL,
   id_var = NULL,
+  id_format = NULL,
   pool_var = NULL,
   model_table = NULL,
-  normalise_by_pool = FALSE,
+  normalise_by_pool = NULL,
   verbose = FALSE,
   decompose = TRUE
 )
@@ -29,7 +30,9 @@ re_run_model(
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 
-\item{id_var}{string of id variable name (e.g. date)}
+\item{id_var}{string of id variable name (e.g. "date")}
+
+\item{id_format}{string of id variable type (e.g. "weekly starting")}
 
 \item{pool_var}{string of pool variable name (e.g. country)}
 

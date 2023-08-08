@@ -7,8 +7,8 @@
 gt_f(
   data,
   kw,
-  date_col = "date",
-  date_type = "weekly starting",
+  date_col = NULL,
+  date_type = NULL,
   geo = "all",
   verbose = FALSE,
   graceful = TRUE,

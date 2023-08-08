@@ -10,6 +10,7 @@ run_model(
   ivs = NULL,
   trans_df = NULL,
   id_var = NULL,
+  id_format = NULL,
   pool_var = NULL,
   model_table = NULL,
   verbose = FALSE,
@@ -17,7 +18,9 @@ run_model(
   save_all_raw_data = TRUE,
   decompose = TRUE,
   tail_window = NULL,
-  categories = NULL
+  categories = NULL,
+  colors = NULL,
+  dark_mode = NULL
 )
 }
 \arguments{
@@ -29,7 +32,7 @@ run_model(
 
 \item{trans_df}{\code{data.frame} defining the non-linear transformations to apply}
 
-\item{id_var}{string of id variable name (e.g. date)}
+\item{id_var}{string of id variable name (e.g. "date")}
 
 \item{pool_var}{string specifying the pool variable name (e.g. 'country')}
 
@@ -46,6 +49,12 @@ run_model(
 \item{tail_window}{for time series, length of tail in decomposition}
 
 \item{categories}{\code{data.frame} mapping variables to groups}
+
+\item{colors}{named list of colors}
+
+\item{dark_mode}{A boolean to specify charts should be in dark mode}
+
+\item{id_var_type}{string of id variable type (e.g. "weekly starting")}
 }
 \value{
 Model object

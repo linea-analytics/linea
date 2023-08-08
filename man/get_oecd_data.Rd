@@ -6,7 +6,7 @@
 \usage{
 get_oecd_data(
   data,
-  country_code = NULL,
+  country_code = "GB",
   date_col_name = NULL,
   date_type = NULL,
   append = TRUE,
@@ -25,7 +25,7 @@ get_oecd_data(
 \item{verbose}{A boolean to specify whether to print warnings}
 }
 \value{
-\code{data.frame} with added variables
+\code{data.frame} containing economy data
 }
 \description{
 Generate economy variables using OECD data

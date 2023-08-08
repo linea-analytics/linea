@@ -7,7 +7,7 @@
 get_seasonality(
   data,
   date_col_name,
-  date_type = "weekly starting",
+  date_type = NULL,
   date_format = "\%d/\%m/\%Y",
   verbose = FALSE,
   keep_dup = FALSE,

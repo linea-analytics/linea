@@ -8,22 +8,23 @@ response_curves(
   model,
   x_min = NULL,
   x_max = NULL,
-  y_min = NULL,
-  y_max = NULL,
   interval = NULL,
   pool = NULL,
   trans_only = FALSE,
-  colors = color_palette() \%>\% unlist() \%>\% as.character(),
+  colors = "viridis",
   plot_bgcolor = "rgba(0, 0, 0, 0)",
   paper_bgcolor = "rgba(0, 0, 0, 0)",
   font_color = "#1c0022",
   zero_line_color = "#1c0022",
   grid_line_color = "#1c0022",
   plotly = TRUE,
+  allow_ts_trans = FALSE,
   verbose = FALSE,
   table = FALSE,
-  add_intercept = FALSE,
-  points = FALSE
+  histogram = FALSE,
+  points = FALSE,
+  non_zero_obs = FALSE,
+  add_intercept = FALSE
 )
 }
 \arguments{
@@ -32,10 +33,6 @@ response_curves(
 \item{x_min}{number specifying horizontal axis min}
 
 \item{x_max}{number specifying horizontal axis max}
-
-\item{y_min}{number specifying vertical axis min}
-
-\item{y_max}{number specifying vertical axis max}
 
 \item{interval}{number specifying interval between points of the curve}
 
@@ -61,9 +58,13 @@ response_curves(
 
 \item{table}{A boolean to specify whether to return a \code{data.frame} of the response curves}
 
-\item{add_intercept}{A boolean to specify whether to include the intercept whne calculating the curves}
+\item{histogram}{A boolean to specify whether to include the histograms from the data}
 
 \item{points}{A boolean to specify whether to include the points from the data on the curve}
+
+\item{non_zero_obs}{A boolean to specify whether to include observations with value zero in the points and histograms}
+
+\item{add_intercept}{A boolean to specify whether to include the intercept whne calculating the curves}
 }
 \value{
 a \code{plotly} line chart of the model's response curves
@@ -82,14 +83,14 @@ model = run_model(data = mtcars,
                   normalise_by_pool=TRUE)
 model \%>\%
    response_curves(pool='4')
-model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp')) 
+model = run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'))
 
 model \%>\%
    response_curves()
-   
-run_model(data = scale(mtcars) \%>\% 
+
+run_model(data = scale(mtcars) \%>\%
               data.frame(),
           dv = 'mpg',
           ivs = c('wt','cyl','disp')) \%>\%
-   response_curves()
+   response_curves(points = TRUE,x_min = -3,x_max = 3)
 }
