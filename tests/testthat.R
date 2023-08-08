@@ -137,8 +137,10 @@ daily_categories = data.frame(
 daily_model = run_model(data = daily_data,
                         categories = daily_categories,
                         dv = "count",
+                        id_var = 'date',
                         id_format = "daily",
-                        ivs = c("weekend","weekday_Friday","trend","GB_unemp"))
+                        ivs = c("weekend","weekday_Friday","trend","GB_unemp"),
+                        verbose = T)
 
 # tests  ####
 ### read data   ####
@@ -916,7 +918,7 @@ test_that('wtf_chart pooled',{
 test_that('wtf_chart daily',{
   
   daily_model %>% 
-    wtf_chart() %>% 
+    wtf_chart(text_type = 'M') %>% 
     class() %>% 
     { "plotly" %in% .} %>% 
     expect_equal(TRUE)
