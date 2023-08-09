@@ -1501,7 +1501,6 @@ acf_chart = function(model = NULL,
 #' @param table A boolean to specify whether to return a \code{data.frame} of the response curves
 #' @param points A boolean to specify whether to include the points from the data on the curve
 #' @param histogram A boolean to specify whether to include the histograms from the data
-#' @param non_zero_obs A boolean to specify whether to include observations with value zero in the points and histograms
 #' @param plotly A boolean to specify whether to include use ggplot over plotly
 #' @param add_intercept A boolean to specify whether to include the intercept whne calculating the curves
 #' @importFrom ggplot2 ggplot geom_line scale_color_manual theme ggtitle ylab geom_vline geom_hline element_rect aes
@@ -1548,7 +1547,6 @@ response_curves = function(model,
                            table = FALSE,
                            histogram = FALSE,
                            points = FALSE,
-                           non_zero_obs = FALSE,
                            add_intercept = FALSE) {
   # test    #####
   
@@ -1562,10 +1560,10 @@ response_curves = function(model,
   # model_table = build_model_table(ivs)
   # model_table = model_table %>%
   #   mutate(hill = if_else(variable=='qsec','20,5',hill))
-  
+
   # # pooled model
   # model = pooled_model # from tests
-  #
+  # 
   # x_min = NULL
   # x_max = NULL
   # y_min = NULL
@@ -1587,6 +1585,7 @@ response_curves = function(model,
   # font_color =  '#1c0022'
   # zero_line_color = '#1c0022'
   # grid_line_color = '#1c0022'
+  # verbose = TRUE
   
   # checks  ####
   
@@ -1787,7 +1786,7 @@ response_curves = function(model,
         title = "Response Curves"
       )
     
-    if (points | histogram | non_zero_obs) {
+    if (points | histogram ) {
       # if model is pooled but no pool is provided, no points/hist possible
       if (model$pool_switch & is.null(pool)) {
         message('- Warning: points or histogram cannot be aggregated for pooled response curve. Select a pool to view points.')
