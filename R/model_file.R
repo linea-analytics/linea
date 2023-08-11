@@ -121,7 +121,7 @@ import_model = function(path, verbose = FALSE){
   colors = model_list$colors
   dark_mode = model_list$dark_mode$variable
 
-  if(pool_switch){
+  if(!pool_switch){
     pool_var = NULL
     normalise_by_pool = FALSE
   }
