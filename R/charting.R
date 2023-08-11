@@ -1754,11 +1754,18 @@ response_curves = function(model,
       mutate(value = value + model$coefficients[1])
   }
   
-  
   if (table) {
     if (verbose)
       message("Returning response curves table.")
     return(curves_df)
+  }
+  
+  if(grepl(pattern = 'weekly',x = model$id_format)){
+    curves_title = "Weekly Curves"
+  }else if(grepl(pattern = 'daily',x = model$id_format)){
+    curves_title = "Daily Curves"
+  }else{
+    curves_title = "Response Curves"
   }
   
   # plotly  ####
@@ -1783,7 +1790,7 @@ response_curves = function(model,
                      zerolinecolor = zero_line_color),
         yaxis = list(gridcolor = grid_line_color,
                      title = model$dv),
-        title = "Response Curves"
+        title = curves_title
       )
     
     if (points | histogram ) {
@@ -1839,8 +1846,8 @@ response_curves = function(model,
               yaxis2 = list(
                 overlaying = "y",
                 side = "right",
-                title = "frequency"
-                
+                title = "frequency",
+                showgrid = FALSE
               )
             )
         }
@@ -1892,12 +1899,8 @@ response_curves = function(model,
               colors = colors
             )
         }
-        
       }
-      
-      
     }
-    
   }
   # ggplot  ####
   if (!plotly) {
