@@ -44,7 +44,7 @@ hill_function = function(v,k = 1,m = 5,abs = TRUE){
   if (!abs) {
     k = k*max(v)
   }
-  return(1-((k^m))/((k^m)+(v^m)))
+  return(1/(1+(v/k)^-m))
 }
 
 
