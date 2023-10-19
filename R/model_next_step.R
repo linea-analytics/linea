@@ -145,8 +145,12 @@ what_next = function(model = NULL,
 
       adj_R2 = ms$adj.r.squared
       t_value = ms$coefficients[var, "t value"]
-      vif = car::vif(model)[var] %>% TRY()
-      if(is.null(vif)){vif=NA}
+      vif = car::vif(model) %>% TRY()
+      if(is.null(vif)){ 
+        vif = NA 
+      }else{
+        vif = vif[length(vif)]  
+      }
 
       return(c(var, adj_R2, t_value, coef, vif))
 
@@ -193,6 +197,36 @@ what_next = function(model = NULL,
 
   return(df)
 
+}
+
+
+#' run_next_model
+#'
+#' generate the model object from the output of \code{linea::what_next()}
+#'
+#' Generate the mode object from the output of \code{linea::what_next()}
+#' Using the specs from the output of \code{linea::what_next()} a new model is run.
+#'
+#' @param model Model object
+#' @param test output of \code{linea::what_next()} function
+#' @param results_row numeric value of the model (i.e. row from what_combo()$results) to ru
+#' @import tidyverse
+#' @export
+#' @return model object
+run_next_model = function(model,test,results_row = 1){
+  
+  test_var = test$variable[results_row]
+  
+  test_model_table = model$model_table
+  test_model_table[nrow(test_model_table)+1,] = ''
+  test_model_table$variable[nrow(test_model_table)] = test_var
+  test_model_table = test_model_table %>% 
+    get_variable_t(trans_df = model$trans_df)
+  
+  model = model %>% 
+    re_run_model(model_table = test_model_table)
+  
+  return(model)
 }
 
 
@@ -595,8 +629,6 @@ what_trans = function(model = NULL,
   return(df %>% arrange(-adj_R2))
 
 }
-
-
 
 #' combo_number
 #'
@@ -1350,7 +1382,7 @@ run_combo_model = function(combos,
   # model_null = FALSE
   
   # check   ####
-  
+  # process ----
   model = combos$model
   res = combos$results
   input = res[results_row, ]
@@ -1359,10 +1391,6 @@ run_combo_model = function(combos,
   params_df = combos$long_trans_df
 
   model_table = model$model_table
-
-  # if(model_null){
-  #   model_table = model_table[0,]
-  # }
 
   # for each var
   for (var in vars) {
