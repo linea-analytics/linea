@@ -666,7 +666,6 @@ test_that("what trans - pooled - test output reporducible in model", {
   
 })
 
-
 test_that("what combo - output dataframe", {
   data = linea::sales_ts
   dv = 'sales'
