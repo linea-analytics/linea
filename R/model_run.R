@@ -287,7 +287,7 @@ apply_transformation = function(raw_data = NULL,
 #' @param trans_df \code{data.frame} defining the non-linear transformations to apply
 #' @param verbose A boolean to specify whether to print warnings
 #' @return Transformed numeric vector
-#' @example 
+#' @examples 
 #' v = linea::sales_ts$vod_spend
 #' trans_df = linea::default_trans_df()
 #' trans_df$params = c('2e4,5','.5','0','0')
@@ -730,10 +730,8 @@ run_model = function(data = NULL,
   model$pool_switch = pool_switch
   model$colors = colors
   model$dark_mode = dark_mode
+  model$categories = categories
   
-  if(!is.null(categories)){
-    model$categories = categories
-  }
   
   output_model_table = model_table %>%
     filter(variable != "") %>%
@@ -847,6 +845,7 @@ re_run_model = function(model,
                         id_format = NULL,
                         pool_var = NULL,
                         model_table = NULL,
+                        categories = NULL,
                         normalise_by_pool = NULL,
                         verbose = FALSE,
                         decompose = TRUE){
@@ -911,7 +910,10 @@ re_run_model = function(model,
   }else if(!is.null(ivs)){
     model_table = NULL
   }
-
+  
+  if(is.null(categories)){
+    categories = model$categories
+  }
   if(is.null(trans_df)){
     trans_df = model$trans_df
   }
@@ -921,8 +923,8 @@ re_run_model = function(model,
   if(is.null(id_var)){
     id_var = model$id_var
   }
-  if(is.null(id_var_type)){
-    id_var_type = model$id_var_type
+  if(is.null(id_format)){
+    id_format = model$id_format
   }
   if(is.null(normalise_by_pool)){
     normalise_by_pool = model$normalise_by_pool
@@ -935,6 +937,7 @@ re_run_model = function(model,
             ivs = ivs,
             trans_df = trans_df,
             id_var = id_var,
+            categories = categories,
             id_format = id_format,
             model_table = model_table,
             pool_var = pool_var,
