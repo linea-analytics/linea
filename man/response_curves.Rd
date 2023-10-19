@@ -23,7 +23,6 @@ response_curves(
   table = FALSE,
   histogram = FALSE,
   points = FALSE,
-  non_zero_obs = FALSE,
   add_intercept = FALSE
 )
 }
@@ -61,8 +60,6 @@ response_curves(
 \item{histogram}{A boolean to specify whether to include the histograms from the data}
 
 \item{points}{A boolean to specify whether to include the points from the data on the curve}
-
-\item{non_zero_obs}{A boolean to specify whether to include observations with value zero in the points and histograms}
 
 \item{add_intercept}{A boolean to specify whether to include the intercept whne calculating the curves}
 }

@@ -22,3 +22,10 @@ Transform vector based on transformation parameters
 \details{
 Transform vector based on the transformation parameters of the trans_df
 }
+\examples{
+v = linea::sales_ts$vod_spend
+trans_df = linea::default_trans_df()
+trans_df$params = c('2e4,5','.5','0','0')
+linea::vapply_transformation(v,trans_df)
+
+}
