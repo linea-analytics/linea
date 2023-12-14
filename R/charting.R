@@ -45,6 +45,8 @@ color_palette = function() {
 #' @param de_normalise A boolean to specify whether to apply the normalisation
 #' @param categories \code{data.frame} mapping variables to groups
 #' @param tail_window for time series, length of tail
+#' @param start start date of decomping period (inclusive)
+#' @param end end date of decomping period (inclusive)
 #' @param verbose A boolean to specify whether to print warnings
 #' @import tidyverse
 #' @importFrom stats complete.cases
@@ -56,9 +58,11 @@ color_palette = function() {
 #' @examples
 #' run_model(data = mtcars,dv = 'mpg',ivs = c('wt','cyl','disp'),decompose=FALSE) %>% decomping()
 decomping = function(model = NULL,
-                     de_normalise = TRUE,
+                     de_normalise = FALSE,
                      categories = NULL,
                      tail_window = NULL,
+                     start = NULL,
+                     end = NULL,
                      verbose = FALSE) {
   # test    ####
   
@@ -86,10 +90,13 @@ decomping = function(model = NULL,
   # rm(id_var)
   # rm(dv)
   #
+  
   # de_normalise = FALSE
-  # de_normalise = TRUE
+  # # de_normalise = TRUE
   # categories = NULL
   # verbose = TRUE
+  # start = "2020-08-11"
+  # end = NULL
   # tail_window = 10
   
   # checks  ####
@@ -100,8 +107,7 @@ decomping = function(model = NULL,
     verbose = TRUE
   }
   
-  if (verbose)
-    message("Generating model decomposition...")
+  if (verbose)message("Generating model decomposition...")
   
   
   # check if model is provided
@@ -181,7 +187,6 @@ decomping = function(model = NULL,
     coef = c(coef, fixed_coefs)
   }
   
-  
   # get pool var
   pool_var = model$pool_var
   pool_var_values = raw_data %>% pull(!!sym(pool_var))
@@ -190,16 +195,74 @@ decomping = function(model = NULL,
   id_var = model$id_var
   id_var_values = raw_data %>% pull(!!sym(id_var))
   
+  # start/end
+  if(!is.null(start)){
+    if(!start %in% id_var_values){
+      message("- Warning: `start` not found in model's id variable. Replacing with the first value of the id")
+      start = id_var_values[1]
+    }
+  }else{
+    start = id_var_values[1]
+  }
+  
+  if(!is.null(end)){
+    if(!start %in% id_var_values){
+      message("- Warning: `end` not found in model's id variable. Replacing with the last value of the id")
+      end = id_var_values[length(id_var_values)]
+    }
+  }else{
+    end = id_var_values[length(id_var_values)]
+  }
+  
+  if(start == id_var_values[length(id_var_values)]){
+    message("- Warning: the `start` input should be less than the last value of the model's id. 
+            Setting `start` to the first value of the id.")
+    start = id_var_values[1]
+  }
+  
+  if(end <= start){
+    message("- Warning: the `end` input should be greater than `start` input.
+            Setting `start` and `end` to the first and last value of the id.")
+    start = id_var_values[1]
+    end = id_var_values[length(id_var_values)]
+  }
+  
+  # filter data with start and end
+  start_end_index = (id_var_values >= start) & (id_var_values <= end)
+  id_var_values = id_var_values[start_end_index]
+  pool_var_values = pool_var_values[start_end_index]
+  raw_actual = raw_actual[start_end_index]
+  actual = actual[start_end_index]
+  resid = model$residuals[start_end_index]
+  pred = model$fitted.values[start_end_index]
+  data = data[start_end_index,]
+  raw_data = raw_data[start_end_index,]
+  
   # process ####
   
   # generate the fitted values dataframe
+  
+  print('actual:')
+  print(length(actual))
+  
+  print('pred:')
+  print(length(pred))
+  
+  print('resid:')
+  print(length(resid))
+  
+  print('id_var_values:')
+  print(length(id_var_values))
+  
+  print('pool_var_values:')
+  print(length(pool_var_values))
+  
   fitted_values = tibble(
     actual = c(actual),
-    residual = model$residuals,
-    predicted = model$fitted.values,
+    residual = resid,
+    predicted = pred,
     id = id_var_values,
-    #%>% factor(),
-    pool = pool_var_values # %>% factor()
+    pool = pool_var_values
   )
   fitted_values = pivot_longer(
     data = fitted_values,
@@ -252,11 +315,9 @@ decomping = function(model = NULL,
     
     df_ext[raw_ivs] = 0
     
-    raw_data[id_var] = id_var_values
-    
     # append df
     independendent_variables = apply_transformation(
-      raw_data = raw_data %>%
+      raw_data = raw_data %>% 
         bind_rows(df_ext) %>%
         select(id_var, pool_var, raw_ivs),
       model_table = model$model_table,
@@ -292,6 +353,16 @@ decomping = function(model = NULL,
     # rename variable decomp using coef names
     colnames(variable_decomp) = names(coef)
     
+    
+    print('pool_ext:')
+    print(length(pool_ext))
+    
+    print('id_ext:')
+    print(length(id_ext))
+    
+    print('variable_decomp:')
+    print(nrow(variable_decomp))
+    
     variable_decomp = tibble(
       "(Intercept)" = intercept,
       variable_decomp,
@@ -326,12 +397,32 @@ decomping = function(model = NULL,
     # rename variable decomp using coef names
     colnames(variable_decomp) = names(coef)
     
+    print('pool_var_values:')
+    print(length(pool_var_values))
+    
+    print('id_var_values_2:')
+    print(length(id_var_values))
+    
+    print('variable_decomp:')
+    print(nrow(variable_decomp))
+    
+    print('pool_var_values:')
+    print(length(pool_var_values))
+    
+    print('id_var_values_3:')
+    print(length(id_var_values))
+    
+    print('variable_decomp:')
+    print(nrow(variable_decomp))
+    
     variable_decomp = tibble(
       "(Intercept)" = intercept,
       variable_decomp,
       id = id_var_values,
       pool = pool_var_values
     )
+    
+    
   }
   
   
@@ -537,6 +628,7 @@ decomping = function(model = NULL,
   
   return(l)
 }
+
 
 #' decomp_chart
 #'

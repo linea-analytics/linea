@@ -6,9 +6,11 @@
 \usage{
 decomping(
   model = NULL,
-  de_normalise = TRUE,
+  de_normalise = FALSE,
   categories = NULL,
   tail_window = NULL,
+  start = NULL,
+  end = NULL,
   verbose = FALSE
 )
 }
@@ -20,6 +22,10 @@ decomping(
 \item{categories}{\code{data.frame} mapping variables to groups}
 
 \item{tail_window}{for time series, length of tail}
+
+\item{start}{start date of decomping period (inclusive)}
+
+\item{end}{end date of decomping period (inclusive)}
 
 \item{verbose}{A boolean to specify whether to print warnings}
 }
