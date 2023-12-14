@@ -4,7 +4,13 @@
 \alias{what_next}
 \title{what_next}
 \usage{
-what_next(model = NULL, data = NULL, verbose = FALSE, r2_diff = TRUE)
+what_next(
+  model = NULL,
+  data = NULL,
+  verbose = FALSE,
+  datatable_output = FALSE,
+  r2_diff = TRUE
+)
 }
 \arguments{
 \item{model}{Model object}
@@ -12,6 +18,8 @@ what_next(model = NULL, data = NULL, verbose = FALSE, r2_diff = TRUE)
 \item{data}{\code{data.frame} containing data for analysis}
 
 \item{verbose}{A boolean to specify whether to print warnings}
+
+\item{datatable_output}{A boolean to specify whether the output should be a pretty DT::datatable}
 
 \item{r2_diff}{A boolean to determine whether to add a column to compare new and original model R2}
 }

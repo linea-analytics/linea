@@ -14,6 +14,7 @@ re_run_model(
   id_format = NULL,
   pool_var = NULL,
   model_table = NULL,
+  categories = NULL,
   normalise_by_pool = NULL,
   verbose = FALSE,
   decompose = TRUE

@@ -9,6 +9,7 @@
 #' @param data \code{data.frame} containing data for analysis
 #' @param verbose A boolean to specify whether to print warnings
 #' @param r2_diff A boolean to determine whether to add a column to compare new and original model R2
+#' @param datatable_output A boolean to specify whether the output should be a pretty DT::datatable
 #' @importFrom purrr reduce
 #' @importFrom methods is
 #' @importFrom car vif
@@ -25,6 +26,7 @@
 what_next = function(model = NULL,
                      data = NULL,
                      verbose = FALSE,
+                     datatable_output = FALSE,
                      r2_diff = TRUE) {
 
   # test    ####
@@ -194,6 +196,58 @@ what_next = function(model = NULL,
   # timer print
   if (verbose)
     print(Sys.time() - start_time)
+  
+  if(datatable_output){
+    
+    df = df %>%
+      data.frame() %>%
+      mutate(adj_R2 = round(adj_R2, 2)) %>%
+      mutate(coef = round(coef, 2)) %>%
+      mutate(t_stat = round(t_stat, 2)) %>%
+      mutate(vif = round(vif, 2)) %>%
+      arrange(-adj_R2_diff)
+    
+    brks1 = quantile(df[, 2], probs = seq(.05, .95, .05), na.rm = TRUE)
+    brks2 = quantile(df[, 3], probs = seq(.05, .95, .05), na.rm = TRUE)
+    brks3 = quantile(df[, 4], probs = seq(.05, .95, .05), na.rm = TRUE)
+    brks4 = quantile(seq(0, 3, length = 10),
+                     probs = seq(.05, .95, .05),
+                     na.rm = TRUE)
+    brks5 = quantile(seq(-.05, .05, length = 10),
+                     probs = seq(.05, .95, .05),
+                     na.rm = TRUE)
+    clrs1 = round(seq(255, 40, length.out = length(brks1) + 1), 0) %>%
+      {
+        paste0("rgba(", ., ",", 255 - ., ",100,0.75)")
+      }
+    clrs2 = round(seq(255, 40, length.out = length(brks2) + 1), 0) %>%
+      {
+        paste0("rgba(", . , ",", 255 - ., ",100,0.75)")
+      }
+    clrs3 = round(seq(255, 40, length.out = length(brks3) + 1), 0) %>%
+      {
+        paste0("rgba(", ., ",", 255 - ., ",100,0.75)")
+      }
+    clrs4 = round(seq(255, 40, length.out = length(brks4) + 1), 0) %>%
+      {
+        paste0("rgba(", 280 -  ., ",", .  , ",", 100 , ",0.75)")
+      }
+    clrs5 = round(seq(255, 40, length.out = length(brks5) + 1), 0) %>%
+      {
+        paste0("rgba(", ., ",", 255 - ., ",100,0.75)")
+      }
+    
+    
+    dt = DT::datatable(df, rownames = FALSE) %>%
+      DT::formatStyle(2, backgroundColor = DT::styleInterval(brks1, clrs1)) %>%
+      DT::formatStyle(3, backgroundColor = DT::styleInterval(brks2, clrs2)) %>%
+      DT::formatStyle(4, backgroundColor = DT::styleInterval(brks3, clrs3)) %>%
+      DT::formatStyle(5, backgroundColor = DT::styleInterval(brks4, clrs4)) %>%
+      DT::formatStyle(6, backgroundColor = DT::styleInterval(brks5, clrs5)) %>%
+      DT::formatPercentage(6, 1) 
+    
+    return(dt)
+  }
 
   return(df)
 
